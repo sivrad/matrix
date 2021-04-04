@@ -13,21 +13,53 @@ export class Collection {
      * @param {string}                  identifier  Identifier of the collection.
      * @param {string}                  label       Label of the collection.
      * @param {string}                  description Description of the collection.
-     * @param {string}                  image       Image of the collection.
-     * @param {typeof MatrixBaseType[]} types       Image of the collection.
+     * @param {string}                  icon        Icon of the collection.
+     * @param {typeof MatrixBaseType[]} types       Types in the collection.
      */
     constructor(
-        public identifier: string,
-        public label: string,
-        public description: string,
-        public image: string,
-        public types: typeof MatrixBaseType[],
+        private identifier: string,
+        private label: string,
+        private description: string,
+        private icon: string,
+        private types: typeof MatrixBaseType[],
     ) {
         for (const type of this.types) {
             // @ts-expect-error This sets the type's collection as well as keeps that property private.
             type.collection = this;
             this.typeMap.set(type.getName(), type);
         }
+    }
+
+    /**
+     * Get the collection's identifier.
+     * @returns {string} The collection identifier.
+     */
+    getIdentifier(): string {
+        return this.identifier;
+    }
+
+    /**
+     * Get the collection's label.
+     * @returns {string} The collection label.
+     */
+    getLabel(): string {
+        return this.label;
+    }
+
+    /**
+     * Get the collection's description.
+     * @returns {string} The collection description.
+     */
+    getDescription(): string {
+        return this.description;
+    }
+
+    /**
+     * Get the collection's icon.
+     * @returns {string} The collection icon.
+     */
+    getIcon(): string {
+        return this.icon;
     }
 
     /**

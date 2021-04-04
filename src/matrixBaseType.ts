@@ -222,12 +222,16 @@ export class MatrixBaseType {
         // Split union.
         const unionTypes = type.split('|');
         // Test against each union type.
-        for (const unionType of unionTypes) {
+        for (let unionType of unionTypes) {
             // Check for internal types.
             if (internalTypes.includes(unionType) && typeof value == unionType)
                 return;
 
             // Get the type.
+            if (!unionType.includes('.'))
+                unionType = `${this.getTypeClass()
+                    .getCollection()
+                    .getIdentifier()}.${unionType}`;
             const type = this.getMatrix().getType(unionType);
             if (value instanceof type) return;
         }

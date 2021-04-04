@@ -15,7 +15,7 @@ export class Matrix {
         // Set the matrix instance for each collection.
         for (const collection of collections) {
             collection.setMatrix(this);
-            this.collectionsMap.set(collection.identifier, collection);
+            this.collectionsMap.set(collection.getIdentifier(), collection);
         }
     }
 
