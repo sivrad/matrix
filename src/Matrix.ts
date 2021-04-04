@@ -6,7 +6,7 @@ import { Collection } from './collection';
 export class Matrix {
     /**
      * Contructor for a Matrix instance.
-     * @param {Collection[]} collections
+     * @param {Collection[]} collections List of the collections.
      */
     constructor(public collections: Collection[]) {
         // Set the matrix instance for each collection.
