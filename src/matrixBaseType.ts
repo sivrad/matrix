@@ -6,14 +6,7 @@ import {
     NoAssignedCollection,
 } from './errors';
 import { Matrix } from './Matrix';
-
-export interface Field {
-    type: string;
-    label: string;
-    description: string;
-    defaultValue: unknown;
-    required: boolean;
-}
+import { Field } from './type';
 
 // const instanceOnly = () => (
 //     target: MatrixBaseType,
