@@ -1,4 +1,5 @@
 import { Collection } from './collection';
+import { CollectionNotFound } from './errors';
 import { MatrixBaseType } from './matrixBaseType';
 
 /**
@@ -26,10 +27,7 @@ export class Matrix {
      */
     getCollection(collectionIdentifier: string): Collection {
         const collection = this.collectionsMap.get(collectionIdentifier);
-        if (!collection)
-            throw new Error(
-                'collection: ' + collectionIdentifier + ' doesnt exist',
-            );
+        if (!collection) throw new CollectionNotFound(collectionIdentifier);
         return collection;
     }
 

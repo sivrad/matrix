@@ -1,5 +1,6 @@
 import { MatrixBaseType } from './matrixBaseType';
 import { Matrix } from './Matrix';
+import { TypeNotFound } from './errors';
 
 /**
  * Class to represent a Matrix collection.
@@ -85,7 +86,7 @@ export class Collection {
      */
     getType(typeName: string): typeof MatrixBaseType {
         const type = this.typeMap.get(typeName);
-        if (!type) throw new Error('type not found!!! MAKE INTO OWN ERROR');
+        if (!type) throw new TypeNotFound(this, typeName);
         return type;
     }
 }

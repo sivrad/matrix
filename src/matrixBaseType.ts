@@ -1,7 +1,7 @@
 import { Collection } from './collection';
 import {
     InvalidField,
-    InvalidFieldType,
+    // InvalidFieldType,
     MissingField,
     NoAssignedCollection,
 } from './errors';
@@ -161,7 +161,7 @@ export class MatrixBaseType {
                 throw new MissingField(this.getTypeClass(), fieldName);
 
             // If it was provided, verify the type.
-            if (isFieldProvided) this.verifyType(field.type, fieldProvided);
+            // if (isFieldProvided) this.verifyType(field.type, fieldProvided);
 
             // Add the value to the fields.
             populatedFields[fieldName] = isFieldProvided
@@ -213,30 +213,38 @@ export class MatrixBaseType {
      * @private
      * @param {string}  type  The type.
      * @param {unknown} value Value to test.
+     * @returns {boolean} Should only return `true`, if not valid, throw error.
      */
-    private verifyType(type: string, value: unknown): void {
-        // The internal types
-        const internalTypes = ['string', 'boolean', 'number', 'null'];
-        // Remove whitespace.
-        type = type.replace(/ /g, '');
-        // Split union.
-        const unionTypes = type.split('|');
-        // Test against each union type.
-        for (let unionType of unionTypes) {
-            // Check for internal types.
-            if (internalTypes.includes(unionType) && typeof value == unionType)
-                return;
+    // verifyType(type: string, value: unknown): boolean {
+    //     // The internal types
+    //     const internalTypes = ['string', 'boolean', 'number', 'null'];
+    //     // Remove whitespace.
+    //     type = type.replace(/ /g, '');
+    //     // Split union.
+    //     if (type.includes('|'))
+    //         if (
+    //             type
+    //                 .split('|')
+    //                 .some((unionType) => this.verifyType(unionType, value))
+    //         )
+    //             return true;
+    //     // Test against each union type.
+    //     // Check for internal types.
+    //     if (internalTypes.includes(type) && typeof value == type) return true;
 
-            // Get the type.
-            if (!unionType.includes('.'))
-                unionType = `${this.getTypeClass()
-                    .getCollection()
-                    .getIdentifier()}.${unionType}`;
-            const type = this.getMatrix().getType(unionType);
-            if (value instanceof type) return;
-        }
-        throw new InvalidFieldType(type, value);
-    }
+    //     // Get the type.
+    //     if (!type.includes('.'))
+    //         type = `${this.getTypeClass()
+    //             .getCollection()
+    //             .getIdentifier()}.${type}`;
+    //     try {
+    //         const typeClass = this.getMatrix().getType(type);
+    //         if (value instanceof typeClass) return;
+    //     } catch (e) {
+    //         console.log(e);
+    //     }
+    //     throw new InvalidFieldType(type, value);
+    // }
 
     /**
      * Verify a field name and field type.
@@ -244,11 +252,11 @@ export class MatrixBaseType {
      * @memberof MatrixBaseType
      * @private
      * @param {string}  fieldName The field name.
-     * @param {unknown} value     Value to test.
+     * @param {unknown} _     Value to test.
      */
-    private verifyFieldAndType(fieldName: string, value: unknown): void {
-        const index = this.verifyFieldName(fieldName);
-        this.verifyType(Object.values(this.fields)[index].type, value);
+    private verifyFieldAndType(fieldName: string, _: unknown): void {
+        this.verifyFieldName(fieldName);
+        // this.verifyType(Object.values(this.fields)[index].type, value);
     }
 
     /**

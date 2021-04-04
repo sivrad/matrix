@@ -1,3 +1,4 @@
+import { Collection } from './collection';
 import { MatrixBaseType } from './matrixBaseType';
 
 /**
@@ -11,6 +12,55 @@ export class MatrixError extends Error {
      */
     constructor(public name: string, public message: string) {
         super(`${name}: ${message}`);
+    }
+}
+
+/**
+ * A collection not found error.
+ */
+export class CollectionNotFound extends MatrixError {
+    /**
+     * Constructor for a collection not found error.
+     * @param {string} collectionIdentifier The collection identifier that was not found.
+     */
+    constructor(public collectionIdentifier: string) {
+        super(
+            'CollectionNotFound',
+            `The collection '${collectionIdentifier}' was not found.`,
+        );
+    }
+}
+
+/**
+ * Class to represent a Matrix collection error.
+ */
+export class MatrixCollectionError extends MatrixError {
+    /**
+     * Constructor for a Matrix collection error.
+     * @param {string} name       Name of the error.
+     * @param {string} message    Message of the error.
+     * @param {string} collection The collection instance with the error.
+     */
+    constructor(name: string, message: string, public collection: Collection) {
+        super(name, message);
+    }
+}
+
+/**
+ * A Type not found in a collection error.
+ */
+export class TypeNotFound extends MatrixCollectionError {
+    /**
+     * Constructor for a type not found error.
+     * @param {Collection} collection The collection instance.
+     * @param {string}     typeName   The name of the type.
+     */
+    constructor(collection: Collection, public typeName: string) {
+        super(
+            'TypeNotFound',
+            `The type '${typeName}' was not found in collection '${collection.getIdentifier()}'`,
+            collection,
+        );
     }
 }
 
@@ -89,6 +139,29 @@ export class InvalidField extends MatrixTypeError {
  * In invalid field type error.
  */
 export class InvalidFieldType extends MatrixError {
+    // This will show a message if a type is mistyped.
+    private static internalTypesTypos = {
+        string: ['str'],
+        boolean: ['bool'],
+        number: ['numb', 'int', 'float'],
+        null: ['none'],
+    };
+
+    /**
+     * Display a message if a type is a typo.
+     * @param   {string} type The given type.
+     * @returns {string} The additional information message.
+     */
+    private static getAdditionalInformation(type: string): string {
+        for (const [valid, invalids] of Object.entries(
+            InvalidFieldType.internalTypesTypos,
+        )) {
+            if (invalids.includes(type))
+                return `\nUse '${valid}', rather than '${type}'`;
+        }
+        return '';
+    }
+
     /**
      * Constructor for an invalid field type.
      * @param {string}                fieldType The field type that was not matched.
@@ -97,7 +170,9 @@ export class InvalidFieldType extends MatrixError {
     constructor(public fieldType: string, public value: unknown) {
         super(
             'InvalidFieldType',
-            `'${value}' does not match the type '${fieldType}`,
+            `'${value}' does not match the type '${fieldType}'.${InvalidFieldType.getAdditionalInformation(
+                fieldType,
+            )}`,
         );
     }
 }
