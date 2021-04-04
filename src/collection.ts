@@ -6,6 +6,7 @@ import { Matrix } from './Matrix';
  */
 export class Collection {
     private matrix: Matrix;
+    private typeMap = new Map<string, typeof MatrixBaseType>();
 
     /**
      * Constructor for a collection.
@@ -25,6 +26,7 @@ export class Collection {
         for (const type of this.types) {
             // @ts-expect-error This sets the type's collection as well as keeps that property private.
             type.collection = this;
+            this.typeMap.set(type.getName(), type);
         }
     }
 
@@ -42,5 +44,16 @@ export class Collection {
      */
     setMatrix(matrix: Matrix): void {
         this.matrix = matrix;
+    }
+
+    /**
+     * Get a type.
+     * @param {string} typeName Name of the type.
+     * @returns {typeof MatrixBaseType} The type.
+     */
+    getType(typeName: string): typeof MatrixBaseType {
+        const type = this.typeMap.get(typeName);
+        if (!type) throw new Error('type not found!!! MAKE INTO OWN ERROR');
+        return type;
     }
 }

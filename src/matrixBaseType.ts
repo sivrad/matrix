@@ -227,8 +227,9 @@ export class MatrixBaseType {
             if (internalTypes.includes(unionType) && typeof value == unionType)
                 return;
 
-            // Incorperate a matrix prop that that
-            // const type = this.getMatrix().getType();
+            // Get the type.
+            const type = this.getMatrix().getType(unionType);
+            if (value instanceof type) return;
         }
         throw new InvalidFieldType(type, value);
     }
