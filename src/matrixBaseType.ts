@@ -342,7 +342,7 @@ export class MatrixBaseType {
      * @returns {Promise<void>}
      */
     // @instanceOnly()
-    async syncData(): Promise<MatrixBaseType> {
+    async syncData(): Promise<this> {
         if (!this.isInstance()) throw new Uninstantiated(this.getTypeClass());
         const source = this.getSource();
         const remoteData = await source.getInstance(
@@ -357,9 +357,12 @@ export class MatrixBaseType {
 
     /**
      * Turn the type into an instance.
+     * @function createInstance
+     * @memberof MatrixBaseType
+     * @async
      * @returns {Promise<MatrixBaseType>} The instance with the Id.
      */
-    async createInstance(): Promise<MatrixBaseType> {
+    async createInstance(): Promise<this> {
         if (this.isInstance()) throw new AlreadyInstantiated(this);
         const id = await this.getSource().createInstance(
             this.getTypeClass().getName(),
