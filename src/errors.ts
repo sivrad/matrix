@@ -159,6 +159,24 @@ export class MatrixTypeError extends MatrixError {
         super(name, message);
     }
 }
+
+/**
+ * A type that was not created used as an instance.
+ */
+export class Uninstantiated extends MatrixTypeError {
+    /**
+     * Constructor for an uninstantiated error.
+     * @param {typeof MatrixBaseType} type The type.
+     */
+    constructor(type: typeof MatrixBaseType) {
+        super(
+            'Uninstantiated',
+            `An uninstantiated type '${type.getName()}' was used as an instance`,
+            type,
+        );
+    }
+}
+
 /**
  * A type without an assigned collection.
  */

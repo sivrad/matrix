@@ -4,8 +4,10 @@ import {
     // InvalidFieldType,
     MissingField,
     NoAssignedCollection,
+    Uninstantiated,
 } from './errors';
 import { Matrix } from './matrixInstance';
+import { Source } from './source';
 import { Field } from './type';
 
 // const instanceOnly = () => (
@@ -207,6 +209,14 @@ export class MatrixBaseType {
     }
 
     /**
+     * Get the type's source.
+     * @returns {Source} The type's source.
+     */
+    private getSource(): Source {
+        return this.getMatrix().getSource('primary');
+    }
+
+    /**
      * Verify a value against a type.
      * @function verifyType
      * @memberof MatrixBaseType
@@ -327,6 +337,15 @@ export class MatrixBaseType {
      */
     // @instanceOnly()
     async syncData(): Promise<void> {
-        console.log('Syncing data...');
+        if (!this.isInstance()) throw new Uninstantiated(this.getTypeClass());
+        const source = this.getSource();
+        const remoteData = await source.getInstance(
+            this.getTypeClass().getName(),
+            this.getId()!,
+        );
+        for (const [key, value] of Object.entries(remoteData)) {
+            this.setField(key, value);
+        }
+        console.log(remoteData);
     }
 }

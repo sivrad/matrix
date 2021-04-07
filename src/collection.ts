@@ -8,6 +8,7 @@ import { TypeNotFound } from './errors';
 export class Collection {
     public _matrix: Matrix;
     public _typeMap = new Map<string, typeof MatrixBaseType>();
+    public _initializedTypes = new Set<string>();
 
     /**
      * Constructor for a collection.
