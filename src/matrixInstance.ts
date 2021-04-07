@@ -1,7 +1,7 @@
 import { Collection } from './collection';
 import { CollectionNotFound, SourceNotFound } from './errors';
 import { MatrixBaseType } from './matrixBaseType';
-import { ReadonlySource } from './source';
+import { Source } from './source';
 import { SourcesObject } from './type';
 
 /**
@@ -42,7 +42,7 @@ export class Matrix {
      * @param {string} identifier Source identifier.
      * @returns {Source} The source instance.
      */
-    getSource(identifier: string): ReadonlySource {
+    getSource(identifier: string): Source {
         const source = this._sources[identifier];
         if (!source) throw new SourceNotFound(identifier);
         return source;
@@ -53,9 +53,9 @@ export class Matrix {
      * @param {string} typeName The name of the type.
      * @returns {typeof MatrixBaseType} The type class.
      */
-    getType(typeName: string): typeof MatrixBaseType {
+    getType<T extends typeof MatrixBaseType>(typeName: string): T {
         const [collectionIdentifier, type] = typeName.split('.');
         const collection = this.getCollection(collectionIdentifier);
-        return collection.getType(type);
+        return collection.getType(type) as T;
     }
 }

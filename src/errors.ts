@@ -29,6 +29,22 @@ export class SourceError extends MatrixError {
 }
 
 /**
+ * Class to represent an unsupported source method.
+ */
+export class UnsupportedSourceMethod extends SourceError {
+    /**
+     * Constructor for an unsupported source method.
+     * @param {string} methodName The method name that is not supported.
+     */
+    constructor(methodName: string) {
+        super(
+            'UnsupportedSourceMethod',
+            `The method '${methodName}' is not supported for the Source.`,
+        );
+    }
+}
+
+/**
  * Constructor for an unknown source error.
  */
 export class UnknownSourceError extends SourceError {

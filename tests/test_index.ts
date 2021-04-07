@@ -1,10 +1,10 @@
-import { Matrix, MatrixBaseType, Collection } from '../src';
+import { Matrix, MatrixBaseType, Collection, Source } from '../src';
 
 const col = new Collection('test', 'sdfs', 'sdfsdf', 'sdfsdf', [
     MatrixBaseType,
 ]);
 
-new Matrix([col]);
+new Matrix([col], {});
 
 // const i = new MatrixBaseType({});
 

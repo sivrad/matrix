@@ -1,4 +1,4 @@
-import { Source, ReadonlySource } from './source';
+import { Source } from './source';
 
 export interface Field {
     type: string;
@@ -8,4 +8,4 @@ export interface Field {
     required: boolean;
 }
 
-export type SourcesObject = { primary: Source; [k: string]: ReadonlySource };
+export type SourcesObject = { primary: Source; [k: string]: Source };
