@@ -14,6 +14,51 @@ export class MatrixError extends Error {
         super(`${name}: ${message}`);
     }
 }
+/**
+ * Class to represent a source error.
+ */
+export class SourceError extends MatrixError {
+    /**
+     * Constructor for a Source Error.
+     * @param {string} name    The name of the error.
+     * @param {string} message The message of the error.
+     */
+    constructor(name: string, message: string) {
+        super(name, message);
+    }
+}
+
+/**
+ * Constructor for an unknown source error.
+ */
+export class UnknownSourceError extends SourceError {
+    /**
+     * Constructor for an unknown source error.
+     */
+    constructor() {
+        super(
+            'UnknownError',
+            'An unknown error has occured. Please check logs & report.',
+        );
+    }
+}
+
+/**
+ * Represent an instance not found.
+ */
+export class InstanceNotFound extends SourceError {
+    /**
+     * Constructor for an instance not found error.
+     * @param {string} typeName The type name.
+     * @param {string} id       The Id of the type.
+     */
+    constructor(public typeName: string, public id: string) {
+        super(
+            'InstanceNotFound',
+            `The type '${typeName}' with id '${id}' does not exist`,
+        );
+    }
+}
 
 /**
  * A collection not found error.
@@ -27,6 +72,22 @@ export class CollectionNotFound extends MatrixError {
         super(
             'CollectionNotFound',
             `The collection '${collectionIdentifier}' was not found.`,
+        );
+    }
+}
+
+/**
+ * A source not found error.
+ */
+export class SourceNotFound extends MatrixError {
+    /**
+     * Constructor for a source not found error.
+     * @param {string} sourceIdentifier The source identifier that was not found.
+     */
+    constructor(public sourceIdentifier: string) {
+        super(
+            'SourceNotFound',
+            `The source '${sourceIdentifier}' was not found.`,
         );
     }
 }
