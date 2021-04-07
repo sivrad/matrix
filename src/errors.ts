@@ -34,9 +34,10 @@ export class SourceError extends MatrixError {
 export class UnsupportedSourceMethod extends SourceError {
     /**
      * Constructor for an unsupported source method.
-     * @param {string} methodName The method name that is not supported.
+     * @param {string}    methodName The method name that is not supported.
+     * @param {unknown[]} _          The unused args from the method.
      */
-    constructor(methodName: string) {
+    constructor(methodName: string, ..._: unknown[]) {
         super(
             'UnsupportedSourceMethod',
             `The method '${methodName}' is not supported for the Source.`,
@@ -177,6 +178,22 @@ export class Uninstantiated extends MatrixTypeError {
     }
 }
 
+/**
+ * A type is an instance was tried to made an instance again.
+ */
+export class AlreadyInstantiated extends MatrixTypeError {
+    /**
+     * Constructor for an uninstantiated error.
+     * @param {MatrixBaseType} instance The instancee.
+     */
+    constructor(instance: MatrixBaseType) {
+        super(
+            'AlreadyInstantiated',
+            `The instance '${instance.getId()}' is already an instance.`,
+            instance.getTypeClass(),
+        );
+    }
+}
 /**
  * A type without an assigned collection.
  */

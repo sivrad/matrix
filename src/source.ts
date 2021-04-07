@@ -9,60 +9,62 @@ type SerializedType = Record<string, unknown>;
 export abstract class Source {
     /**
      * Initialize a type.
-     * @param {string} _ The type name.
+     * @param {string} typeName The type name.
      * @returns {Promise<void>}
      */
-    async initializeType(_: string): Promise<void> {
-        throw new UnsupportedSourceMethod('initializeType');
+    async initializeType(typeName: string): Promise<void> {
+        throw new UnsupportedSourceMethod('initializeType', typeName);
     }
 
     /**
      * Get instances of a type.
-     * @param {string} _ The type name.
+     * @param {string} typeName The type name.
      * @returns {Promise<T[]>} Instances of the type.
      */
-    async getInstances<T extends SerializedType>(_: string): Promise<T[]> {
-        throw new UnsupportedSourceMethod('getInstances');
+    async getInstances<T extends SerializedType>(
+        typeName: string,
+    ): Promise<T[]> {
+        throw new UnsupportedSourceMethod('getInstances', typeName);
     }
 
     /**
      * Get a type instance.
-     * @param   {string} _  The type name.
-     * @param   {string} __ The type Id.
+     * @param   {string} typeName  The type name.
+     * @param   {string} id The type Id.
      * @returns {T}         Get the instance data.
      */
     async getInstance<T extends SerializedType>(
-        _: string,
-        __: string,
+        typeName: string,
+        id: string,
     ): Promise<T> {
-        throw new UnsupportedSourceMethod('getInstance');
+        throw new UnsupportedSourceMethod('getInstance', typeName, id);
     }
 
     /**
      * Update an instance's data.
-     * @param   {string}     _   The type name.
-     * @param   {string}     __  The Id of the type.
-     * @param   {T}          ___ The data to update.
+     * @param   {string}     typeName   The type name.
+     * @param   {string}     id  The Id of the type.
+     * @param   {T}          data The data to update.
      * @returns {Promise<T>}     The updated instance data.
      */
     async updateInstance<T extends SerializedType>(
-        _: string,
-        __: string,
-        ___: T,
+        typeName: string,
+        id: string,
+        data: T,
     ): Promise<T> {
-        throw new UnsupportedSourceMethod('updateInstance');
+        throw new UnsupportedSourceMethod('updateInstance', typeName, id, data);
     }
 
     /**
      * Create a new instance.
-     * @param   {string}          _  The type name.
-     * @param   {T}               __ The instance data.
+     * @param   {string}          typeName  The type name.
+     * @param   {T}               data The instance data.
      * @returns {Promise<string>}    The new instance Id.
      */
     async createInstance<T extends SerializedType>(
-        _: string,
-        __: T,
+        typeName: string,
+        data: T,
     ): Promise<string> {
-        throw new UnsupportedSourceMethod('createInstance');
+        throw new UnsupportedSourceMethod('createInstance', typeName, data);
     }
 }

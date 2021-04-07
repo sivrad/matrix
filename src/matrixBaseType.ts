@@ -1,5 +1,6 @@
 import { Collection } from './collection';
 import {
+    AlreadyInstantiated,
     InvalidField,
     // InvalidFieldType,
     MissingField,
@@ -26,7 +27,7 @@ import { Field } from './type';
 //     return descriptor;
 // };
 
-export interface SerializedMatrixBaseType {
+export interface SerializedMatrixBaseType extends Record<string, unknown> {
     $id?: string;
 }
 
@@ -280,7 +281,6 @@ export class MatrixBaseType {
     protected getField<T = unknown>(fieldName: string): T {
         // Verify field name.
         this.verifyFieldName(fieldName);
-        // @ts-expect-error This will work because the name has been verified.
         return this._data[fieldName] as T;
     }
 
@@ -295,7 +295,6 @@ export class MatrixBaseType {
     protected setField(fieldName: string, value: unknown): void {
         // Verify field name & value.
         this.verifyFieldAndType(fieldName, value);
-        // @ts-expect-error This will work because the name & type has been verified.
         this._data[fieldName] = value;
     }
 
@@ -303,10 +302,9 @@ export class MatrixBaseType {
      * Return the type class.
      * @function getTypeClass
      * @memberof MatrixBaseType
-     * @protected
      * @returns {MatrixBaseType} Base thing class.
      */
-    protected getTypeClass(): typeof MatrixBaseType {
+    getTypeClass(): typeof MatrixBaseType {
         return MatrixBaseType;
     }
 
@@ -329,6 +327,14 @@ export class MatrixBaseType {
     }
 
     /**
+     * Return the serialized data.
+     * @returns {SerializedMatrixBaseType} The serialized data.
+     */
+    getSerializedData(): SerializedMatrixBaseType {
+        return this._data;
+    }
+
+    /**
      * Sync local and remote data.
      * @function getData
      * @memberof MatrixBaseType
@@ -336,7 +342,7 @@ export class MatrixBaseType {
      * @returns {Promise<void>}
      */
     // @instanceOnly()
-    async syncData(): Promise<void> {
+    async syncData(): Promise<MatrixBaseType> {
         if (!this.isInstance()) throw new Uninstantiated(this.getTypeClass());
         const source = this.getSource();
         const remoteData = await source.getInstance(
@@ -346,6 +352,20 @@ export class MatrixBaseType {
         for (const [key, value] of Object.entries(remoteData)) {
             this.setField(key, value);
         }
-        console.log(remoteData);
+        return this;
+    }
+
+    /**
+     * Turn the type into an instance.
+     * @returns {Promise<MatrixBaseType>} The instance with the Id.
+     */
+    async createInstance(): Promise<MatrixBaseType> {
+        if (this.isInstance()) throw new AlreadyInstantiated(this);
+        const id = await this.getSource().createInstance(
+            this.getTypeClass().getName(),
+            this.getSerializedData(),
+        );
+        this.setField('$id', id);
+        return this;
     }
 }
