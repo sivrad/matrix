@@ -1,5 +1,5 @@
 import { MatrixBaseType } from './matrixBaseType';
-import { Matrix } from './Matrix';
+import { Matrix } from './matrixInstance';
 import { TypeNotFound } from './errors';
 
 /**

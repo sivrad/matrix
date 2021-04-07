@@ -5,7 +5,7 @@ import {
     MissingField,
     NoAssignedCollection,
 } from './errors';
-import { Matrix } from './Matrix';
+import { Matrix } from './matrixInstance';
 import { Field } from './type';
 
 // const instanceOnly = () => (
