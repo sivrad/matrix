@@ -32,7 +32,7 @@ export interface SerializedMatrixBaseType {
  * Base class for the Matrix.
  */
 export class MatrixBaseType {
-    private static collection: Collection | null = null;
+    public static _collection: Collection | null = null;
     protected static classFields: Record<string, Field> = {
         $id: {
             type: 'string | null',
@@ -42,23 +42,23 @@ export class MatrixBaseType {
             required: false,
         },
     };
-    protected static classInformation = {
+    public static _classInformation = {
         name: 'BaseType',
         label: 'Base Type',
         description: 'The base matrix type',
         icon: '',
     };
-    private data: SerializedMatrixBaseType = {};
-    private fieldKeys: string[];
-    private fields: Record<string, Field>;
+    public _data: SerializedMatrixBaseType = {};
+    public _fieldKeys: string[];
+    public _fields: Record<string, Field>;
 
     /**
      * Contructor for a base type.
      * @param {SerializedMatrixBaseType} data Type data.
      */
     constructor(data: SerializedMatrixBaseType) {
-        this.fields = this.getTypeClass().getFields();
-        this.fieldKeys = Object.keys(this.fields);
+        this._fields = this.getTypeClass().getFields();
+        this._fieldKeys = Object.keys(this._fields);
         this.populateFields(data);
     }
 
@@ -88,8 +88,8 @@ export class MatrixBaseType {
      * @returns {Collection} Collection instance.
      */
     static getCollection(): Collection {
-        if (this.collection == null) throw new NoAssignedCollection(this);
-        return this.collection;
+        if (this._collection == null) throw new NoAssignedCollection(this);
+        return this._collection;
     }
 
     /**
@@ -100,7 +100,7 @@ export class MatrixBaseType {
      * @returns {string} Name of the type.
      */
     static getName(): string {
-        return this.classInformation.name;
+        return this._classInformation.name;
     }
 
     /**
@@ -111,7 +111,7 @@ export class MatrixBaseType {
      * @returns {string} Label of the type.
      */
     static getLabel(): string {
-        return this.classInformation.label;
+        return this._classInformation.label;
     }
 
     /**
@@ -122,7 +122,7 @@ export class MatrixBaseType {
      * @returns {string} Description of the type.
      */
     static getDescription(): string {
-        return this.classInformation.description;
+        return this._classInformation.description;
     }
 
     /**
@@ -133,7 +133,7 @@ export class MatrixBaseType {
      * @returns {string} Icon of the type.
      */
     static getIcon(): string {
-        return this.classInformation.icon;
+        return this._classInformation.icon;
     }
 
     /**
@@ -148,9 +148,9 @@ export class MatrixBaseType {
             dataValues = Object.values(data),
             populatedFields: Record<string, unknown> = {};
 
-        for (const fieldName of this.fieldKeys) {
+        for (const fieldName of this._fieldKeys) {
             // Get the field and if the field was provided.
-            const field = this.fields[fieldName],
+            const field = this._fields[fieldName],
                 isFieldProvided = dataKeys.includes(fieldName),
                 fieldProvided = isFieldProvided
                     ? dataValues[dataKeys.indexOf(fieldName)]
@@ -178,7 +178,7 @@ export class MatrixBaseType {
         if (remainingKeys.length != 0)
             throw new InvalidField(this.getTypeClass(), remainingKeys[0]);
         // Set the data to the populated fields.
-        this.data = populatedFields;
+        this._data = populatedFields;
     }
 
     /**
@@ -190,7 +190,7 @@ export class MatrixBaseType {
      * @returns {number}           The index of the field.
      */
     private verifyFieldName(fieldName: string): number {
-        const fieldIndex = this.fieldKeys.indexOf(fieldName);
+        const fieldIndex = this._fieldKeys.indexOf(fieldName);
         if (fieldIndex == -1) throw new Error(`${fieldName} does not exist`);
         return fieldIndex;
     }
@@ -271,7 +271,7 @@ export class MatrixBaseType {
         // Verify field name.
         this.verifyFieldName(fieldName);
         // @ts-expect-error This will work because the name has been verified.
-        return this.data[fieldName] as T;
+        return this._data[fieldName] as T;
     }
 
     /**
@@ -286,7 +286,7 @@ export class MatrixBaseType {
         // Verify field name & value.
         this.verifyFieldAndType(fieldName, value);
         // @ts-expect-error This will work because the name & type has been verified.
-        this.data[fieldName] = value;
+        this._data[fieldName] = value;
     }
 
     /**

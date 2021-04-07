@@ -8,21 +8,21 @@ import { SourcesObject } from './type';
  * Matrix instance.
  */
 export class Matrix {
-    private collectionsMap = new Map<string, Collection>();
+    public _collectionsMap = new Map<string, Collection>();
 
     /**
      * Contructor for a Matrix instance.
-     * @param {Collection[]}  collections List of the collections.
-     * @param {SourcesObject} sources     List of the sources.
+     * @param {Collection[]}  _collections List of the collections.
+     * @param {SourcesObject} _sources     List of the sources.
      */
     constructor(
-        public collections: Collection[],
-        private sources: SourcesObject,
+        public _collections: Collection[],
+        public _sources: SourcesObject,
     ) {
         // Set the matrix instance for each collection.
-        for (const collection of collections) {
+        for (const collection of _collections) {
             collection.setMatrix(this);
-            this.collectionsMap.set(collection.getIdentifier(), collection);
+            this._collectionsMap.set(collection.getIdentifier(), collection);
         }
     }
 
@@ -32,7 +32,7 @@ export class Matrix {
      * @returns {Collection} The collection identifier.
      */
     getCollection(collectionIdentifier: string): Collection {
-        const collection = this.collectionsMap.get(collectionIdentifier);
+        const collection = this._collectionsMap.get(collectionIdentifier);
         if (!collection) throw new CollectionNotFound(collectionIdentifier);
         return collection;
     }
@@ -43,7 +43,7 @@ export class Matrix {
      * @returns {Source} The source instance.
      */
     getSource(identifier: string): ReadonlySource {
-        const source = this.sources[identifier];
+        const source = this._sources[identifier];
         if (!source) throw new SourceNotFound(identifier);
         return source;
     }

@@ -6,28 +6,27 @@ import { TypeNotFound } from './errors';
  * Class to represent a Matrix collection.
  */
 export class Collection {
-    private matrix: Matrix;
-    private typeMap = new Map<string, typeof MatrixBaseType>();
+    public _matrix: Matrix;
+    public _typeMap = new Map<string, typeof MatrixBaseType>();
 
     /**
      * Constructor for a collection.
-     * @param {string}                  identifier  Identifier of the collection.
-     * @param {string}                  label       Label of the collection.
-     * @param {string}                  description Description of the collection.
-     * @param {string}                  icon        Icon of the collection.
-     * @param {typeof MatrixBaseType[]} types       Types in the collection.
+     * @param {string}                  _identifier  Identifier of the collection.
+     * @param {string}                  _label       Label of the collection.
+     * @param {string}                  _description Description of the collection.
+     * @param {string}                  _icon        Icon of the collection.
+     * @param {typeof MatrixBaseType[]} _types       Types in the collection.
      */
     constructor(
-        private identifier: string,
-        private label: string,
-        private description: string,
-        private icon: string,
-        private types: typeof MatrixBaseType[],
+        public _identifier: string,
+        public _label: string,
+        public _description: string,
+        public _icon: string,
+        public _types: typeof MatrixBaseType[],
     ) {
-        for (const type of this.types) {
-            // @ts-expect-error This sets the type's collection as well as keeps that property private.
-            type.collection = this;
-            this.typeMap.set(type.getName(), type);
+        for (const type of this._types) {
+            type._collection = this;
+            this._typeMap.set(type.getName(), type);
         }
     }
 
@@ -36,7 +35,7 @@ export class Collection {
      * @returns {string} The collection identifier.
      */
     getIdentifier(): string {
-        return this.identifier;
+        return this._identifier;
     }
 
     /**
@@ -44,7 +43,7 @@ export class Collection {
      * @returns {string} The collection label.
      */
     getLabel(): string {
-        return this.label;
+        return this._label;
     }
 
     /**
@@ -52,7 +51,7 @@ export class Collection {
      * @returns {string} The collection description.
      */
     getDescription(): string {
-        return this.description;
+        return this._description;
     }
 
     /**
@@ -60,7 +59,7 @@ export class Collection {
      * @returns {string} The collection icon.
      */
     getIcon(): string {
-        return this.icon;
+        return this._icon;
     }
 
     /**
@@ -68,7 +67,7 @@ export class Collection {
      * @returns {Matrix} Matrix instance.
      */
     getMatrix(): Matrix {
-        return this.matrix;
+        return this._matrix;
     }
 
     /**
@@ -76,7 +75,7 @@ export class Collection {
      * @param {Matrix} matrix Matrix instance.
      */
     setMatrix(matrix: Matrix): void {
-        this.matrix = matrix;
+        this._matrix = matrix;
     }
 
     /**
@@ -85,7 +84,7 @@ export class Collection {
      * @returns {typeof MatrixBaseType} The type.
      */
     getType(typeName: string): typeof MatrixBaseType {
-        const type = this.typeMap.get(typeName);
+        const type = this._typeMap.get(typeName);
         if (!type) throw new TypeNotFound(this, typeName);
         return type;
     }
