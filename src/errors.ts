@@ -15,6 +15,22 @@ export class MatrixError extends Error {
     }
 }
 /**
+ * An invalid type format.
+ */
+export class InvalidTypeFormat extends MatrixError {
+    /**
+     * Constructor for an invalid type format.
+     * @param {string} typeName The type name.
+     */
+    constructor(typeName: string) {
+        super(
+            'InvalidTypeFormat',
+            `The type '${typeName}' must be in 'collectionName.TypeName' format`,
+        );
+    }
+}
+
+/**
  * Class to represent a source error.
  */
 export class SourceError extends MatrixError {
