@@ -9,3 +9,19 @@ export interface Field {
 }
 
 export type SourcesObject = { primary: Source; [k: string]: Source };
+
+export interface SerializedMatrixBaseType extends Record<string, unknown> {
+    $id?: string;
+}
+
+export interface SerializedType extends SerializedMatrixBaseType {
+    $type: string;
+    $updatedAt: number;
+}
+
+export interface SourceResponce {
+    meta?: {
+        updatedAt?: number;
+    };
+    data?: SerializedMatrixBaseType;
+}

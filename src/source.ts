@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { UnsupportedSourceMethod } from './errors';
+import { SourceResponce } from './type';
 
 type SerializedType = Record<string, unknown>;
 
@@ -12,7 +13,7 @@ export abstract class Source {
      * @param {string} typeName The type name.
      * @returns {Promise<void>}
      */
-    async initializeType(typeName: string): Promise<void> {
+    async initializeType(typeName: string): Promise<SourceResponce> {
         throw new UnsupportedSourceMethod('initializeType', typeName);
     }
 
@@ -23,7 +24,7 @@ export abstract class Source {
      */
     async getInstances<T extends SerializedType>(
         typeName: string,
-    ): Promise<T[]> {
+    ): Promise<SourceResponce> {
         throw new UnsupportedSourceMethod('getInstances', typeName);
     }
 

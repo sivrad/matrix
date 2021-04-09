@@ -9,7 +9,8 @@ import {
 } from './errors';
 import { Matrix } from './matrixInstance';
 import { Source } from './source';
-import { Field } from './type';
+import { Field, SerializedMatrixBaseType, SerializedType } from './type';
+import { mapObject } from './util';
 
 // const instanceOnly = () => (
 //     target: MatrixBaseType,
@@ -26,10 +27,6 @@ import { Field } from './type';
 //     };
 //     return descriptor;
 // };
-
-export interface SerializedMatrixBaseType extends Record<string, unknown> {
-    $id?: string;
-}
 
 /**
  * Base class for the Matrix.
@@ -53,6 +50,7 @@ export class MatrixBaseType {
     };
     public _data: SerializedMatrixBaseType = {};
     public _fieldKeys: string[];
+    public _lastUpdated = -1;
     public _fields: Record<string, Field>;
 
     /**
@@ -100,10 +98,27 @@ export class MatrixBaseType {
      * @function getName
      * @memberof MatrixBaseType
      * @static
+     * @example
+     * MyType.getName() // "MyType"
      * @returns {string} Name of the type.
      */
     static getName(): string {
         return this._classInformation.name;
+    }
+
+    /**
+     * Get the type.
+     *
+     * This is in collection name notation, see example.
+     * @function getType
+     * @memberof MatrixBaseType
+     * @static
+     * @example
+     * MyType.getType() // "collectionName.MyType"
+     * @returns {string} Type of the type.
+     */
+    static getType(): string {
+        return `${this.getName()}.${this.getCollection().getIdentifier()}`;
     }
 
     /**
@@ -296,6 +311,14 @@ export class MatrixBaseType {
         // Verify field name & value.
         this.verifyFieldAndType(fieldName, value);
         this._data[fieldName] = value;
+        this.resetLastUpdated();
+    }
+
+    /**
+     * Update the lastUpdated value to the current time.
+     */
+    private resetLastUpdated(): void {
+        this._lastUpdated = new Date().getTime() / 1000;
     }
 
     /**
@@ -317,6 +340,14 @@ export class MatrixBaseType {
     }
 
     /**
+     * Get the last updated time.
+     * @returns {number} The UNIX timestamp of when the Type was last updated.
+     */
+    getUpdatedAt(): number {
+        return this._lastUpdated;
+    }
+
+    /**
      * Is instance.
      * @function isInstance
      * @memberof MatrixBaseType
@@ -332,6 +363,42 @@ export class MatrixBaseType {
      */
     getSerializedData(): SerializedMatrixBaseType {
         return this._data;
+    }
+
+    /**
+     * Get the reference of an instance.
+     * @function getReference
+     * @memberof MatrixBaseType
+     * @example
+     * MyType.getReference() // "myCollection.MyType@00000420"
+     * @returns {string} The instance reference string.
+     */
+    getReference(): string {
+        if (!this.isInstance()) throw new Uninstantiated(this.getTypeClass());
+        return `${this.getTypeClass().getType()}@${this.getId()}`;
+    }
+
+    /**
+     * Serialize the type.
+     * @param {boolean} asRefrence If it should be serializeed as a reference.
+     * @returns {SerializedType | string} The serialized type, unless used as a ref.
+     */
+    serialize(asRefrence = false): SerializedType | string {
+        if (asRefrence) return this.getReference();
+        return mapObject(
+            {
+                ...this._data,
+                ...{
+                    $type: this.getTypeClass().getType(),
+                    $updatedAt: this.getUpdatedAt(),
+                },
+            } as SerializedType,
+            (_, value: unknown) => {
+                return value instanceof MatrixBaseType
+                    ? value.serialize(true)
+                    : value;
+            },
+        ) as SerializedType;
     }
 
     /**
