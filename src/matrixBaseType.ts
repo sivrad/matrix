@@ -407,7 +407,7 @@ export class MatrixBaseType {
     serialize<T extends MatrixBaseTypeData = MatrixBaseTypeData>(
         asRefrence = false,
     ): IncludeMetaData<T> | string {
-        if (asRefrence) return this.getReference();
+        if (asRefrence && this.isInstance()) return this.getReference();
         return mapObject(
             {
                 ...this._data,
