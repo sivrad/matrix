@@ -1,8 +1,12 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { UnsupportedSourceMethod } from './errors';
-import { SourceResponce } from './type';
-
-type SerializedType = Record<string, unknown>;
+import {
+    IncludeMetaData,
+    MatrixBaseTypeData,
+    SourceInstanceResponse,
+    SourceInstancesResponse,
+    SourceResponce,
+} from './type';
 
 /**
  * Configure a Source.
@@ -22,9 +26,9 @@ export abstract class Source {
      * @param {string} typeName The type name.
      * @returns {Promise<T[]>} Instances of the type.
      */
-    async getInstances<T extends SerializedType>(
+    async getInstances<T extends MatrixBaseTypeData = MatrixBaseTypeData>(
         typeName: string,
-    ): Promise<SourceResponce> {
+    ): Promise<SourceInstancesResponse<IncludeMetaData<T>>> {
         throw new UnsupportedSourceMethod('getInstances', typeName);
     }
 
@@ -34,10 +38,10 @@ export abstract class Source {
      * @param   {string} id The type Id.
      * @returns {T}         Get the instance data.
      */
-    async getInstance<T extends SerializedType>(
+    async getInstance<T extends MatrixBaseTypeData = MatrixBaseTypeData>(
         typeName: string,
         id: string,
-    ): Promise<T> {
+    ): Promise<SourceInstanceResponse<IncludeMetaData<T>>> {
         throw new UnsupportedSourceMethod('getInstance', typeName, id);
     }
 
@@ -48,11 +52,11 @@ export abstract class Source {
      * @param   {T}          data The data to update.
      * @returns {Promise<T>}     The updated instance data.
      */
-    async updateInstance<T extends SerializedType>(
+    async updateInstance<T extends MatrixBaseTypeData = MatrixBaseTypeData>(
         typeName: string,
         id: string,
         data: T,
-    ): Promise<T> {
+    ): Promise<SourceInstanceResponse<IncludeMetaData<T>>> {
         throw new UnsupportedSourceMethod('updateInstance', typeName, id, data);
     }
 
@@ -62,10 +66,10 @@ export abstract class Source {
      * @param   {T}               data The instance data.
      * @returns {Promise<string>}    The new instance Id.
      */
-    async createInstance<T extends SerializedType>(
+    async createInstance<T extends MatrixBaseTypeData = MatrixBaseTypeData>(
         typeName: string,
         data: T,
-    ): Promise<string> {
+    ): Promise<SourceInstanceResponse<IncludeMetaData<T>>> {
         throw new UnsupportedSourceMethod('createInstance', typeName, data);
     }
 }

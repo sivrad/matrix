@@ -9,7 +9,7 @@ import {
 } from './errors';
 import { Matrix } from './matrixInstance';
 import { Source } from './source';
-import { Field, SerializedMatrixBaseType, SerializedType } from './type';
+import { Field, MatrixBaseTypeData, IncludeMetaData } from './type';
 import { mapObject } from './util';
 
 // const instanceOnly = () => (
@@ -48,16 +48,16 @@ export class MatrixBaseType {
         description: 'The base matrix type',
         icon: '',
     };
-    public _data: SerializedMatrixBaseType = {};
+    public _data: MatrixBaseTypeData = {};
     public _fieldKeys: string[];
     public _lastUpdated = -1;
     public _fields: Record<string, Field>;
 
     /**
      * Contructor for a base type.
-     * @param {SerializedMatrixBaseType} data Type data.
+     * @param {MatrixBaseTypeData} data Type data.
      */
-    constructor(data: SerializedMatrixBaseType) {
+    constructor(data: MatrixBaseTypeData) {
         this._fields = this.getTypeClass().getFields();
         this._fieldKeys = Object.keys(this._fields);
         this.populateFields(data);
@@ -161,7 +161,7 @@ export class MatrixBaseType {
      * @private
      * @param {Record<string, unknown>} data The data to populate.
      */
-    private populateFields(data: SerializedMatrixBaseType) {
+    private populateFields(data: MatrixBaseTypeData) {
         const dataKeys = Object.keys(data),
             dataValues = Object.values(data),
             populatedFields: Record<string, unknown> = {};
@@ -322,6 +322,24 @@ export class MatrixBaseType {
     }
 
     /**
+     * Remove metadata from MetaData object.
+     * @function removeMetaData
+     * @memberof MatrixBaseType
+     * @private
+     * @param   {IncludeMetaData<MatrixBaseTypeData>} data Data with metadata.
+     * @returns {MatrixBaseTypeData} Data without metadata.
+     */
+    private removeMetaData(data: IncludeMetaData<MatrixBaseTypeData>) {
+        const rawData: MatrixBaseTypeData = {};
+        for (const [key, value] of Object.entries(data)) {
+            if (key[0] != '$' || key == '$id') {
+                rawData[key] = value;
+            }
+        }
+        return rawData;
+    }
+
+    /**
      * Return the type class.
      * @function getTypeClass
      * @memberof MatrixBaseType
@@ -359,9 +377,9 @@ export class MatrixBaseType {
 
     /**
      * Return the serialized data.
-     * @returns {SerializedMatrixBaseType} The serialized data.
+     * @returns {MatrixBaseTypeData} The serialized data.
      */
-    getSerializedData(): SerializedMatrixBaseType {
+    getSerializedData(): MatrixBaseTypeData {
         return this._data;
     }
 
@@ -381,9 +399,11 @@ export class MatrixBaseType {
     /**
      * Serialize the type.
      * @param {boolean} asRefrence If it should be serializeed as a reference.
-     * @returns {SerializedType | string} The serialized type, unless used as a ref.
+     * @returns {IncludeMetaData | string} The serialized type, unless used as a ref.
      */
-    serialize(asRefrence = false): SerializedType | string {
+    serialize<T extends MatrixBaseTypeData = MatrixBaseTypeData>(
+        asRefrence = false,
+    ): IncludeMetaData<T> | string {
         if (asRefrence) return this.getReference();
         return mapObject(
             {
@@ -392,13 +412,13 @@ export class MatrixBaseType {
                     $type: this.getTypeClass().getType(),
                     $updatedAt: this.getUpdatedAt(),
                 },
-            } as SerializedType,
+            } as IncludeMetaData<T>,
             (_, value: unknown) => {
                 return value instanceof MatrixBaseType
                     ? value.serialize(true)
                     : value;
             },
-        ) as SerializedType;
+        ) as IncludeMetaData<T>;
     }
 
     /**
@@ -412,10 +432,13 @@ export class MatrixBaseType {
     async syncData(): Promise<this> {
         if (!this.isInstance()) throw new Uninstantiated(this.getTypeClass());
         const source = this.getSource();
-        const remoteData = await source.getInstance(
+        const response = await source.getInstance(
             this.getTypeClass().getName(),
             this.getId()!,
         );
+        console.log(response);
+        // Update the local data with remote.
+        const remoteData = this.removeMetaData(response.data);
         for (const [key, value] of Object.entries(remoteData)) {
             this.setField(key, value);
         }

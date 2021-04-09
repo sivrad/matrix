@@ -10,18 +10,37 @@ export interface Field {
 
 export type SourcesObject = { primary: Source; [k: string]: Source };
 
-export interface SerializedMatrixBaseType extends Record<string, unknown> {
+/**
+ * Includes the base types.
+ */
+export interface MatrixBaseTypeData extends Record<string, unknown> {
     $id?: string;
 }
 
-export interface SerializedType extends SerializedMatrixBaseType {
+/**
+ * Includes Metadata.
+ */
+export type IncludeMetaData<T extends MatrixBaseTypeData> = T & {
     $type: string;
     $updatedAt: number;
-}
+};
 
+// All the source responses
 export interface SourceResponce {
     meta?: {
-        updatedAt?: number;
+        loadTime: number;
     };
-    data?: SerializedMatrixBaseType;
+    data?: Record<string, unknown>;
+}
+
+export interface SourceInstancesResponse<
+    T extends MatrixBaseTypeData = MatrixBaseTypeData
+> extends SourceResponce {
+    data: Record<string, IncludeMetaData<T>>;
+}
+
+export interface SourceInstanceResponse<
+    T extends MatrixBaseTypeData = MatrixBaseTypeData
+> extends SourceResponce {
+    data: IncludeMetaData<T>;
 }
