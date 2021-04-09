@@ -1,6 +1,6 @@
-export { MatrixBaseType, SerializedMatrixBaseType } from './matrixBaseType';
+export { MatrixBaseType } from './matrixBaseType';
 export { Matrix } from './matrixInstance';
 export { Collection } from './collection';
-export { Field } from './type';
+export { Field, MatrixBaseTypeData } from './type';
 export { Source } from './source';
 export * as errors from './errors';
