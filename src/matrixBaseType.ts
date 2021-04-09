@@ -50,6 +50,9 @@ export class MatrixBaseType {
     };
     public _data: MatrixBaseTypeData = {};
     public _fieldKeys: string[];
+    /**
+     * UNIX timestamp of last updated in SECONDS.
+     */
     public _lastUpdated = -1;
     public _fields: Record<string, Field>;
 
@@ -318,7 +321,7 @@ export class MatrixBaseType {
      * Update the lastUpdated value to the current time.
      */
     private resetLastUpdated(): void {
-        this._lastUpdated = new Date().getTime() / 1000;
+        this._lastUpdated = Math.floor(new Date().getTime() / 1000);
     }
 
     /**
@@ -359,10 +362,10 @@ export class MatrixBaseType {
 
     /**
      * Get the last updated time.
-     * @returns {number} The UNIX timestamp of when the Type was last updated.
+     * @returns {Date} A date object.
      */
-    getUpdatedAt(): number {
-        return this._lastUpdated;
+    getUpdatedAt(): Date {
+        return new Date(this._lastUpdated * 1000);
     }
 
     /**
@@ -410,7 +413,9 @@ export class MatrixBaseType {
                 ...this._data,
                 ...{
                     $type: this.getTypeClass().getType(),
-                    $updatedAt: this.getUpdatedAt(),
+                    $updatedAt: Math.floor(
+                        this.getUpdatedAt().getTime() / 1000,
+                    ),
                 },
             } as IncludeMetaData<T>,
             (_, value: unknown) => {
