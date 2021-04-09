@@ -121,7 +121,7 @@ export class MatrixBaseType {
      * @returns {string} Type of the type.
      */
     static getType(): string {
-        return `${this.getName()}.${this.getCollection().getIdentifier()}`;
+        return `${this.getCollection().getIdentifier()}.${this.getName()}`;
     }
 
     /**
