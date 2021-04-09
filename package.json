@@ -1,6 +1,6 @@
 {
     "name": "@sivrad/matrix",
-    "version": "1.0.14",
+    "version": "1.0.15",
     "description": "An opinionated schema-based database interface for the modern world.",
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",

@@ -438,7 +438,7 @@ export class MatrixBaseType {
         if (!this.isInstance()) throw new Uninstantiated(this.getTypeClass());
         const source = this.getSource();
         const response = await source.getInstance(
-            this.getTypeClass().getName(),
+            this.getTypeClass().getType(),
             this.getId()!,
         );
         console.log(response);
@@ -460,7 +460,7 @@ export class MatrixBaseType {
     async createInstance(): Promise<this> {
         if (this.isInstance()) throw new AlreadyInstantiated(this);
         const id = await this.getSource().createInstance(
-            this.getTypeClass().getName(),
+            this.getTypeClass().getType(),
             this.getSerializedData(),
         );
         this.setField('$id', id);
