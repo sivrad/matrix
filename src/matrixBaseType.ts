@@ -33,21 +33,14 @@ import { mapObject, removeMetadata } from './util';
  */
 export class MatrixBaseType {
     public static _collection: Collection | null = null;
-    protected static classFields: Record<string, Field> = {
-        $id: {
-            type: 'string | null',
-            label: 'Identifier',
-            description: 'Identifier of the type',
-            defaultValue: null,
-            required: false,
-        },
-    };
+    protected static classFields: Record<string, Field> = {};
     public static _classInformation = {
         name: 'BaseType',
         label: 'Base Type',
         description: 'The base matrix type',
         icon: '',
     };
+    public _id: string | null;
     public _data: MatrixBaseTypeData = {};
     public _fieldKeys: string[];
     /**
@@ -158,6 +151,33 @@ export class MatrixBaseType {
     }
 
     /**
+     * Get the type's source.
+     * @returns {Source} The type's source.
+     */
+    static getSource(): Source {
+        return this.getCollection().getMatrix().getSource('primary');
+    }
+
+    // Type Methods
+
+    /**
+     * Get an instance of the type from the ID.
+     * @param {string} id The ID of the instance.
+     * @returns {T} The new instance of the type.
+     */
+    static async get<T extends MatrixBaseType = MatrixBaseType>(
+        id: string,
+    ): Promise<T> {
+        const source = this.getSource(),
+            type = this.getType(),
+            response = await source.getInstance(type, id),
+            data = removeMetadata(response.data),
+            instance = new this(data);
+        instance._id = id;
+        return instance as T;
+    }
+
+    /**
      * Populate the type's fields.
      * @function populateFields
      * @memberof MatrixBaseType
@@ -232,7 +252,7 @@ export class MatrixBaseType {
      * @returns {Source} The type's source.
      */
     private getSource(): Source {
-        return this.getMatrix().getSource('primary');
+        return this.getTypeClass().getSource();
     }
 
     /**
@@ -335,11 +355,20 @@ export class MatrixBaseType {
     }
 
     /**
-     * Retrive the Id field.
-     * @returns {string} Id field.
+     * Retrive the Id.
+     * @returns {string} The Id of the type.
      */
     getId(): string | null {
-        return this.getField<string | null>('$id');
+        return this._id;
+    }
+
+    /**
+     * Set the ID, can only be done once.
+     * @param {string} id The id of the type.
+     */
+    setId(id: string): void {
+        if (this.isInstance()) throw new AlreadyInstantiated(this);
+        this._id = id;
     }
 
     /**

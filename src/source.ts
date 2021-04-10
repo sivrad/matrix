@@ -11,7 +11,7 @@ import {
 /**
  * Configure a Source.
  */
-export abstract class Source {
+export class Source {
     /**
      * Initialize a type.
      * @param {string} typeName The type name.
