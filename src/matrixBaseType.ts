@@ -365,7 +365,9 @@ export class MatrixBaseType {
      * @returns {MatrixBaseTypeData} The serialized data.
      */
     getSerializedData(): MatrixBaseTypeData {
-        return this._data;
+        return removeMetadata(
+            this._data as IncludeMetaData<MatrixBaseTypeData>,
+        );
     }
 
     /**

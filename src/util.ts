@@ -49,7 +49,7 @@ export const removeMetadata = (
 ): MatrixBaseTypeData => {
     const rawData: MatrixBaseTypeData = {};
     for (const [key, value] of Object.entries(data)) {
-        if (key[0] != '$' || key == '$id') {
+        if (key[0] != '$') {
             rawData[key] = value;
         }
     }
