@@ -14,6 +14,8 @@ export class Field {
 
     /**
      * Get the name of the field.
+     * @function getName
+     * @memberof Field
      * @returns {string} The name of the field.
      */
     getName(): string {
@@ -21,7 +23,19 @@ export class Field {
     }
 
     /**
+     * Serialize the field.
+     * @function serialize
+     * @memberof Field
+     * @returns {FieldObject} The field object.
+     */
+    serialize(): FieldObject {
+        return this.fieldObject;
+    }
+
+    /**
      * Set data at a timestamp.
+     * @function setDataAt
+     * @memberof Field
      * @param {string}  timestamp The timestamp to set to.
      * @param {unknown} value     The value to set to.
      */
@@ -33,6 +47,8 @@ export class Field {
 
     /**
      * Set the current data.
+     * @function setCurrentData
+     * @memberof Field
      * @param {string}  timestamp The timestamp to set to.
      * @param {unknown} value     The value of the data.
      */
@@ -43,6 +59,8 @@ export class Field {
 
     /**
      * Get data at a timestamp.
+     * @function getDataAt
+     * @memberof Field
      * @param   {string | number} timestamp The timestamp as a string or number.
      * @returns {FieldObjectValue} The object data at the time.
      */
@@ -75,6 +93,8 @@ export class Field {
 
     /**
      * Get the last updated field value.
+     * @function getUpdatedAt
+     * @memberof Field
      * @returns {Date} The last updated time.
      */
     getUpdatedAt(): Date {

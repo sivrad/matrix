@@ -14,6 +14,7 @@ import {
     Field as FieldType,
     MatrixBaseTypeData,
     IncludeMetaData,
+    FieldObject,
 } from './type';
 import { mapObject, removeMetadata } from './util';
 
@@ -439,10 +440,9 @@ export class MatrixBaseType {
      * Return the serialized data.
      * @returns {MatrixBaseTypeData} The serialized data.
      */
-    getSerializedData(): MatrixBaseTypeData {
-        // TODO: loop through fields to get data.
-        return removeMetadata(
-            this._data as IncludeMetaData<MatrixBaseTypeData>,
+    getSerializedData(): Record<string, FieldObject> {
+        return mapObject(Object.assign({}, this._fields), (_, field) =>
+            field.serialize(),
         );
     }
 
@@ -471,7 +471,7 @@ export class MatrixBaseType {
         return mapObject(
             {
                 // Use get serialized Data
-                ...this._data,
+                ...this.getSerializedData(),
                 ...{
                     $type: this.getTypeClass().getType(),
                     $updatedAt: Math.floor(
