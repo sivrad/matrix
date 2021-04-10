@@ -1,3 +1,4 @@
+import { IncludeMetaData, MatrixBaseTypeData } from '.';
 import { InvalidTypeFormat } from './errors';
 
 /**
@@ -33,4 +34,24 @@ export const parseType = (typeName: string): [string, string] => {
     const typeParts = typeName.split('.');
     if (typeParts.length != 2) throw new InvalidTypeFormat(typeName);
     return typeParts as [string, string];
+};
+
+/**
+ * Remove metadata from MetaData object.
+ * @function removeMetaData
+ * @memberof MatrixBaseType
+ * @private
+ * @param   {IncludeMetaData<MatrixBaseTypeData>} data Data with metadata.
+ * @returns {MatrixBaseTypeData} Data without metadata.
+ */
+export const removeMetadata = (
+    data: IncludeMetaData<MatrixBaseTypeData>,
+): MatrixBaseTypeData => {
+    const rawData: MatrixBaseTypeData = {};
+    for (const [key, value] of Object.entries(data)) {
+        if (key[0] != '$' || key == '$id') {
+            rawData[key] = value;
+        }
+    }
+    return rawData;
 };

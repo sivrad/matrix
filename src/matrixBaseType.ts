@@ -10,7 +10,7 @@ import {
 import { Matrix } from './matrixInstance';
 import { Source } from './source';
 import { Field, MatrixBaseTypeData, IncludeMetaData } from './type';
-import { mapObject } from './util';
+import { mapObject, removeMetadata } from './util';
 
 // const instanceOnly = () => (
 //     target: MatrixBaseType,
@@ -325,24 +325,6 @@ export class MatrixBaseType {
     }
 
     /**
-     * Remove metadata from MetaData object.
-     * @function removeMetaData
-     * @memberof MatrixBaseType
-     * @private
-     * @param   {IncludeMetaData<MatrixBaseTypeData>} data Data with metadata.
-     * @returns {MatrixBaseTypeData} Data without metadata.
-     */
-    private removeMetaData(data: IncludeMetaData<MatrixBaseTypeData>) {
-        const rawData: MatrixBaseTypeData = {};
-        for (const [key, value] of Object.entries(data)) {
-            if (key[0] != '$' || key == '$id') {
-                rawData[key] = value;
-            }
-        }
-        return rawData;
-    }
-
-    /**
      * Return the type class.
      * @function getTypeClass
      * @memberof MatrixBaseType
@@ -444,7 +426,7 @@ export class MatrixBaseType {
         // Determine if incomming data is old.
         if (response.data.$updatedAt > this.getUpdatedAt().getTime() / 1000) {
             // The data is new and replace local data.
-            const remoteData = this.removeMetaData(response.data);
+            const remoteData = removeMetadata(response.data);
             for (const [key, value] of Object.entries(remoteData)) {
                 this.setField(key, value);
             }
