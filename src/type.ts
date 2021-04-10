@@ -13,9 +13,7 @@ export type SourcesObject = { primary: Source; [k: string]: Source };
 /**
  * Includes the base types.
  */
-export interface MatrixBaseTypeData extends Record<string, unknown> {
-    $id?: string;
-}
+export type MatrixBaseTypeData = Record<string, unknown>;
 
 /**
  * Includes Metadata.
