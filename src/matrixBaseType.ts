@@ -452,7 +452,7 @@ export class MatrixBaseType {
         } else {
             // The data is old and instance needs to be updated.
             const data = this.getSerializedData();
-            source.updateInstance(type, id, data);
+            await source.updateInstance(type, id, data);
         }
         return this;
     }
