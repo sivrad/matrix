@@ -436,16 +436,23 @@ export class MatrixBaseType {
     // @instanceOnly()
     async syncData(): Promise<this> {
         if (!this.isInstance()) throw new Uninstantiated(this.getTypeClass());
-        const source = this.getSource();
-        const response = await source.getInstance(
-            this.getTypeClass().getType(),
-            this.getId()!,
-        );
-        console.log(response);
-        // Update the local data with remote.
-        const remoteData = this.removeMetaData(response.data);
-        for (const [key, value] of Object.entries(remoteData)) {
-            this.setField(key, value);
+        const source = this.getSource(),
+            type = this.getTypeClass().getType(),
+            id = this.getId()!,
+            response = await source.getInstance(type, id);
+        // TODO: check each field to last updated.
+        // Determine if incomming data is old.
+        if (response.data.$updatedAt > this.getUpdatedAt().getTime() / 1000) {
+            // The data is new and replace local data.
+            const remoteData = this.removeMetaData(response.data);
+            for (const [key, value] of Object.entries(remoteData)) {
+                this.setField(key, value);
+            }
+            // TODO: getUpdatedAt can be set after synced data is updated and each setField can change that time.
+        } else {
+            // The data is old and instance needs to be updated.
+            const data = this.getSerializedData();
+            source.updateInstance(type, id, data);
         }
         return this;
     }
