@@ -1,4 +1,5 @@
 import { Collection } from './collection';
+import { Field } from './field';
 import { MatrixBaseType } from './matrixBaseType';
 
 /**
@@ -190,6 +191,39 @@ export class Uninstantiated extends MatrixTypeError {
             'Uninstantiated',
             `An uninstantiated type '${type.getName()}' was used as an instance`,
             type,
+        );
+    }
+}
+
+/**
+ * The base error class for an error with a Field.
+ */
+export class FieldError extends MatrixError {
+    /**
+     * Constructor for a field error.
+     * @param {string} name    The name of the error.
+     * @param {string} message The message of the error.
+     * @param {Field}  field   The field object.
+     */
+    constructor(name: string, message: string, public field: Field) {
+        super(name, message);
+    }
+}
+
+/**
+ * A value at a certain time was not found for the field.
+ */
+export class FieldValueNotFound extends FieldError {
+    /**
+     * Constructor for a field value not found error.
+     * @param {Field}  field     The field object.
+     * @param {string} timestamp The timestamp for the field.
+     */
+    constructor(field: Field, timestamp: string) {
+        super(
+            'FieldValueNotFound',
+            `A value for field '${field.getName()}' at time '${timestamp}' was not found.`,
+            field,
         );
     }
 }

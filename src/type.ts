@@ -18,6 +18,31 @@ export interface MatrixBaseTypeData extends Record<string, unknown> {
 }
 
 /**
+ * I have no idea how field sources (get a better name like citation idk) are going to work.
+ * This might have to be an event.
+ * Like hearing from someone or reading something online.
+ * Ex: `Event(SaveSource(LearnDeffinition(ScanText(ReadWebsite()))))`.
+ */
+export interface FieldSource {
+    name: string;
+}
+
+export interface FieldObjectValue {
+    value: unknown;
+    source?: string;
+}
+
+export interface FieldObject {
+    current: string;
+    sources?: {
+        [k: string]: FieldSource;
+    };
+    values: {
+        [k: string]: FieldObjectValue;
+    };
+}
+
+/**
  * Includes Metadata.
  */
 export type IncludeMetaData<T extends MatrixBaseTypeData> = T & {
