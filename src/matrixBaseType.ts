@@ -196,6 +196,9 @@ export class MatrixBaseType {
         id: string,
         serializedData: SerializedMatrixBaseTypeData,
     ): T {
+        console.log('serialized data::');
+        console.log(serializedData);
+
         const data: MatrixBaseTypeData = {};
         for (const [fieldName, field] of Object.entries(serializedData)) {
             data[fieldName] = field.values[field.current];
@@ -444,21 +447,6 @@ export class MatrixBaseType {
     }
 
     /**
-     * Return only defined fields.
-     * @function getDefinedFields
-     * @memberof MatrixBaseType
-     * @private
-     * @returns {Record<string, Field>} The defined fields object.
-     */
-    private getDefinedFields(): Record<string, Field> {
-        const definedFields: Record<string, Field> = {};
-        for (const [fieldName, field] of Object.entries(this._fields)) {
-            if (field.isDefined()) definedFields[fieldName] = field;
-        }
-        return definedFields;
-    }
-
-    /**
      * Get a value.
      * @function getField
      * @memberof MatrixBaseType
@@ -545,9 +533,11 @@ export class MatrixBaseType {
      * @returns {MatrixBaseTypeData} The serialized data.
      */
     getSerializedData(): Record<string, FieldObject> {
-        return mapObject(Object.assign({}, this._fields), (_, field) =>
-            field.serialize(),
-        );
+        const data: Record<string, FieldObject> = {};
+        for (const [fieldName, field] of Object.entries(this._fields)) {
+            if (field.isDefined()) data[fieldName] = field.serialize();
+        }
+        return data;
     }
 
     /**
