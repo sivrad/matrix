@@ -190,7 +190,7 @@ export class MatrixBaseType {
             response = await source.getInstances(type),
             instances: T[] = [];
         for (const id of Object.keys(response.data)) {
-            const instance = new this(response.data[id]);
+            const instance = new this(removeMetadata(response.data[id]));
             instance._id = id;
             instances.push(instance as T);
         }
