@@ -38,21 +38,42 @@ import { mapObject, removeMetadata } from './util';
  * Base class for the Matrix.
  */
 export class MatrixBaseType {
+    /**
+     * The collection assigned to the type.
+     */
     public static _collection: Collection | null = null;
-    protected static classFields: Record<string, Field> = {};
+    /**
+     * The class specific fields.
+     */
+    protected static classFields: Record<string, FieldType> = {};
+    /**
+     * Information on the class.
+     */
     public static _classInformation = {
         name: 'BaseType',
         label: 'Base Type',
         description: 'The base matrix type',
         icon: '',
     };
+    /**
+     * The type fields.
+     */
     public _fields: Record<string, Field> = {};
-
+    /**
+     * IDK used for cache I think.
+     */
     public _typeFieldKeys: string[];
+    /**
+     * Id of the type.
+     */
+    public _id: string | null;
     /**
      * UNIX timestamp of last updated in SECONDS.
      */
     public _lastUpdated = -1;
+    /**
+     * The entire classes fields.
+     */
     public _typeFields: Record<string, FieldType>;
 
     /**
@@ -202,7 +223,7 @@ export class MatrixBaseType {
         }
         return instances;
     }
-  
+
     /**
      * Get a field object from the field name.
      *
