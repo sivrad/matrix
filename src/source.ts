@@ -56,7 +56,7 @@ export class Source {
         typeName: string,
         id: string,
         data: T,
-    ): Promise<SourceInstanceResponse<IncludeMetaData<T>>> {
+    ): Promise<SourceInstancesResponse<IncludeMetaData<T>>> {
         throw new UnsupportedSourceMethod('updateInstance', typeName, id, data);
     }
 
