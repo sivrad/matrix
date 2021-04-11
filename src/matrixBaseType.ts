@@ -196,7 +196,7 @@ export class MatrixBaseType {
         id: string,
         serializedData: SerializedMatrixBaseTypeData,
     ): T {
-        console.log('serialized data::');
+        console.log('serialized data');
         console.log(serializedData);
 
         const data: MatrixBaseTypeData = {};
