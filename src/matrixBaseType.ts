@@ -591,12 +591,40 @@ export class MatrixBaseType {
             id = this.getId()!,
             response = (await source.getInstance(type, id)).response,
             remoteData = response.data,
-            localData = this.getSerializedData();
-
+            localData = this.getSerializedData(),
+            remoteFieldNames = Object.keys(remoteData),
+            localFieldNames = Object.keys(localData);
         console.log('remote');
         console.log(remoteData);
         console.log('local');
         console.log(localData);
+
+        // Update remote with local values.
+        // TODO: look for each timestamp AS WELL as the current
+        // If key not in remote, add it and update it
+        const newData: Record<string, FieldObject> = {};
+        for (const [fieldName, field] of Object.entries(localData)) {
+            if (
+                !remoteFieldNames.includes(fieldName) ||
+                parseInt(remoteData[fieldName].current) <
+                    parseInt(field.current)
+            ) {
+                // Update the remote value.
+                newData[fieldName] = field;
+            }
+        }
+        if (newData != {}) await source.updateInstance(type, id, newData);
+        // Update local with remote values.
+        for (const [fieldName, field] of Object.entries(remoteData)) {
+            if (
+                !localFieldNames.includes(fieldName) ||
+                parseInt(remoteData[fieldName].current) >
+                    parseInt(field.current)
+            ) {
+                // Update the local value.
+                this.setField(fieldName, field);
+            }
+        }
 
         // Determine if incomming data is old.
         // if (response.data.$updatedAt > this.getUpdatedAt().getTime() / 1000) {
