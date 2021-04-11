@@ -178,6 +178,26 @@ export class MatrixBaseType {
     }
 
     /**
+     * Get all the instances of a type.
+     * // TODO: Add type caching.
+     * @returns {T[]} All the new instances.
+     */
+    static async getAll<T extends MatrixBaseType = MatrixBaseType>(): Promise<
+        T[]
+    > {
+        const source = this.getSource(),
+            type = this.getType(),
+            response = await source.getInstances(type),
+            instances: T[] = [];
+        for (const id of Object.keys(response.data)) {
+            const instance = new this(response.data[id]);
+            instance._id = id;
+            instances.push(instance as T);
+        }
+        return instances;
+    }
+
+    /**
      * Populate the type's fields.
      * @function populateFields
      * @memberof MatrixBaseType
