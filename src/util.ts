@@ -1,6 +1,4 @@
-import { IncludeMetaData, MatrixBaseTypeData } from '.';
 import { InvalidTypeFormat } from './errors';
-import { InternalData } from './type';
 
 /**
  * Map over an object.
@@ -39,22 +37,22 @@ export const parseType = (typeName: string): [string, string] => {
     return typeParts as [string, string];
 };
 
-/**
- * Remove metadata from MetaData object.
- * @function removeMetaData
- * @memberof MatrixBaseType
- * @private
- * @param   {IncludeMetaData<MatrixBaseTypeData>} data Data with metadata.
- * @returns {MatrixBaseTypeData} Data without metadata.
- */
-export const removeMetadata = (
-    data: IncludeMetaData<InternalData<MatrixBaseTypeData>>,
-): InternalData<MatrixBaseTypeData> => {
-    const rawData: InternalData<MatrixBaseTypeData> = {};
-    for (const [key, value] of Object.entries(data)) {
-        if (key[0] != '$') {
-            rawData[key] = value;
-        }
-    }
-    return rawData;
-};
+// /**
+//  * Remove metadata from MetaData object.
+//  * @function removeMetaData
+//  * @memberof MatrixBaseType
+//  * @private
+//  * @param   {IncludeMetaData<MatrixBaseTypeData>} data Data with metadata.
+//  * @returns {MatrixBaseTypeData} Data without metadata.
+//  */
+// export const removeMetadata = (
+//     data: IncludeMetaData<InternalData<MatrixBaseTypeData>>,
+// ): InternalData<MatrixBaseTypeData> => {
+//     const rawData: InternalData<MatrixBaseTypeData> = {};
+//     for (const [key, value] of Object.entries(data)) {
+//         if (key[0] != '$') {
+//             rawData[key] = value;
+//         }
+//     }
+//     return rawData;
+// };

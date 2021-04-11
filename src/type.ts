@@ -40,29 +40,26 @@ export type InternalData<T extends MatrixBaseTypeData = MatrixBaseTypeData> = {
 };
 
 /**
- * Includes Metadata.
+ * Includes the metadata.
  */
-export type IncludeMetaData<T extends MatrixBaseTypeData> = T & {
+export interface SerializedData<
+    T extends MatrixBaseTypeData = MatrixBaseTypeData
+> {
+    $id: string;
     $type: string;
-    $updatedAt: number;
-};
-
-// All the source responses
-export interface SourceResponce {
-    meta?: {
-        loadTime: number;
-    };
-    data?: Record<string, unknown>;
+    data: InternalData<T>;
 }
+
+// The source responses.
 
 export interface SourceInstancesResponse<
     T extends MatrixBaseTypeData = MatrixBaseTypeData
-> extends SourceResponce {
-    data: Record<string, IncludeMetaData<InternalData<T>>>;
+> {
+    response: Record<string, SerializedData<T>>;
 }
 
 export interface SourceInstanceResponse<
     T extends MatrixBaseTypeData = MatrixBaseTypeData
-> extends SourceResponce {
-    data: IncludeMetaData<InternalData<T>>;
+> {
+    response: SerializedData<T>;
 }

@@ -1,12 +1,9 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { UnsupportedSourceMethod } from './errors';
 import {
-    IncludeMetaData,
-    InternalData,
     MatrixBaseTypeData,
     SourceInstanceResponse,
     SourceInstancesResponse,
-    SourceResponce,
 } from './type';
 
 /**
@@ -18,7 +15,7 @@ export class Source {
      * @param {string} typeName The type name.
      * @returns {Promise<void>}
      */
-    async initializeType(typeName: string): Promise<SourceResponce> {
+    async initializeType(typeName: string): Promise<unknown> {
         throw new UnsupportedSourceMethod('initializeType', typeName);
     }
 
@@ -29,7 +26,7 @@ export class Source {
      */
     async getInstances<T extends MatrixBaseTypeData = MatrixBaseTypeData>(
         typeName: string,
-    ): Promise<SourceInstancesResponse<IncludeMetaData<InternalData<T>>>> {
+    ): Promise<SourceInstancesResponse<T>> {
         throw new UnsupportedSourceMethod('getInstances', typeName);
     }
 
@@ -42,7 +39,7 @@ export class Source {
     async getInstance<T extends MatrixBaseTypeData = MatrixBaseTypeData>(
         typeName: string,
         id: string,
-    ): Promise<SourceInstanceResponse<IncludeMetaData<InternalData<T>>>> {
+    ): Promise<SourceInstanceResponse<T>> {
         throw new UnsupportedSourceMethod('getInstance', typeName, id);
     }
 
@@ -57,7 +54,7 @@ export class Source {
         typeName: string,
         id: string,
         data: T,
-    ): Promise<SourceInstanceResponse<IncludeMetaData<T>>> {
+    ): Promise<SourceInstanceResponse<T>> {
         throw new UnsupportedSourceMethod('updateInstance', typeName, id, data);
     }
 
@@ -70,7 +67,7 @@ export class Source {
     async createInstance<T extends MatrixBaseTypeData = MatrixBaseTypeData>(
         typeName: string,
         data: T,
-    ): Promise<SourceInstanceResponse<IncludeMetaData<T>>> {
+    ): Promise<SourceInstanceResponse<T>> {
         throw new UnsupportedSourceMethod('createInstance', typeName, data);
     }
 }

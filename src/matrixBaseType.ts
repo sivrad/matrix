@@ -13,11 +13,11 @@ import { Source } from './source';
 import {
     Field as FieldType,
     MatrixBaseTypeData,
-    IncludeMetaData,
     FieldObject,
     SerializedMatrixBaseTypeData,
+    SerializedData,
 } from './type';
-import { mapObject, removeMetadata } from './util';
+import { mapObject } from './util';
 
 // const instanceOnly = () => (
 //     target: MatrixBaseType,
@@ -220,9 +220,9 @@ export class MatrixBaseType {
     ): Promise<T> {
         const source = this.getSource(),
             type = this.getType(),
-            response = await source.getInstance(type, id),
-            data = removeMetadata(response.data);
-        return this.deserialize(id, data) as T;
+            response = (await source.getInstance(type, id)).response,
+            data = response.data;
+        return this.deserialize<T>(id, data);
     }
 
     /**
@@ -235,10 +235,10 @@ export class MatrixBaseType {
     > {
         const source = this.getSource(),
             type = this.getType(),
-            response = await source.getInstances(type),
+            response = (await source.getInstances(type)).response,
             instances: T[] = [];
-        for (const id of Object.keys(response.data)) {
-            const instance = new this(removeMetadata(response.data[id]));
+        for (const [id, serializedData] of Object.entries(response)) {
+            const instance = new this(serializedData.data);
             instance._id = id;
             instances.push(instance as T);
         }
@@ -570,25 +570,18 @@ export class MatrixBaseType {
      */
     serialize<T extends MatrixBaseTypeData = MatrixBaseTypeData>(
         asRefrence = false,
-    ): IncludeMetaData<T> | string {
+    ): SerializedData<T> | string {
         if (asRefrence && this.isInstance()) return this.getReference();
-        return mapObject(
-            {
-                // Use get serialized Data
-                ...this.getSerializedData(),
-                ...{
-                    $type: this.getTypeClass().getType(),
-                    $updatedAt: Math.floor(
-                        this.getUpdatedAt().getTime() / 1000,
-                    ),
-                },
-            } as IncludeMetaData<T>,
-            (_, value: unknown) => {
+        return {
+            // Use get serialized Data
+            data: mapObject(this.getSerializedData(), (_, value: unknown) => {
                 return value instanceof MatrixBaseType
                     ? value.serialize(true)
                     : value;
-            },
-        ) as IncludeMetaData<T>;
+            }),
+            $id: this.getId()!,
+            $type: this.getTypeClass().getType(),
+        } as SerializedData<T>;
     }
 
     /**
@@ -599,28 +592,28 @@ export class MatrixBaseType {
      * @returns {Promise<void>}
      */
     // @instanceOnly()
-    async syncData(): Promise<this> {
-        if (!this.isInstance()) throw new Uninstantiated(this.getTypeClass());
-        const source = this.getSource(),
-            type = this.getTypeClass().getType(),
-            id = this.getId()!,
-            response = await source.getInstance(type, id);
-        // TODO: check each field to last updated.
-        // Determine if incomming data is old.
-        if (response.data.$updatedAt > this.getUpdatedAt().getTime() / 1000) {
-            // The data is new and replace local data.
-            const remoteData = removeMetadata(response.data);
-            for (const [key, value] of Object.entries(remoteData)) {
-                this.setField(key, value);
-            }
-            // TODO: getUpdatedAt can be set after synced data is updated and each setField can change that time.
-        } else {
-            // The data is old and instance needs to be updated.
-            const data = this.getSerializedData();
-            await source.updateInstance(type, id, data);
-        }
-        return this;
-    }
+    // async syncData(): Promise<this> {
+    //     if (!this.isInstance()) throw new Uninstantiated(this.getTypeClass());
+    //     const source = this.getSource(),
+    //         type = this.getTypeClass().getType(),
+    //         id = this.getId()!,
+    //         response = await source.getInstance(type, id);
+    //     // TODO: check each field to last updated.
+    //     // Determine if incomming data is old.
+    //     if (response.data.$updatedAt > this.getUpdatedAt().getTime() / 1000) {
+    //         // The data is new and replace local data.
+    //         const remoteData = removeMetadata(response.data);
+    //         for (const [key, value] of Object.entries(remoteData)) {
+    //             this.setField(key, value);
+    //         }
+    //         // TODO: getUpdatedAt can be set after synced data is updated and each setField can change that time.
+    //     } else {
+    //         // The data is old and instance needs to be updated.
+    //         const data = this.getSerializedData();
+    //         await source.updateInstance(type, id, data);
+    //     }
+    //     return this;
+    // }
 
     /**
      * Turn the type into an instance.
