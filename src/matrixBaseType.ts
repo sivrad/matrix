@@ -202,7 +202,10 @@ export class MatrixBaseType {
         }
         const instance = new this(data);
         for (const [fieldName, field] of Object.entries(serializedData)) {
-            instance.getFieldObject(fieldName).setValues(field.values);
+            instance
+                .getFieldObject(fieldName)
+                .setValues(field.values)
+                .setCurrent(field.current);
         }
         instance._id = id;
         return instance as T;

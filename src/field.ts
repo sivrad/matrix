@@ -57,10 +57,22 @@ export class Field {
     }
     /**
      * Set the values for the field.
-     * @param {Record<string, FieldObjectValue>} values The Values to set.
+     * @param   {Record<string, FieldObjectValue>} values The Values to set.
+     * @returns {this}                                    The field instance.
      */
-    setValues(values: Record<string, FieldObjectValue>): void {
+    setValues(values: Record<string, FieldObjectValue>): this {
         this.fieldObject.values = values;
+        return this;
+    }
+
+    /**
+     * Set the current value for the field.
+     * @param   {string} current The current value key.
+     * @returns {this}           The field instance.
+     */
+    setCurrent(current: string): this {
+        this.fieldObject.current = current;
+        return this;
     }
 
     /**
