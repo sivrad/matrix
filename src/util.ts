@@ -1,5 +1,6 @@
 import { IncludeMetaData, MatrixBaseTypeData } from '.';
 import { InvalidTypeFormat } from './errors';
+import { InternalData } from './type';
 
 /**
  * Map over an object.
@@ -47,9 +48,9 @@ export const parseType = (typeName: string): [string, string] => {
  * @returns {MatrixBaseTypeData} Data without metadata.
  */
 export const removeMetadata = (
-    data: IncludeMetaData<MatrixBaseTypeData>,
-): MatrixBaseTypeData => {
-    const rawData: MatrixBaseTypeData = {};
+    data: IncludeMetaData<InternalData<MatrixBaseTypeData>>,
+): InternalData<MatrixBaseTypeData> => {
+    const rawData: InternalData<MatrixBaseTypeData> = {};
     for (const [key, value] of Object.entries(data)) {
         if (key[0] != '$') {
             rawData[key] = value;

@@ -15,6 +15,7 @@ import {
     MatrixBaseTypeData,
     IncludeMetaData,
     FieldObject,
+    SerializedMatrixBaseTypeData,
 } from './type';
 import { mapObject, removeMetadata } from './util';
 
@@ -185,6 +186,28 @@ export class MatrixBaseType {
         return this.getCollection().getMatrix().getSource('primary');
     }
 
+    /**
+     * Create an instance from serialized data.
+     * @param   {string}                       id             The ID of the instance.
+     * @param   {SerializedMatrixBaseTypeData} serializedData The serialized data.
+     * @returns {T}                                           The new instance.
+     */
+    static deserialize<T extends MatrixBaseType = MatrixBaseType>(
+        id: string,
+        serializedData: SerializedMatrixBaseTypeData,
+    ): T {
+        const data: MatrixBaseTypeData = {};
+        for (const [fieldName, field] of Object.entries(serializedData)) {
+            data[fieldName] = field.values[field.current];
+        }
+        const instance = new this(data);
+        for (const [fieldName, field] of Object.entries(serializedData)) {
+            instance.getFieldObject(fieldName).setValues(field.values);
+        }
+        instance._id = id;
+        return instance as T;
+    }
+
     // Type Methods
 
     /**
@@ -198,10 +221,8 @@ export class MatrixBaseType {
         const source = this.getSource(),
             type = this.getType(),
             response = await source.getInstance(type, id),
-            data = removeMetadata(response.data),
-            instance = new this(data);
-        instance._id = id;
-        return instance as T;
+            data = removeMetadata(response.data);
+        return this.deserialize(id, data) as T;
     }
 
     /**

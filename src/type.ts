@@ -15,6 +15,8 @@ export type SourcesObject = { primary: Source; [k: string]: Source };
  */
 export type MatrixBaseTypeData = Record<string, unknown>;
 
+export type SerializedMatrixBaseTypeData = InternalData<MatrixBaseTypeData>;
+
 /**
  * I have no idea how field sources (get a better name like citation idk) are going to work.
  * This might have to be an event.
@@ -26,12 +28,16 @@ export interface FieldObjectValue<T = unknown> {
     event?: string;
 }
 
-export interface FieldObject {
+export interface FieldObject<T = unknown> {
     current: string;
     values: {
-        [k: string]: FieldObjectValue;
+        [k: string]: FieldObjectValue<T>;
     };
 }
+
+export type InternalData<T extends MatrixBaseTypeData = MatrixBaseTypeData> = {
+    [K in keyof T]: FieldObject<T[K]>;
+};
 
 /**
  * Includes Metadata.
@@ -52,11 +58,11 @@ export interface SourceResponce {
 export interface SourceInstancesResponse<
     T extends MatrixBaseTypeData = MatrixBaseTypeData
 > extends SourceResponce {
-    data: Record<string, IncludeMetaData<T>>;
+    data: Record<string, IncludeMetaData<InternalData<T>>>;
 }
 
 export interface SourceInstanceResponse<
     T extends MatrixBaseTypeData = MatrixBaseTypeData
 > extends SourceResponce {
-    data: IncludeMetaData<T>;
+    data: IncludeMetaData<InternalData<T>>;
 }

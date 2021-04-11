@@ -2,6 +2,7 @@
 import { UnsupportedSourceMethod } from './errors';
 import {
     IncludeMetaData,
+    InternalData,
     MatrixBaseTypeData,
     SourceInstanceResponse,
     SourceInstancesResponse,
@@ -28,7 +29,7 @@ export class Source {
      */
     async getInstances<T extends MatrixBaseTypeData = MatrixBaseTypeData>(
         typeName: string,
-    ): Promise<SourceInstancesResponse<IncludeMetaData<T>>> {
+    ): Promise<SourceInstancesResponse<IncludeMetaData<InternalData<T>>>> {
         throw new UnsupportedSourceMethod('getInstances', typeName);
     }
 
@@ -41,7 +42,7 @@ export class Source {
     async getInstance<T extends MatrixBaseTypeData = MatrixBaseTypeData>(
         typeName: string,
         id: string,
-    ): Promise<SourceInstanceResponse<IncludeMetaData<T>>> {
+    ): Promise<SourceInstanceResponse<IncludeMetaData<InternalData<T>>>> {
         throw new UnsupportedSourceMethod('getInstance', typeName, id);
     }
 

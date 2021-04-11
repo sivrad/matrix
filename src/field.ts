@@ -55,6 +55,13 @@ export class Field {
             value: value,
         };
     }
+    /**
+     * Set the values for the field.
+     * @param {Record<string, FieldObjectValue>} values The Values to set.
+     */
+    setValues(values: Record<string, FieldObjectValue>): void {
+        this.fieldObject.values = values;
+    }
 
     /**
      * Set the current data.
