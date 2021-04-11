@@ -12,14 +12,16 @@ import { InvalidTypeFormat } from './errors';
  * ); // { "foo": "BAR" }
  * @returns {Record<string, unknown>}                         The maped over object.
  */
-export const mapObject = (
-    object: Record<string, unknown>,
-    func: (key: string, value: unknown) => unknown,
-): Record<string, unknown> => {
+export const mapObject = <InputType = unknown, OutputType = unknown>(
+    object: Record<string, InputType>,
+    func: (key: string, value: InputType) => OutputType,
+): Record<string, OutputType> => {
     const values = Object.values(object);
     Object.keys(object).map((key, index) => {
+        // @ts-expect-error They have different types because it is a map.
         object[key] = func(key, values[index]);
     });
+    // @ts-expect-error They have different types because it is a map.
     return object;
 };
 

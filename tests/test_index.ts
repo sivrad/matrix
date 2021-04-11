@@ -1,5 +1,7 @@
 import { Matrix, MatrixBaseType, Collection, Source } from '../src';
 
+const pprint = (obj: unknown) => console.log(JSON.stringify(obj, null, 4));
+
 const col = new Collection('test', 'sdfs', 'sdfsdf', 'sdfsdf', [
     MatrixBaseType,
 ]);

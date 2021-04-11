@@ -7,9 +7,15 @@ import {
     NoAssignedCollection,
     Uninstantiated,
 } from './errors';
+import { Field } from './field';
 import { Matrix } from './matrixInstance';
 import { Source } from './source';
-import { Field, MatrixBaseTypeData, IncludeMetaData } from './type';
+import {
+    Field as FieldType,
+    MatrixBaseTypeData,
+    IncludeMetaData,
+    FieldObject,
+} from './type';
 import { mapObject, removeMetadata } from './util';
 
 // const instanceOnly = () => (
@@ -40,22 +46,22 @@ export class MatrixBaseType {
         description: 'The base matrix type',
         icon: '',
     };
-    public _id: string | null;
-    public _data: MatrixBaseTypeData = {};
-    public _fieldKeys: string[];
+    public _fields: Record<string, Field> = {};
+
+    public _typeFieldKeys: string[];
     /**
      * UNIX timestamp of last updated in SECONDS.
      */
     public _lastUpdated = -1;
-    public _fields: Record<string, Field>;
+    public _typeFields: Record<string, FieldType>;
 
     /**
      * Contructor for a base type.
      * @param {MatrixBaseTypeData} data Type data.
      */
     constructor(data: MatrixBaseTypeData) {
-        this._fields = this.getTypeClass().getFields();
-        this._fieldKeys = Object.keys(this._fields);
+        this._typeFields = this.getTypeClass().getFields();
+        this._typeFieldKeys = Object.keys(this._typeFields);
         this.populateFields(data);
     }
 
@@ -66,9 +72,9 @@ export class MatrixBaseType {
      * @static
      * @returns {Field[]} The type's field.
      */
-    static getFields(): Record<string, Field> {
+    static getFields(): Record<string, FieldType> {
         let parentPrototype = Object.getPrototypeOf(this);
-        let allFields: Record<string, Field> = this.classFields;
+        let allFields: Record<string, FieldType> = this.classFields;
         while (parentPrototype != null) {
             const fields = parentPrototype.classFields;
             allFields = { ...allFields, ...fields };
@@ -196,7 +202,74 @@ export class MatrixBaseType {
         }
         return instances;
     }
+  
+    /**
+     * Get a field object from the field name.
+     *
+     * TODO: remove ones with null values when serializing data to upload.
+     * @param {string} fieldName The field name.
+     * @returns {Field} The field object.
+     */
+    private getFieldObject(fieldName: string): Field {
+        this.verifyFieldName(fieldName);
+        if (Object.keys(this._fields).indexOf(fieldName) == -1) {
+            // Create a new field.
+            const timestamp = Math.floor(
+                new Date().getTime() / 1000,
+            ).toString();
+            this._fields[fieldName] = new Field(fieldName, {
+                current: timestamp,
+                values: {
+                    [timestamp]: {
+                        value: null,
+                    },
+                },
+            });
+        }
+        return this._fields[fieldName];
+    }
 
+    /**
+     * Update a field object, NAME IS NOT CHECKED.
+     * @param {string}  fieldName The name of the field.
+     * @param {unknown} value The value of the field.
+     * @param {string}  timestamp The timestamp to update to.
+     */
+    private updateFieldObject(
+        fieldName: string,
+        value: unknown,
+        timestamp: string,
+    ): void {
+        // TODO: add source support
+        if (!Object.keys(this._fields).includes(fieldName)) {
+            this._fields[fieldName] = new Field(fieldName, {
+                current: timestamp,
+                // SOURCE #1
+                values: {
+                    [timestamp]: {
+                        value: value, // SOURCE #2
+                    },
+                },
+            });
+        } else {
+            // this._fields[fieldName].setValueAt(timestamp, );
+            // SOURCE #3
+            this._fields[fieldName].setCurrentData(timestamp, value);
+        }
+    }
+
+    /**
+     * Update the Fields from a data object.
+     * @param {MatrixBaseTypeData} data The data to update.
+     */
+    private updateData(data: MatrixBaseTypeData): void {
+        const fieldNames = Object.keys(data);
+        const timestamp = Math.floor(new Date().getTime() / 1000).toString();
+        for (const fieldName of fieldNames) {
+            const value = data[fieldName];
+            this.updateFieldObject(fieldName, value, timestamp);
+        }
+    }
     /**
      * Populate the type's fields.
      * @function populateFields
@@ -209,9 +282,9 @@ export class MatrixBaseType {
             dataValues = Object.values(data),
             populatedFields: Record<string, unknown> = {};
 
-        for (const fieldName of this._fieldKeys) {
+        for (const fieldName of this._typeFieldKeys) {
             // Get the field and if the field was provided.
-            const field = this._fields[fieldName],
+            const field = this._typeFields[fieldName],
                 isFieldProvided = dataKeys.includes(fieldName),
                 fieldProvided = isFieldProvided
                     ? dataValues[dataKeys.indexOf(fieldName)]
@@ -239,7 +312,7 @@ export class MatrixBaseType {
         if (remainingKeys.length != 0)
             throw new InvalidField(this.getTypeClass(), remainingKeys[0]);
         // Set the data to the populated fields.
-        this._data = populatedFields;
+        this.updateData(populatedFields);
     }
 
     /**
@@ -251,7 +324,7 @@ export class MatrixBaseType {
      * @returns {number}           The index of the field.
      */
     private verifyFieldName(fieldName: string): number {
-        const fieldIndex = this._fieldKeys.indexOf(fieldName);
+        const fieldIndex = this._typeFieldKeys.indexOf(fieldName);
         if (fieldIndex == -1) throw new Error(`${fieldName} does not exist`);
         return fieldIndex;
     }
@@ -339,7 +412,7 @@ export class MatrixBaseType {
     protected getField<T = unknown>(fieldName: string): T {
         // Verify field name.
         this.verifyFieldName(fieldName);
-        return this._data[fieldName] as T;
+        return this.getFieldObject(fieldName).getCurrentValue() as T;
     }
 
     /**
@@ -352,8 +425,9 @@ export class MatrixBaseType {
      */
     protected setField(fieldName: string, value: unknown): void {
         // Verify field name & value.
+        const timestamp = Math.floor(new Date().getTime() / 1000).toString();
         this.verifyFieldAndType(fieldName, value);
-        this._data[fieldName] = value;
+        this.updateFieldObject(fieldName, value, timestamp);
         this.resetLastUpdated();
     }
 
@@ -413,9 +487,9 @@ export class MatrixBaseType {
      * Return the serialized data.
      * @returns {MatrixBaseTypeData} The serialized data.
      */
-    getSerializedData(): MatrixBaseTypeData {
-        return removeMetadata(
-            this._data as IncludeMetaData<MatrixBaseTypeData>,
+    getSerializedData(): Record<string, FieldObject> {
+        return mapObject(Object.assign({}, this._fields), (_, field) =>
+            field.serialize(),
         );
     }
 
@@ -443,7 +517,8 @@ export class MatrixBaseType {
         if (asRefrence && this.isInstance()) return this.getReference();
         return mapObject(
             {
-                ...this._data,
+                // Use get serialized Data
+                ...this.getSerializedData(),
                 ...{
                     $type: this.getTypeClass().getType(),
                     $updatedAt: Math.floor(
