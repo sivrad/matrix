@@ -13,6 +13,17 @@ export class Field {
     constructor(private name: string, private fieldObject: FieldObject) {}
 
     /**
+     * If the value is defined.
+     * @function isDefined
+     * @memberof Field
+     * @returns {boolean} Returns `true` if it is defined.
+     */
+    isDefined(): boolean {
+        // @ts-ignore TODO: fix this.
+        return this.fieldObject.values[this.fieldObject.current] != {};
+    }
+
+    /**
      * Get the name of the field.
      * @function getName
      * @memberof Field
