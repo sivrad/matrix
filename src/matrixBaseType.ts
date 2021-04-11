@@ -196,9 +196,6 @@ export class MatrixBaseType {
         id: string,
         serializedData: SerializedMatrixBaseTypeData,
     ): T {
-        console.log('serialized data');
-        console.log(serializedData);
-
         const data: MatrixBaseTypeData = {};
         for (const [fieldName, field] of Object.entries(serializedData)) {
             data[fieldName] = field.values[field.current];
@@ -262,6 +259,8 @@ export class MatrixBaseType {
             const timestamp = Math.floor(
                 new Date().getTime() / 1000,
             ).toString();
+            console.log('created new field object from getFieldObject');
+
             this._fields[fieldName] = new Field(fieldName, {
                 current: timestamp,
                 values: {
@@ -357,7 +356,7 @@ export class MatrixBaseType {
         if (remainingKeys.length != 0)
             throw new InvalidField(this.getTypeClass(), remainingKeys[0]);
         // Set the data to the populated fields.
-        this.updateData(populatedFields);
+        // this.updateData(populatedFields);
     }
 
     /**
