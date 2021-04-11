@@ -39,15 +39,7 @@ import { mapObject, removeMetadata } from './util';
  */
 export class MatrixBaseType {
     public static _collection: Collection | null = null;
-    protected static classFields: Record<string, FieldType> = {
-        $id: {
-            type: 'string | null',
-            label: 'Identifier',
-            description: 'Identifier of the type',
-            defaultValue: null,
-            required: false,
-        },
-    };
+    protected static classFields: Record<string, Field> = {};
     public static _classInformation = {
         name: 'BaseType',
         label: 'Base Type',
@@ -165,6 +157,53 @@ export class MatrixBaseType {
     }
 
     /**
+     * Get the type's source.
+     * @returns {Source} The type's source.
+     */
+    static getSource(): Source {
+        return this.getCollection().getMatrix().getSource('primary');
+    }
+
+    // Type Methods
+
+    /**
+     * Get an instance of the type from the ID.
+     * @param {string} id The ID of the instance.
+     * @returns {T} The new instance of the type.
+     */
+    static async get<T extends MatrixBaseType = MatrixBaseType>(
+        id: string,
+    ): Promise<T> {
+        const source = this.getSource(),
+            type = this.getType(),
+            response = await source.getInstance(type, id),
+            data = removeMetadata(response.data),
+            instance = new this(data);
+        instance._id = id;
+        return instance as T;
+    }
+
+    /**
+     * Get all the instances of a type.
+     * // TODO: Add type caching.
+     * @returns {T[]} All the new instances.
+     */
+    static async getAll<T extends MatrixBaseType = MatrixBaseType>(): Promise<
+        T[]
+    > {
+        const source = this.getSource(),
+            type = this.getType(),
+            response = await source.getInstances(type),
+            instances: T[] = [];
+        for (const id of Object.keys(response.data)) {
+            const instance = new this(removeMetadata(response.data[id]));
+            instance._id = id;
+            instances.push(instance as T);
+        }
+        return instances;
+    }
+  
+    /**
      * Get a field object from the field name.
      *
      * TODO: remove ones with null values when serializing data to upload.
@@ -231,7 +270,6 @@ export class MatrixBaseType {
             this.updateFieldObject(fieldName, value, timestamp);
         }
     }
-
     /**
      * Populate the type's fields.
      * @function populateFields
@@ -307,7 +345,7 @@ export class MatrixBaseType {
      * @returns {Source} The type's source.
      */
     private getSource(): Source {
-        return this.getMatrix().getSource('primary');
+        return this.getTypeClass().getSource();
     }
 
     /**
@@ -411,11 +449,20 @@ export class MatrixBaseType {
     }
 
     /**
-     * Retrive the Id field.
-     * @returns {string} Id field.
+     * Retrive the Id.
+     * @returns {string} The Id of the type.
      */
     getId(): string | null {
-        return this.getField<string | null>('$id');
+        return this._id;
+    }
+
+    /**
+     * Set the ID, can only be done once.
+     * @param {string} id The id of the type.
+     */
+    setId(id: string): void {
+        if (this.isInstance()) throw new AlreadyInstantiated(this);
+        this._id = id;
     }
 
     /**

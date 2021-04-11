@@ -10,8 +10,9 @@ new Matrix([col], {
     primary: new Source(),
 });
 
-const i = new MatrixBaseType({});
-console.log(i.getId());
+MatrixBaseType.get('23').then((r) => {
+    console.log(r);
+});
 
 // console.log();
 
