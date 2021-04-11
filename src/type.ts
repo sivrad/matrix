@@ -21,20 +21,13 @@ export type MatrixBaseTypeData = Record<string, unknown>;
  * Like hearing from someone or reading something online.
  * Ex: `Event(SaveSource(LearnDeffinition(ScanText(ReadWebsite()))))`.
  */
-export interface FieldSource {
-    name: string;
-}
-
-export interface FieldObjectValue {
-    value: unknown;
-    source?: string;
+export interface FieldObjectValue<T = unknown> {
+    value: T;
+    event?: string;
 }
 
 export interface FieldObject {
     current: string;
-    sources?: {
-        [k: string]: FieldSource;
-    };
     values: {
         [k: string]: FieldObjectValue;
     };
