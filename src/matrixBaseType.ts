@@ -592,28 +592,35 @@ export class MatrixBaseType {
      * @returns {Promise<void>}
      */
     // @instanceOnly()
-    // async syncData(): Promise<this> {
-    //     if (!this.isInstance()) throw new Uninstantiated(this.getTypeClass());
-    //     const source = this.getSource(),
-    //         type = this.getTypeClass().getType(),
-    //         id = this.getId()!,
-    //         response = await source.getInstance(type, id);
-    //     // TODO: check each field to last updated.
-    //     // Determine if incomming data is old.
-    //     if (response.data.$updatedAt > this.getUpdatedAt().getTime() / 1000) {
-    //         // The data is new and replace local data.
-    //         const remoteData = removeMetadata(response.data);
-    //         for (const [key, value] of Object.entries(remoteData)) {
-    //             this.setField(key, value);
-    //         }
-    //         // TODO: getUpdatedAt can be set after synced data is updated and each setField can change that time.
-    //     } else {
-    //         // The data is old and instance needs to be updated.
-    //         const data = this.getSerializedData();
-    //         await source.updateInstance(type, id, data);
-    //     }
-    //     return this;
-    // }
+    async syncData(): Promise<this> {
+        if (!this.isInstance()) throw new Uninstantiated(this.getTypeClass());
+        const source = this.getSource(),
+            type = this.getTypeClass().getType(),
+            id = this.getId()!,
+            response = (await source.getInstance(type, id)).response,
+            remoteData = response.data,
+            localData = this.getSerializedData();
+
+        console.log('remote');
+        console.log(remoteData);
+        console.log('local');
+        console.log(localData);
+
+        // Determine if incomming data is old.
+        // if (response.data.$updatedAt > this.getUpdatedAt().getTime() / 1000) {
+        //     // The data is new and replace local data.
+        //     const remoteData = removeMetadata(response.data);
+        //     for (const [key, value] of Object.entries(remoteData)) {
+        //         this.setField(key, value);
+        //     }
+        //     // TODO: getUpdatedAt can be set after synced data is updated and each setField can change that time.
+        // } else {
+        //     // The data is old and instance needs to be updated.
+        //     const data = this.getSerializedData();
+        //     await source.updateInstance(type, id, data);
+        // }
+        return this;
+    }
 
     /**
      * Turn the type into an instance.
