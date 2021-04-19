@@ -81,10 +81,11 @@ export class MatrixBaseType {
      * Contructor for a base type.
      * @param {MatrixBaseTypeData} data Type data.
      */
-    constructor(data: MatrixBaseTypeData) {
+    constructor(data: MatrixBaseTypeData | string) {
         this._typeFields = this.getTypeClass().getFields();
         this._typeFieldKeys = Object.keys(this._typeFields);
-        this.populateFields(data);
+        if (typeof data == 'object') this.populateFields(data);
+        else this.setId(data);
     }
 
     /**
