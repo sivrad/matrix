@@ -2,6 +2,7 @@ import { compile } from 'json-schema-to-typescript';
 import axios from 'axios';
 import { JSONSchema4 } from 'json-schema';
 import { writeFileSync } from 'fs';
+import * as ora from 'ora';
 
 const SCHEMA_URL =
     'https://raw.githubusercontent.com/sivrad/matrix-schema/main/';
@@ -22,13 +23,14 @@ const removeOptional = (schema: any): JSONSchema4 => {
 };
 
 const makeType = async () => {
-    console.log('Making types...');
+    const orb = ora('Generating Types').start();
     const type = await compile(removeOptional(await getSchema('type')), 'Type');
     const collection = await compile(
         removeOptional(await getSchema('collection')),
         'Collection',
     );
     writeFileSync('./src/generated_types.ts', `${type}\n${collection}`);
+    orb.succeed('Generated Types');
 };
 
 makeType();

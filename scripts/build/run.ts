@@ -1,13 +1,16 @@
 // Script to build the package.
 import { build } from './build';
 import { MatrixScriptError } from '../common/error';
-import { success, error } from '../common/util';
+import { error } from '../common/util';
+import * as ora from 'ora';
 
 const run = async () => {
+    const loader = ora('Building Library').start();
     try {
         await build();
-        success('Library Built');
+        loader.succeed('Library Built');
     } catch (e) {
+        loader.fail('Build Failed');
         if (e instanceof MatrixScriptError) {
             error(e);
         } else {

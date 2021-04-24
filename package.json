@@ -37,6 +37,7 @@
         "eslint-plugin-jsdoc": "30.7.8",
         "json-schema-to-typescript": "^10.1.4",
         "mocha": "8.2.1",
+        "ora": "^5.4.0",
         "prettier": "2.1.2",
         "ts-node": "9.1.0",
         "typedoc": "0.19.2",

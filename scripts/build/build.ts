@@ -157,7 +157,6 @@ const buildType = (collectionName: string, path: string): string => {
 };
 
 export const build = async (): Promise<void> => {
-    console.log('Building Library');
     for (const [collectionName, types] of Object.entries(
         getCollectionTypes(),
     )) {
