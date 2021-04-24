@@ -29,7 +29,10 @@ const makeType = async () => {
         removeOptional(await getSchema('collection')),
         'Collection',
     );
-    writeFileSync('./src/generated_types.ts', `${type}\n${collection}`);
+    writeFileSync(
+        './scripts/common/generated_types.ts',
+        `${type}\n${collection}`,
+    );
     orb.succeed('Generated Types');
 };
 

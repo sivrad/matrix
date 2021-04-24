@@ -10,6 +10,7 @@ import {
 import { Exports, Imports } from './package';
 import { InternalType, InternalField } from './type';
 import { render } from 'ejs';
+import { sanitizeType, generateMethodSignature, generateJSDoc } from './util';
 
 const templates = new Map<string, string>();
 
@@ -51,7 +52,7 @@ const getTemplate = (template: string): string => {
     if (!templates.has(template))
         templates.set(
             template,
-            readFileSync(TEMPLATES_PATH + template, 'utf-8'),
+            readFileSync(TEMPLATES_PATH + template + '.ejs', 'utf-8'),
         );
     return templates.get(template)!;
 };
@@ -69,9 +70,6 @@ const renderTemplate = (template: string, args: Record<string, unknown>) =>
 const generateTypeClass = (schema: InternalType): string => {
     // Get the package parent info.
     const [packageName, parentName] = getParentInfo(schema.parent);
-    // Create the sanitize type function.
-    const sanitizeType = (type: string) =>
-        type.includes('.') ? type.split('.')[1] : type;
     // Set the imports.
     const imports = new Imports().add(
         packageName,
@@ -85,9 +83,12 @@ const generateTypeClass = (schema: InternalType): string => {
     importExternalFieldTypes(schema, imports);
 
     const content = renderTemplate('typeClass', {
+        imports,
         schema,
         parentName: parentName,
         sanitizeType,
+        generateMethodSignature,
+        generateJSDoc,
     });
 
     console.log(content);

@@ -1,3 +1,5 @@
+<%= imports %>
+
 /**
  * Serialized <%= schema.label %>
  */
@@ -33,4 +35,13 @@ export class <%= schema.name %> extends <%= parentName %> {
     constructor(data: <%= schema.name %> | string) {
         super(data);
     }
+    <% for (const method of methods) { %>
+    /**
+     * <%= method.description %>
+<%= generateJSDoc(method) %>
+     */
+    <%= method.access && method.access != 'public' ? `${method.access} ` : '' %><%= method.isStatic ? 'static ' : '' %><%= method.isAsync ? 'async ' : '' %><%= method.name %><%= method.generic ? `<${method.generic}>` : '' %>(<%= generateSignature(method) %>): <%= method.isAsync ? `Promise<${method.returns.type}>` : method.returns.type %> {
+        <%= method.code %>
+    }
+    <% } %>
 }
