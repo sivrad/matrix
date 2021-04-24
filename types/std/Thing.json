@@ -1,0 +1,15 @@
+{
+    "$schema": "https://raw.githubusercontent.com/sivrad/matrix-schema/main/type.json",
+    "name": "Thing",
+    "label": "Thing",
+    "description": "Thing.",
+    "isAbstract": true,
+    "fields": {
+        "start": {
+            "type": "Time | null",
+            "label": "Start",
+            "description": "Start_time.",
+            "defaultValue": null
+        }
+    }
+}

@@ -1,0 +1,36 @@
+/**
+ * Serialized <%= schema.label %>
+ */
+<% if (Object.keys(schema.fields).length == 0){ %>
+export type <%= schema.name %>Data = MatrixBaseTypeData;
+<% } else { %>
+export interface <%= schema.name %>Data extends <%= parentName %>Data {
+    <% for (const [fieldName, field] of Object.entries(schema.fields)) { %>
+    /**
+     * <%= field.description %>
+     */
+    <%= fieldName %><%= !field.required ? '?' : '' %>: <%= sanitizeType(field.type) %>;
+    <% } %>
+}
+<% } %>
+
+/**
+ * Matrix Type <%= schema.label %>
+ */
+export class <%= schema.name %> extends <%= parentName %> {
+    static classFields: Record<string, Field> = ;
+    private static classInformation = {
+        name:        '<%= schema.name %>',
+        label:       '<%= schema.label %>',
+        description: '<%= schema.description %>',
+        icon:        '<%= schema.icon %>',
+    };
+
+    /**
+     * Constructor for the <%= schema.label %>.
+     * @param {<%= schema.name %> | string} data Serialized data or instance ID.
+     */
+    constructor(data: <%= schema.name %> | string) {
+        super(data);
+    }
+}
