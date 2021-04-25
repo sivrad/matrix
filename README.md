@@ -68,7 +68,7 @@ yarn generate-types
 
 ## Building the Package
 
-This script will build the package, format with prettier, and transpile the code to Javascript.
+This script will build the package and transpile the code to Javascript.
 
 ```sh
 yarn build
