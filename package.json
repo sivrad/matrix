@@ -19,7 +19,7 @@
         "test": "mocha -r ts-node/register tests/**",
         "lint": "eslint src/**",
         "mk-docs": "typedoc --name \"Documentation\" && touch ./docs/.nojekyll",
-        "build": "yarn tsc",
+        "build": "yarn build-types & yarn format & yarn tsc",
         "patch": "yarn version --new-version patch"
     },
     "devDependencies": {

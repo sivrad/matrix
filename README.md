@@ -1,4 +1,4 @@
-<p align="center"><img height="220px" src="https://avatars.githubusercontent.com/u/76859002?s=200&v=4" alt="Logo" /><p>
+<p align="center"><img height="220px" src="https://i.imgur.com/UMHxlIV.png" alt="Matrix Logo" /><p>
 
 <p align="center">
   <strong>Matrix</strong><br />
@@ -43,3 +43,41 @@ console.log(mtx.getType('example.ExampleThing'));
 ```
 
 The rest of this is meant to be used by generated code with the [`collection-tools`](https://github.com/sivrad/matrix-collection-tools) package.
+
+# Contributing
+
+These are the steps to contribute to the Matrix Package.
+
+## Post Git Clone
+
+### Install Dependencies
+
+Install node dependencies with yarn.
+
+```sh
+yarn
+```
+
+### Generate Internal Types
+
+This generates internal types from the JSON schemas from [this](https://github.com/sivrad/matrix-schema) repo.
+
+```sh
+yarn generate-types
+```
+
+## Building the Package
+
+This script will build the package and transpile the code to Javascript.
+
+```sh
+yarn build
+```
+
+Additionally, you can just build the `src/types/*` files with:
+
+```sh
+yarn build-types
+```
+
+This is usefull if you don't want to transpile into Javascript every time you change something.
