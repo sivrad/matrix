@@ -9,7 +9,7 @@ import {
 /**
  * Configure a Source.
  */
-export class Source {
+export class DatabaseAPI {
     /**
      * Initialize a type.
      * @param {string} typeName The type name.

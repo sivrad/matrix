@@ -9,13 +9,14 @@ import {
 } from './errors';
 import { Field } from './field';
 import { Matrix } from './matrixInstance';
-import { Source } from './source';
+import { DatabaseAPI } from './dao';
 import {
     Field as FieldType,
     MatrixBaseTypeData,
     FieldObject,
     SerializedMatrixBaseTypeData,
     SerializedData,
+    ClassInformation,
 } from './type';
 import { mapObject } from './util';
 
@@ -50,7 +51,7 @@ export class MatrixBaseType {
     /**
      * Information on the class.
      */
-    public static _classInformation = {
+    public static _classInformation: ClassInformation = {
         name: 'BaseType',
         label: 'Base Type',
         description: 'The base matrix type',
@@ -181,10 +182,10 @@ export class MatrixBaseType {
 
     /**
      * Get the type's source.
-     * @returns {Source} The type's source.
+     * @returns {DatabaseAPI} The type's source.
      */
-    static getSource(): Source {
-        return this.getCollection().getMatrix().getSource('primary');
+    static getDatabaseAPI(): DatabaseAPI {
+        return this.getCollection().getMatrix().getDatabaseAPI();
     }
 
     /**
@@ -222,7 +223,7 @@ export class MatrixBaseType {
     static async get<T extends MatrixBaseType = MatrixBaseType>(
         id: string,
     ): Promise<T> {
-        const source = this.getSource(),
+        const source = this.getDatabaseAPI(),
             type = this.getType(),
             response = (await source.getInstance(type, id)).response,
             data = response.data;
@@ -237,7 +238,7 @@ export class MatrixBaseType {
     static async getAll<T extends MatrixBaseType = MatrixBaseType>(): Promise<
         T[]
     > {
-        const source = this.getSource(),
+        const source = this.getDatabaseAPI(),
             type = this.getType(),
             response = (await source.getInstances(type)).response,
             instances: T[] = [];
@@ -390,10 +391,10 @@ export class MatrixBaseType {
 
     /**
      * Get the type's source.
-     * @returns {Source} The type's source.
+     * @returns {DatabaseAPI} The type's source.
      */
-    private getSource(): Source {
-        return this.getTypeClass().getSource();
+    private getSource(): DatabaseAPI {
+        return this.getTypeClass().getDatabaseAPI();
     }
 
     /**

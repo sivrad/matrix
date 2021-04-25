@@ -1,4 +1,4 @@
-import { Source } from './source';
+import { DatabaseAPI } from './dao';
 
 export interface Field {
     type: string;
@@ -8,7 +8,7 @@ export interface Field {
     required: boolean;
 }
 
-export type SourcesObject = { primary: Source; [k: string]: Source };
+export type SourcesObject = { primary: DatabaseAPI; [k: string]: DatabaseAPI };
 
 /**
  * Includes the base types.
@@ -16,6 +16,13 @@ export type SourcesObject = { primary: Source; [k: string]: Source };
 export type MatrixBaseTypeData = Record<string, unknown>;
 
 export type SerializedMatrixBaseTypeData = InternalData<MatrixBaseTypeData>;
+
+export interface ClassInformation {
+    name: string;
+    label: string;
+    description: string;
+    icon: string;
+}
 
 /**
  * I have no idea how field sources (get a better name like citation idk) are going to work.

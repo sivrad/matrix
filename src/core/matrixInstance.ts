@@ -1,8 +1,7 @@
 import { Collection } from './collection';
-import { CollectionNotFound, SourceNotFound } from './errors';
+import { CollectionNotFound } from './errors';
 import { MatrixBaseType } from './matrixBaseType';
-import { Source } from './source';
-import { SourcesObject } from './type';
+import { DatabaseAPI } from './dao';
 
 /**
  * Matrix instance.
@@ -13,11 +12,11 @@ export class Matrix {
     /**
      * Contructor for a Matrix instance.
      * @param {Collection[]}  _collections List of the collections.
-     * @param {SourcesObject} _sources     List of the sources.
+     * @param {DatabaseAPI} databaseAPI     List of the sources.
      */
     constructor(
         public _collections: Collection[],
-        public _sources: SourcesObject,
+        private databaseAPI: DatabaseAPI,
     ) {
         // Set the matrix instance for each collection.
         for (const collection of _collections) {
@@ -38,14 +37,11 @@ export class Matrix {
     }
 
     /**
-     * Get a source instance.
-     * @param {string} identifier Source identifier.
-     * @returns {Source} The source instance.
+     * Get the database API.
+     * @returns {DatabaseAPI} The source instance.
      */
-    getSource(identifier: string): Source {
-        const source = this._sources[identifier];
-        if (!source) throw new SourceNotFound(identifier);
-        return source;
+    getDatabaseAPI(): DatabaseAPI {
+        return this.databaseAPI;
     }
 
     /**

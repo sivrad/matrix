@@ -4,6 +4,7 @@
     "label": "Rocket",
     "description": "A rocket.",
     "parent": "std.Thing",
+    "sources": "spacex",
     "fields": {
         "name": {
             "label": "Name",
