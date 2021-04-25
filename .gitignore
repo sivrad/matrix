@@ -123,7 +123,7 @@ dist
 
 # End of https://www.toptal.com/developers/gitignore/api/node,vscode
 
-# Included for testing reasons
-service*.yaml
-
-serv/
+# Ignore the types/ in src/
+src/types/
+# Ignore the generated types for scripts/
+scripts/common/generated_types.ts

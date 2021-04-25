@@ -1,0 +1,34 @@
+{
+    "$schema": "https://raw.githubusercontent.com/sivrad/matrix-schema/main/type.json",
+    "name": "Rocket",
+    "label": "Rocket",
+    "description": "A rocket.",
+    "parent": "std.Thing",
+    "fields": {
+        "name": {
+            "label": "Name",
+            "type": "string",
+            "description": "The rocket name."
+        },
+        "manufacturer": {
+            "label": "Manufacturer",
+            "type": "std.Organization",
+            "description": "The rocket manufacturer."
+        },
+        "isActive": {
+            "label": "Is Active",
+            "type": "boolean",
+            "description": "If the rocket is currently active."
+        },
+        "launchCost": {
+            "label": "Launch Cost",
+            "type": "number",
+            "description": "The cost per launch (USD)."
+        },
+        "successRate": {
+            "label": "Success Rate",
+            "type": "number",
+            "description": "The success rate."
+        }
+    }
+}

@@ -1,0 +1,59 @@
+<%- imports %>
+
+/**
+ * Serialized <%= schema.label %>.
+ */
+<% if (Object.keys(schema.fields).length == 0){ %>
+export type <%= schema.name %>Data = MatrixBaseTypeData;
+<% } else { %>
+export interface <%= schema.name %>Data extends <%= parentName %>Data {
+    <% for (const [fieldName, field] of Object.entries(schema.fields)) { %>
+    /**
+     * <%= field.description %>
+     */
+    <%= fieldName %><%= !field.required ? '?' : '' %>: <%= sanitizeType(field.type) %>;
+    <% } %>
+}
+<% } %>
+
+/**
+ * Matrix Type <%= schema.label %>.
+ * 
+ * <%- schema.description %>
+ */
+export class <%= schema.name %> extends <%= parentName %> {
+    static _classFields: Record<string, Field> = {
+        <% for (const [fieldName, field] of Object.entries(schema.fields || {})) { %>
+        <%= fieldName %>: {
+            type: '<%= field.type %>',
+            label: '<%= field.label %>',
+            description: '<%= field.description %>',
+            defaultValue: <%= typeof field.defaultValue == 'string' ? `'${field.defaultValue}'` : field.defaultValue || 'null' %>,
+            required: <%= field.required %>,
+        },
+        <% } %>
+    };
+    static _classInformation = {
+        name:        '<%= schema.name %>',
+        label:       '<%= schema.label %>',
+        description: '<%= schema.description %>',
+        icon:        '<%= schema.icon %>',
+    };
+
+    /**
+     * Constructor for the <%= schema.label %>.
+     * @param {<%= schema.name %>Data | string} data Serialized data or instance ID.
+     */
+    constructor(data: <%= schema.name %>Data | string) {
+        super(data);
+    }
+    <% for (const method of methods) { %>
+    /**
+     * <%= method.description %>
+<%= generateJSDoc(method) %>
+     */
+    <%= method.access && method.access != 'public' ? `${method.access} ` : '' %><%= method.isStatic ? 'static ' : '' %><%= method.isAsync ? 'async ' : '' %><%= method.name %><%- method.generic ? `<${method.generic}>` : '' %>(<%= generateMethodSignature(method) %>): <%- method.isAsync ? `Promise<${method.returns.type}>` : method.returns.type %> {
+        <%- method.code %>
+    }
+    <% } %>
+}
