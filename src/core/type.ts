@@ -1,4 +1,4 @@
-import { DatabaseAPI } from './dao';
+import { DatabaseAPI } from './databaseAPI';
 
 export interface Field {
     type: string;

@@ -46,5 +46,7 @@
     "files": [
         "dist"
     ],
-    "dependencies": {}
+    "dependencies": {
+        "faunadb": "^4.2.0"
+    }
 }

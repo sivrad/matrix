@@ -1,7 +1,7 @@
 import { Collection } from './collection';
 import { CollectionNotFound } from './errors';
 import { MatrixBaseType } from './matrixBaseType';
-import { DatabaseAPI } from './dao';
+import { DatabaseAPI } from './databaseAPI';
 
 /**
  * Matrix instance.

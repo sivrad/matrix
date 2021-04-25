@@ -9,7 +9,7 @@ import {
 } from './errors';
 import { Field } from './field';
 import { Matrix } from './matrixInstance';
-import { DatabaseAPI } from './dao';
+import { DatabaseAPI } from './databaseAPI';
 import {
     Field as FieldType,
     MatrixBaseTypeData,
