@@ -10,20 +10,20 @@ export interface InternalType extends Type {
 export interface Method {
     name: string;
     description: string;
-    args: {
-        name: string;
-        type: string;
-        description: string;
-    }[];
+    args: Record<
+        string,
+        {
+            type: string;
+            description: string;
+        }
+    >;
     returns: {
         type: string;
         description: string;
     };
     code: string;
-    options: {
-        access?: 'public' | 'private' | 'protected';
-        isAsync?: boolean;
-        isStatic?: boolean;
-        generic?: string;
-    };
+    access?: 'public' | 'private' | 'protected';
+    isAsync?: boolean;
+    isStatic?: boolean;
+    generic?: string;
 }

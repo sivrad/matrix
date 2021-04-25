@@ -1,27 +1,28 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { TYPE_FILES_PATH } from '../common/constants';
 import { formatAsLabel, getCollectionTypes } from '../common/util';
-import {
-    BUILT_IN_TYPES,
-    COLLECTION_PACKAGE_PREFIX,
-    TEMPLATES_PATH,
-    TYPES_DIRECTORY,
-} from './constants';
+import { BUILT_IN_TYPES, TEMPLATES_PATH, TYPES_DIRECTORY } from './constants';
 import { Exports, Imports } from './package';
-import { InternalType, InternalField } from './type';
+import { InternalType, InternalField, Method } from './type';
 import { render } from 'ejs';
-import { sanitizeType, generateMethodSignature, generateJSDoc } from './util';
+import {
+    sanitizeType,
+    generateMethodSignature,
+    generateJSDoc,
+    formatAsClassName,
+} from './util';
 
 const templates = new Map<string, string>();
+const coreImport = '../../core';
 
 const getParentInfo = (parent?: string): [string, string] => {
     // If no parent is given.
-    if (!parent) return ['@sivrad/matrix', 'MatrixBaseType'];
+    if (!parent) return [coreImport, 'MatrixBaseType'];
     // If no '.'
     if (!parent.includes('.')) return [`.`, parent];
     // Remote package.
     const parentParts = parent.split('.');
-    return [COLLECTION_PACKAGE_PREFIX + parentParts[0], parentParts[1]];
+    return ['../' + parentParts[0], parentParts[1]];
 };
 
 const isolateFieldTypes = (type: string): string[] => {
@@ -38,10 +39,7 @@ const importExternalFieldTypes = (schema: InternalType, imports: Imports) => {
             const typeNameParts = typeName.split('.');
             const [pkg, type] =
                 typeNameParts.length == 2
-                    ? [
-                          COLLECTION_PACKAGE_PREFIX + typeNameParts[0],
-                          typeNameParts[1],
-                      ]
+                    ? ['../' + typeNameParts[0], typeNameParts[1]]
                     : ['.', typeName];
             imports.add(pkg, type);
         }
@@ -67,6 +65,100 @@ const renderTemplate = (template: string, args: Record<string, unknown>) =>
 //     return renderTemplate('typeInterface');
 // };
 
+const generateFieldMethods = (
+    _: InternalType,
+    fieldName: string,
+    field: InternalField,
+): Method[] => {
+    const classNameFormat = formatAsClassName(fieldName),
+        sanizizedType = sanitizeType(field.type),
+        methods = [
+            // Getter
+            {
+                name: `get${classNameFormat}`,
+                description: `Retrive the ${field.label} field.`,
+                args: {},
+                returns: {
+                    type: sanizizedType,
+                    description: field.description,
+                },
+                code: `return this.getField<${sanizizedType}>('${fieldName}');`,
+            },
+        ];
+    // Check if you can set the field.
+    methods.push({
+        name: `set${classNameFormat}`,
+        description: `Set the ${field.label} field.`,
+        args: {
+            value: {
+                type: sanizizedType,
+                description: 'The value to set.',
+            },
+        },
+        returns: {
+            type: 'void',
+            description: '',
+        },
+        code: `this.setField('${fieldName}', value);`,
+    });
+    return methods;
+};
+const getTypeMethods = (schema: InternalType): Method[] => {
+    let methods: Method[] = [
+        // `get` method.
+        {
+            name: 'get',
+            description: 'Get an instance of the type from the ID.',
+            args: {
+                id: {
+                    type: 'string',
+                    description: 'The ID of the instance.',
+                },
+            },
+            returns: {
+                type: 'T',
+                description: 'The new instance of the type.',
+            },
+            code: 'return await super.get<T>(id);',
+            isStatic: true,
+            isAsync: true,
+            generic: `T extends MatrixBaseType = ${schema.name}`,
+        },
+        // `getAll` method.
+        {
+            name: 'getAll',
+            description: 'Get all the instances of a type.',
+            args: {},
+            returns: {
+                type: 'T[]',
+                description: 'All the new instances.',
+            },
+            code: 'return await super.getAll<T>();',
+            isStatic: true,
+            isAsync: true,
+            generic: `T extends MatrixBaseType = ${schema.name}`,
+        },
+        // `getTypeClass` method.
+        {
+            name: 'getTypeClass',
+            description: 'Get the class of the type.',
+            args: {},
+            returns: {
+                type: 'T',
+                description: 'The type class.',
+            },
+            code: `return (${schema.name} as unknown) as T;`,
+            generic: `T = typeof ${schema.name}`,
+        },
+        // All the getters and setters associated with the fields.
+    ];
+    for (const [fieldName, field] of Object.entries(schema.fields)) {
+        const fieldMethods = generateFieldMethods(schema, fieldName, field);
+        methods = methods.concat(fieldMethods);
+    }
+    return methods;
+};
+
 const generateTypeClass = (schema: InternalType): string => {
     // Get the package parent info.
     const [packageName, parentName] = getParentInfo(schema.parent);
@@ -76,29 +168,26 @@ const generateTypeClass = (schema: InternalType): string => {
         parentName,
         `${parentName}Data`,
     );
-    imports.add('@sivrad/matrix', 'Field');
-    if (packageName != '@sivrad/matrix')
-        imports.add('@sivrad/matrix', 'MatrixBaseType');
+    imports.add(coreImport, 'Field');
+    if (packageName != coreImport) imports.add(coreImport, 'MatrixBaseType');
     // Import all the external field types.
     importExternalFieldTypes(schema, imports);
+    // Get all the methods
+    const methods = getTypeMethods(schema);
 
     const content = renderTemplate('typeClass', {
         imports,
         schema,
-        parentName: parentName,
+        parentName,
+        methods,
         sanitizeType,
         generateMethodSignature,
         generateJSDoc,
     });
-
-    console.log(content);
-
     return content;
 };
 
 const getSchema = (schemaPath: string): InternalType => {
-    console.log(schemaPath);
-
     const typeSchema = JSON.parse(readFileSync(schemaPath, 'utf-8'));
     const getField = (key: string, field: InternalField): InternalField => {
         return {
@@ -125,6 +214,12 @@ const getSchema = (schemaPath: string): InternalType => {
     };
 };
 
+const createTypesIndexFile = (exports: Exports) => {
+    const path = `${TYPES_DIRECTORY}index.ts`;
+    const content = exports.toString();
+    writeFileSync(path, content);
+};
+
 const createCollectionIndexFile = (
     collectionName: string,
     exports: Exports,
@@ -134,44 +229,47 @@ const createCollectionIndexFile = (
     writeFileSync(path, content);
 };
 
+const createTypesDirectory = () => {
+    if (!existsSync(TYPES_DIRECTORY)) mkdirSync(TYPES_DIRECTORY);
+};
+
 const createCollectionDirectory = (collectionName: string) => {
     const collectionPath = `${TYPES_DIRECTORY}${collectionName}/`;
     if (!existsSync(collectionPath)) mkdirSync(collectionPath);
 };
 
-/**
- * Builds a type.
- * @param   {string} collectionName The collection name.
- * @param   {string} path           The path to the type.
- * @returns {string} Returns the type name.
- */
 const buildType = (collectionName: string, path: string): string => {
     const schema = getSchema(path);
     const content = generateTypeClass(schema);
-    console.log(collectionName, content);
-
-    // writeFileSync(
-    //     `${TYPES_DIRECTORY}${collectionName}/${schema.name}.ts`,
-    //     content,
-    // );
+    writeFileSync(
+        `${TYPES_DIRECTORY}${collectionName}/${schema.name}.ts`,
+        content,
+    );
     return schema.name;
 };
 
 export const build = async (): Promise<void> => {
+    // Create './src/types/'.
+    createTypesDirectory();
+    const typeExports = new Exports();
     for (const [collectionName, types] of Object.entries(
         getCollectionTypes(),
     )) {
-        const exports = new Exports();
-        // Create 'collection/'.
+        // Export all from the collection.
+        typeExports.set(`./${collectionName}`, '*');
+        const collectionExports = new Exports();
+        // Create './src/types/collection/'.
         createCollectionDirectory(collectionName);
         for (const type of types) {
             const typeName = buildType(
                 collectionName,
                 `${TYPE_FILES_PATH}${collectionName}/${type}`,
             );
-            exports.add(`./${typeName}`, typeName, `${typeName}Data`);
+            collectionExports.add(`./${typeName}`, typeName, `${typeName}Data`);
         }
-        // Create 'collection/index.ts'.
-        createCollectionIndexFile(collectionName, exports);
+        // Create './src/types/collection/index.ts'.
+        createCollectionIndexFile(collectionName, collectionExports);
     }
+    // Create './src/types/index.ts'.
+    createTypesIndexFile(typeExports);
 };

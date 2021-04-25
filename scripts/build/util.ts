@@ -11,19 +11,22 @@ export const sanitizeType = (type: string): string =>
     type.includes('.') ? type.split('.')[1] : type;
 
 export const generateMethodSignature = (method: Method): string =>
-    method.args.map((arg) => `${arg.name}: ${arg.type}`).join(', ');
+    Object.entries(method.args)
+        .map(([argName, arg]) => `${argName}: ${arg.type}`)
+        .join(', ');
 
 export const generateJSDoc = (method: Method): string => {
-    const argTable =
-        method.args.length == 0
-            ? []
-            : // Create an arg table for the parms.
-              method.args.map((arg) => [
-                  '     * @param',
-                  `{${arg.type}}`,
-                  arg.name,
-                  arg.description,
-              ]);
+    const args = Object.entries(method.args),
+        argTable =
+            args.length == 0
+                ? []
+                : // Create an arg table for the parms.
+                  args.map(([argName, arg]) => [
+                      '     * @param',
+                      `{${arg.type}}`,
+                      argName,
+                      arg.description,
+                  ]);
     // Add the returns to the table.
     argTable.push([
         '     * @returns',
