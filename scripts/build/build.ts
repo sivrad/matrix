@@ -159,7 +159,10 @@ const getTypeMethods = (schema: InternalType): Method[] => {
     return methods;
 };
 
-const generateTypeClass = (schema: InternalType): string => {
+const generateTypeClass = (
+    collectionName: string,
+    schema: InternalType,
+): string => {
     // Get the package parent info.
     const [packageName, parentName] = getParentInfo(schema.parent);
     // Set the imports.
@@ -177,6 +180,7 @@ const generateTypeClass = (schema: InternalType): string => {
 
     const content = renderTemplate('typeClass', {
         imports,
+        collectionName,
         schema,
         parentName,
         methods,
@@ -240,7 +244,7 @@ const createCollectionDirectory = (collectionName: string) => {
 
 const buildType = (collectionName: string, path: string): string => {
     const schema = getSchema(path);
-    const content = generateTypeClass(schema);
+    const content = generateTypeClass(collectionName, schema);
     writeFileSync(
         `${TYPES_DIRECTORY}${collectionName}/${schema.name}.ts`,
         content,

@@ -50,12 +50,7 @@ export class MatrixBaseType {
     /**
      * Information on the class.
      */
-    public static _classInformation: ClassInformation = {
-        name: 'BaseType',
-        label: 'Base Type',
-        description: 'The base matrix type',
-        icon: '',
-    };
+    public static _classInformation: ClassInformation;
     /**
      * The type fields.
      */
@@ -120,6 +115,19 @@ export class MatrixBaseType {
     }
 
     /**
+     * Get the collection name.
+     * @function getCollection
+     * @memberof MatrixBaseType
+     * @static
+     * @example
+     * MyType.getCollection() // "std"
+     * @returns {string} Name of the collection.
+     */
+    static getCollection(): string {
+        return this._classInformation.collection;
+    }
+
+    /**
      * Get the type name.
      * @function getName
      * @memberof MatrixBaseType
@@ -144,7 +152,7 @@ export class MatrixBaseType {
      * @returns {string} Type of the type.
      */
     static getType(): string {
-        return `${'this.getCollection().getIdentifier()'}.${this.getName()}`;
+        return `${this.getCollection()}.${this.getName()}`;
     }
 
     /**

@@ -1,5 +1,4 @@
 import {
-    Driver,
     errors as matrixErrors,
     MatrixBaseTypeData,
     SourceInstanceResponse,
@@ -8,6 +7,7 @@ import {
     InternalData,
     SerializedData,
 } from '../..';
+import { Driver } from '../driver';
 import { Client, query as q, errors as faunaDBErrors } from 'faunadb';
 
 export interface FauanDBReferenceResponce {

@@ -1,7 +1,7 @@
-// import { Collection } from './collection';
-// import { CollectionNotFound } from './errors';
 import { MatrixBaseType } from './matrixBaseType';
 import { Driver } from './driver';
+import { TypeNotFound } from './errors';
+import { MatrixClassArray } from './type';
 
 /**
  * Matrix instance.
@@ -11,15 +11,9 @@ export class Matrix {
 
     /**
      * Contructor for a Matrix instance.
-     * @param {Driver} databaseAPI     List of the sources.
+     * @param {Driver} driver The driver instance.
      */
-    constructor(private databaseAPI: Driver) {
-        // Set the matrix instance for each collection.
-        // for (const collection of _collections) {
-        //     collection.setMatrix(this);
-        //     this._collectionsMap.set(collection.getIdentifier(), collection);
-        // }
-    }
+    constructor(private driver: Driver) {}
 
     /**
      * Add a type.
@@ -30,22 +24,11 @@ export class Matrix {
     }
 
     /**
-     * Get a collection.
-     * @param {string} collectionIdentifier The identifier of the collection.
-     * @returns {Collection} The collection identifier.
-     */
-    // getCollection(collectionIdentifier: string): Collection {
-    //     const collection = this._collectionsMap.get(collectionIdentifier);
-    //     if (!collection) throw new CollectionNotFound(collectionIdentifier);
-    //     return collection;
-    // }
-
-    /**
      * Get the driver.
      * @returns {Driver} The source instance.
      */
     getDriver(): Driver {
-        return this.databaseAPI;
+        return this.driver;
     }
 
     /**
@@ -53,9 +36,23 @@ export class Matrix {
      * @param {string} typeName The name of the type.
      * @returns {typeof MatrixBaseType} The type class.
      */
-    // getType<T extends typeof MatrixBaseType>(typeName: string): T {
-    //     const [collectionIdentifier, type] = typeName.split('.');
-    //     const collection = this.getCollection(collectionIdentifier);
-    //     return collection.getType(type) as T;
-    // }
+    getType<T extends typeof MatrixBaseType>(typeName: string): T {
+        const typeClass = Matrix.types.get(typeName);
+        if (!typeClass) throw new TypeNotFound(typeName);
+        return typeClass as T;
+    }
+
+    /**
+     * Return all the types.
+     * @returns {MatrixClassArray} All the type classes.
+     */
+    getTypes(): Record<string, MatrixClassArray> {
+        const allTypes: Record<string, MatrixClassArray> = {};
+        for (const typeClass of Matrix.types.values()) {
+            const collection = typeClass.getCollection();
+            if (!allTypes[collection]) allTypes[collection] = [];
+            allTypes[collection].push(typeClass);
+        }
+        return allTypes;
+    }
 }

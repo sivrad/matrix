@@ -1,4 +1,5 @@
 import { Driver } from './driver';
+import { MatrixBaseType } from './matrixBaseType';
 
 export interface Field {
     type: string;
@@ -17,7 +18,10 @@ export type MatrixBaseTypeData = Record<string, unknown>;
 
 export type SerializedMatrixBaseTypeData = InternalData<MatrixBaseTypeData>;
 
+export type MatrixClassArray = typeof MatrixBaseType[];
+
 export interface ClassInformation {
+    collection: string;
     name: string;
     label: string;
     description: string;

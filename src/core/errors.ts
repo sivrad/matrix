@@ -140,23 +140,18 @@ export class SourceNotFound extends MatrixError {
 //     }
 // }
 
-// /**
-//  * A Type not found in a collection error.
-//  */
-// export class TypeNotFound extends MatrixCollectionError {
-//     /**
-//      * Constructor for a type not found error.
-//      * @param {Collection} collection The collection instance.
-//      * @param {string}     typeName   The name of the type.
-//      */
-//     constructor(collection: Collection, public typeName: string) {
-//         super(
-//             'TypeNotFound',
-//             `The type '${typeName}' was not found in collection '${collection.getIdentifier()}'`,
-//             collection,
-//         );
-//     }
-// }
+/**
+ * A Type not found error.
+ */
+export class TypeNotFound extends MatrixError {
+    /**
+     * Constructor for a type not found error.
+     * @param {string}     typeName   The name of the type.
+     */
+    constructor(public typeName: string) {
+        super('TypeNotFound', `The type '${typeName}' was not found.`);
+    }
+}
 
 /**
  * Class to represent a Matrix Type error.
