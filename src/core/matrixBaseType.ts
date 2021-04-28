@@ -1,4 +1,3 @@
-import { Collection } from './collection';
 import {
     AlreadyInstantiated,
     InvalidField,
@@ -43,7 +42,7 @@ export class MatrixBaseType {
     /**
      * The collection assigned to the type.
      */
-    public static _collection: Collection | null = null;
+    private static matrix?: Matrix;
     /**
      * The class specific fields.
      */
@@ -108,15 +107,16 @@ export class MatrixBaseType {
     }
 
     /**
-     * Get the type collection.
-     * @function getCollection
-     * @memberof MatrixBaseType
+     * Get the Matrix instance.
+     * @function getMatrix
+     * @memberof Matrix
      * @static
-     * @returns {Collection} Collection instance.
+     * @returns {Matrix} Matrix instance.
      */
-    static getCollection(): Collection {
-        if (this._collection == null) throw new NoAssignedCollection(this);
-        return this._collection;
+    static getMatrix(): Matrix {
+        // TODO: change this to NoMatrix
+        if (this.matrix == null) throw new NoAssignedCollection(this);
+        return this.matrix;
     }
 
     /**
@@ -144,7 +144,7 @@ export class MatrixBaseType {
      * @returns {string} Type of the type.
      */
     static getType(): string {
-        return `${this.getCollection().getIdentifier()}.${this.getName()}`;
+        return `${'this.getCollection().getIdentifier()'}.${this.getName()}`;
     }
 
     /**
@@ -185,7 +185,7 @@ export class MatrixBaseType {
      * @returns {DatabaseAPI} The type's source.
      */
     static getDatabaseAPI(): DatabaseAPI {
-        return this.getCollection().getMatrix().getDatabaseAPI();
+        return this.getMatrix().getDatabaseAPI();
     }
 
     /**
@@ -386,7 +386,7 @@ export class MatrixBaseType {
      * @returns {Matrix} Matrix instance.
      */
     private getMatrix(): Matrix {
-        return this.getTypeClass().getCollection().getMatrix();
+        return this.getTypeClass().getMatrix();
     }
 
     /**

@@ -22,9 +22,6 @@ yarn add @sivrad/matrix
 ```typescript
 // Import Matrix from this package.
 import { Matrix } from '@sivrad/matrix';
-// Import a collection from another package.
-// We will be using the example package.
-import { collection as exampleCollection } from '@sivrad/matrix-collection-example';
 
 // Create an instance and pass all the collections.
 const mtx = new Matrix([exampleCollection]);

@@ -40,7 +40,7 @@ const importExternalFieldTypes = (schema: InternalType, imports: Imports) => {
             const [pkg, type] =
                 typeNameParts.length == 2
                     ? ['../' + typeNameParts[0], typeNameParts[1]]
-                    : ['.', typeName];
+                    : ['./' + typeName, typeName];
             imports.add(pkg, type);
         }
     }

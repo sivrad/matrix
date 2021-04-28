@@ -1,4 +1,3 @@
-import { Collection } from './collection';
 import { Field } from './field';
 import { MatrixBaseType } from './matrixBaseType';
 
@@ -126,38 +125,38 @@ export class SourceNotFound extends MatrixError {
     }
 }
 
-/**
- * Class to represent a Matrix collection error.
- */
-export class MatrixCollectionError extends MatrixError {
-    /**
-     * Constructor for a Matrix collection error.
-     * @param {string} name       Name of the error.
-     * @param {string} message    Message of the error.
-     * @param {string} collection The collection instance with the error.
-     */
-    constructor(name: string, message: string, public collection: Collection) {
-        super(name, message);
-    }
-}
+// /**
+//  * Class to represent a Matrix collection error.
+//  */
+// export class MatrixCollectionError extends MatrixError {
+//     /**
+//      * Constructor for a Matrix collection error.
+//      * @param {string} name       Name of the error.
+//      * @param {string} message    Message of the error.
+//      * @param {string} collection The collection instance with the error.
+//      */
+//     constructor(name: string, message: string, public collection: Collection) {
+//         super(name, message);
+//     }
+// }
 
-/**
- * A Type not found in a collection error.
- */
-export class TypeNotFound extends MatrixCollectionError {
-    /**
-     * Constructor for a type not found error.
-     * @param {Collection} collection The collection instance.
-     * @param {string}     typeName   The name of the type.
-     */
-    constructor(collection: Collection, public typeName: string) {
-        super(
-            'TypeNotFound',
-            `The type '${typeName}' was not found in collection '${collection.getIdentifier()}'`,
-            collection,
-        );
-    }
-}
+// /**
+//  * A Type not found in a collection error.
+//  */
+// export class TypeNotFound extends MatrixCollectionError {
+//     /**
+//      * Constructor for a type not found error.
+//      * @param {Collection} collection The collection instance.
+//      * @param {string}     typeName   The name of the type.
+//      */
+//     constructor(collection: Collection, public typeName: string) {
+//         super(
+//             'TypeNotFound',
+//             `The type '${typeName}' was not found in collection '${collection.getIdentifier()}'`,
+//             collection,
+//         );
+//     }
+// }
 
 /**
  * Class to represent a Matrix Type error.
