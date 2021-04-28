@@ -1,4 +1,4 @@
-import { DatabaseAPI } from './databaseAPI';
+import { Driver } from './driver';
 
 export interface Field {
     type: string;
@@ -8,7 +8,7 @@ export interface Field {
     required: boolean;
 }
 
-export type SourcesObject = { primary: DatabaseAPI; [k: string]: DatabaseAPI };
+export type SourcesObject = { primary: Driver; [k: string]: Driver };
 
 /**
  * Includes the base types.

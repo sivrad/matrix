@@ -1,6 +1,7 @@
 export { MatrixBaseType } from './matrixBaseType';
 export { Matrix } from './matrixInstance';
-export { DatabaseAPI } from './databaseAPI';
+export { Driver } from './driver';
 export * from './type';
+export * from './drivers';
 export * as util from './util';
 export * as errors from './errors';

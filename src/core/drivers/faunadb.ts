@@ -1,5 +1,5 @@
 import {
-    DatabaseAPI,
+    Driver,
     errors as matrixErrors,
     MatrixBaseTypeData,
     SourceInstanceResponse,
@@ -7,7 +7,7 @@ import {
     util,
     InternalData,
     SerializedData,
-} from '../../';
+} from '../..';
 import { Client, query as q, errors as faunaDBErrors } from 'faunadb';
 
 export interface FauanDBReferenceResponce {
@@ -37,7 +37,7 @@ export interface FauanDBReferencesResponse {
 /**
  * FaunaDB Source.
  */
-export class FaunaDB extends DatabaseAPI {
+export class FaunaDBDriver extends Driver {
     private client: Client;
 
     /**

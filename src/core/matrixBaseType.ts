@@ -8,7 +8,7 @@ import {
 } from './errors';
 import { Field } from './field';
 import { Matrix } from './matrixInstance';
-import { DatabaseAPI } from './databaseAPI';
+import { Driver } from './driver';
 import {
     Field as FieldType,
     MatrixBaseTypeData,
@@ -182,10 +182,10 @@ export class MatrixBaseType {
 
     /**
      * Get the type's source.
-     * @returns {DatabaseAPI} The type's source.
+     * @returns {Driver} The type's source.
      */
-    static getDatabaseAPI(): DatabaseAPI {
-        return this.getMatrix().getDatabaseAPI();
+    static getDriver(): Driver {
+        return this.getMatrix().getDriver();
     }
 
     /**
@@ -223,7 +223,7 @@ export class MatrixBaseType {
     static async get<T extends MatrixBaseType = MatrixBaseType>(
         id: string,
     ): Promise<T> {
-        const source = this.getDatabaseAPI(),
+        const source = this.getDriver(),
             type = this.getType(),
             response = (await source.getInstance(type, id)).response,
             data = response.data;
@@ -238,7 +238,7 @@ export class MatrixBaseType {
     static async getAll<T extends MatrixBaseType = MatrixBaseType>(): Promise<
         T[]
     > {
-        const source = this.getDatabaseAPI(),
+        const source = this.getDriver(),
             type = this.getType(),
             response = (await source.getInstances(type)).response,
             instances: T[] = [];
@@ -391,10 +391,10 @@ export class MatrixBaseType {
 
     /**
      * Get the type's source.
-     * @returns {DatabaseAPI} The type's source.
+     * @returns {Driver} The type's source.
      */
-    private getSource(): DatabaseAPI {
-        return this.getTypeClass().getDatabaseAPI();
+    private getSource(): Driver {
+        return this.getTypeClass().getDriver();
     }
 
     /**

@@ -1,0 +1,1 @@
+export { FaunaDBDriver } from './faunadb';

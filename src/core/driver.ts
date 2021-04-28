@@ -7,9 +7,9 @@ import {
 } from './type';
 
 /**
- * Configure a Source.
+ * Driver base class.
  */
-export class DatabaseAPI {
+export abstract class Driver {
     /**
      * Initialize a type.
      * @param {string} typeName The type name.

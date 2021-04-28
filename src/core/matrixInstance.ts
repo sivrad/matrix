@@ -1,7 +1,7 @@
 // import { Collection } from './collection';
 // import { CollectionNotFound } from './errors';
 import { MatrixBaseType } from './matrixBaseType';
-import { DatabaseAPI } from './databaseAPI';
+import { Driver } from './driver';
 
 /**
  * Matrix instance.
@@ -11,9 +11,9 @@ export class Matrix {
 
     /**
      * Contructor for a Matrix instance.
-     * @param {DatabaseAPI} databaseAPI     List of the sources.
+     * @param {Driver} databaseAPI     List of the sources.
      */
-    constructor(private databaseAPI: DatabaseAPI) {
+    constructor(private databaseAPI: Driver) {
         // Set the matrix instance for each collection.
         // for (const collection of _collections) {
         //     collection.setMatrix(this);
@@ -41,10 +41,10 @@ export class Matrix {
     // }
 
     /**
-     * Get the database API.
-     * @returns {DatabaseAPI} The source instance.
+     * Get the driver.
+     * @returns {Driver} The source instance.
      */
-    getDatabaseAPI(): DatabaseAPI {
+    getDriver(): Driver {
         return this.databaseAPI;
     }
 

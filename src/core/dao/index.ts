@@ -1,1 +1,0 @@
-export { FaunaDB } from './faunadb';
