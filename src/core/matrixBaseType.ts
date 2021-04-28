@@ -1,9 +1,8 @@
 import {
     AlreadyInstantiated,
     InvalidField,
-    // InvalidFieldType,
     MissingField,
-    NoAssignedCollection,
+    NoMatrixInstance,
     Uninstantiated,
 } from './errors';
 import { Field } from './field';
@@ -109,8 +108,7 @@ export class MatrixBaseType {
      * @returns {Matrix} Matrix instance.
      */
     static getMatrix(): Matrix {
-        // TODO: change this to NoMatrix
-        if (this.matrix == null) throw new NoAssignedCollection(this);
+        if (this.matrix == null) throw new NoMatrixInstance(this);
         return this.matrix;
     }
 

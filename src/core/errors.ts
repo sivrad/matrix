@@ -94,22 +94,6 @@ export class InstanceNotFound extends SourceError {
 }
 
 /**
- * A collection not found error.
- */
-export class CollectionNotFound extends MatrixError {
-    /**
-     * Constructor for a collection not found error.
-     * @param {string} collectionIdentifier The collection identifier that was not found.
-     */
-    constructor(public collectionIdentifier: string) {
-        super(
-            'CollectionNotFound',
-            `The collection '${collectionIdentifier}' was not found.`,
-        );
-    }
-}
-
-/**
  * A source not found error.
  */
 export class SourceNotFound extends MatrixError {
@@ -124,21 +108,6 @@ export class SourceNotFound extends MatrixError {
         );
     }
 }
-
-// /**
-//  * Class to represent a Matrix collection error.
-//  */
-// export class MatrixCollectionError extends MatrixError {
-//     /**
-//      * Constructor for a Matrix collection error.
-//      * @param {string} name       Name of the error.
-//      * @param {string} message    Message of the error.
-//      * @param {string} collection The collection instance with the error.
-//      */
-//     constructor(name: string, message: string, public collection: Collection) {
-//         super(name, message);
-//     }
-// }
 
 /**
  * A Type not found error.
@@ -169,6 +138,23 @@ export class MatrixTypeError extends MatrixError {
         public type: typeof MatrixBaseType,
     ) {
         super(name, message);
+    }
+}
+
+/**
+ * When a type does not have a Matrix instance assigned.
+ */
+export class NoMatrixInstance extends MatrixTypeError {
+    /**
+     * Constructor for a no matrix instance error.
+     * @param {typeof MatrixBaseType} type The type.
+     */
+    constructor(type: typeof MatrixBaseType) {
+        super(
+            'NoMatrixInstance',
+            `The type ${type.getType()} does not have an assigned Matrix instance.`,
+            type,
+        );
     }
 }
 
