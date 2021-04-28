@@ -19,7 +19,7 @@ const getParentInfo = (parent?: string): [string, string] => {
     // If no parent is given.
     if (!parent) return [coreImport, 'MatrixBaseType'];
     // If no '.'
-    if (!parent.includes('.')) return [`.`, parent];
+    if (!parent.includes('.')) return [`./${parent}`, parent];
     // Remote package.
     const parentParts = parent.split('.');
     return ['../' + parentParts[0], parentParts[1]];
@@ -39,8 +39,8 @@ const importExternalFieldTypes = (schema: InternalType, imports: Imports) => {
             const typeNameParts = typeName.split('.');
             const [pkg, type] =
                 typeNameParts.length == 2
-                    ? ['../' + typeNameParts[0], typeNameParts[1]]
-                    : ['./' + typeName, typeName];
+                    ? [`../${typeNameParts[0]}`, typeNameParts[1]]
+                    : [`./${typeName}`, typeName];
             imports.add(pkg, type);
         }
     }
@@ -50,20 +50,13 @@ const getTemplate = (template: string): string => {
     if (!templates.has(template))
         templates.set(
             template,
-            readFileSync(TEMPLATES_PATH + template + '.ejs', 'utf-8'),
+            readFileSync(`${TEMPLATES_PATH}${template}.ejs`, 'utf-8'),
         );
     return templates.get(template)!;
 };
 
 const renderTemplate = (template: string, args: Record<string, unknown>) =>
     render(getTemplate(template), args);
-
-// const generateSchemaInterface = (schema: InternalType) => {
-//     if (Object.keys(schema.fields || {}).length == 0) {
-//         return `type ${schema.name} = MatrixBaseTypeData`;
-//     }
-//     return renderTemplate('typeInterface');
-// };
 
 const generateFieldMethods = (
     _: InternalType,

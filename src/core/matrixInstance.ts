@@ -20,7 +20,7 @@ export class Matrix {
      * @param {MatrixBaseType} type The type to add.
      */
     private static addType(type: typeof MatrixBaseType): void {
-        this.types.set(type.getName(), type);
+        this.types.set(type.getType(), type);
     }
 
     /**
