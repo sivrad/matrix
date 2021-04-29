@@ -2,9 +2,9 @@
     "$schema": "https://raw.githubusercontent.com/sivrad/matrix-schema/main/type.json",
     "name": "Rocket",
     "label": "Rocket",
-    "description": "A rocket.",
-    "parent": "std.Thing",
-    "sources": "spacex",
+    "description": "A rocket is a projectile that spacecraft, aircraft or other vehicle use to obtain thrust from a rocket engine.",
+    "icon": "https://cdn0.iconfinder.com/data/icons/octicons/1024/rocket-512.png",
+    "parent": "std.Entity",
     "fields": {
         "name": {
             "label": "Name",

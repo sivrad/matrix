@@ -3,6 +3,7 @@
     "name": "Organization",
     "label": "Organization",
     "description": "An organization is an entity – such as a company, an institution, or an association – comprising one or more people and having a particular purpose.",
+    "icon": "https://freeiconshop.com/wp-content/uploads/edd/many-people-outline.png",
     "parent": "Thing",
     "fields": {
         "name": {

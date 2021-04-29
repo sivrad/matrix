@@ -2,7 +2,8 @@
     "$schema": "https://raw.githubusercontent.com/sivrad/matrix-schema/main/type.json",
     "name": "Time",
     "label": "Time",
-    "description": "Time.",
+    "description": "Representation of a point in time.",
+    "icon": "https://img.icons8.com/pastel-glyph/2x/clock--v2.png",
     "fields": {
         "timestamp": {
             "type": "number | null",
