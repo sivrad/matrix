@@ -1,0 +1,8 @@
+{
+    "$schema": "https://raw.githubusercontent.com/sivrad/matrix-schema/main/type.json",
+    "name": "Scalar",
+    "label": "Scalar",
+    "description": "Scalar quantity is a quantity that can be described by a single element of a number field, such as a real number, often accompanied by units of measurement.",
+    "icon": "https://static.thenounproject.com/png/2366918-200.png",
+    "isAbstract": true
+}

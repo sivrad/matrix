@@ -1,0 +1,15 @@
+{
+    "$schema": "https://raw.githubusercontent.com/sivrad/matrix-schema/main/type.json",
+    "name": "Time",
+    "label": "Time",
+    "description": "A quantity of time.",
+    "icon": "https://img.icons8.com/pastel-glyph/2x/clock--v2.png",
+    "parent": "Scalar",
+    "fields": {
+        "seconds": {
+            "label": "Seconds",
+            "type": "number",
+            "description": "The number of seconds."
+        }
+    }
+}

@@ -1,0 +1,15 @@
+{
+    "$schema": "https://raw.githubusercontent.com/sivrad/matrix-schema/main/type.json",
+    "name": "Mass",
+    "label": "Mass",
+    "description": "Mass is a measure of the amount of matter in an object.",
+    "icon": "https://img.icons8.com/ios/452/weight.png",
+    "parent": "Scalar",
+    "fields": {
+        "kilograms": {
+            "label": "Kilograms",
+            "type": "number",
+            "description": "The mass in kilograms."
+        }
+    }
+}

@@ -1,0 +1,15 @@
+{
+    "$schema": "https://raw.githubusercontent.com/sivrad/matrix-schema/main/type.json",
+    "name": "Length",
+    "label": "Length",
+    "description": "Length is a measure of distance.",
+    "icon": "https://static.thenounproject.com/png/1693-200.png",
+    "parent": "Scalar",
+    "fields": {
+        "meters": {
+            "label": "Meters",
+            "type": "number",
+            "description": "The length in meters."
+        }
+    }
+}

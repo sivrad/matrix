@@ -1,0 +1,15 @@
+{
+    "$schema": "https://raw.githubusercontent.com/sivrad/matrix-schema/main/type.json",
+    "name": "Organism",
+    "label": "Organism",
+    "description": "An individual animal, plant, or single-celled life form.",
+    "icon": "https://icon-library.com/images/cells-icon/cells-icon-26.jpg",
+    "parent": "Entity",
+    "fields": {
+        "species": {
+            "label": "Species",
+            "type": "string",
+            "description": "The species of the organism."
+        }
+    }
+}

@@ -1,0 +1,24 @@
+{
+    "$schema": "https://raw.githubusercontent.com/sivrad/matrix-schema/main/type.json",
+    "name": "Entity",
+    "label": "Entity",
+    "description": "An entity is a physical thing that can or has existed.",
+    "icon": "https://static.thenounproject.com/png/6887-200.png",
+    "fields": {
+        "end": {
+            "label": "End",
+            "type": "Time",
+            "description": "A time when the thing stopped existing."
+        },
+        "height": {
+            "label": "Height",
+            "type": "quantity.Length",
+            "description": "The height of the entity."
+        },
+        "mass": {
+            "label": "Mass",
+            "type": "quantity.Mass",
+            "description": "The mass of the entity."
+        }
+    }
+}
