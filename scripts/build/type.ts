@@ -3,8 +3,8 @@ import { Type, Field } from '../common/type';
 export interface InternalField extends Field {
     required: boolean;
 }
-export interface InternalType extends Type {
-    fields: { [k: string]: InternalField };
+export interface InternalType extends Omit<Type, 'fields'> {
+    fields: { [k: string]: InternalField | string | number | boolean };
 }
 
 export interface Method {

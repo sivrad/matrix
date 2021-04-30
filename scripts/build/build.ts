@@ -32,6 +32,7 @@ const isolateFieldTypes = (type: string): string[] => {
 
 const importExternalFieldTypes = (schema: InternalType, imports: Imports) => {
     for (const [, field] of Object.entries(schema.fields)) {
+        if (typeof field != 'object') continue;
         const types = isolateFieldTypes(field.type).filter(
             (type) => BUILT_IN_TYPES.indexOf(type) == -1 && type != schema.name,
         );
@@ -146,6 +147,7 @@ const getTypeMethods = (schema: InternalType): Method[] => {
         // All the getters and setters associated with the fields.
     ];
     for (const [fieldName, field] of Object.entries(schema.fields)) {
+        if (typeof field != 'object') continue;
         const fieldMethods = generateFieldMethods(schema, fieldName, field);
         methods = methods.concat(fieldMethods);
     }
@@ -187,13 +189,15 @@ const generateTypeClass = (
 const getSchema = (schemaPath: string): InternalType => {
     const typeSchema = JSON.parse(readFileSync(schemaPath, 'utf-8'));
     const getField = (key: string, field: InternalField): InternalField => {
-        return {
-            type: field.type,
-            label: field.label || formatAsLabel(key),
-            description: field.description || 'No description given.',
-            defaultValue: field.defaultValue || null,
-            required: !Object.keys(field).includes('defaultValue'),
-        };
+        return typeof field == 'object'
+            ? {
+                  type: field.type,
+                  label: field.label || formatAsLabel(key),
+                  description: field.description || 'No description given.',
+                  defaultValue: field.defaultValue || null,
+                  required: !Object.keys(field).includes('defaultValue'),
+              }
+            : field;
     };
     return {
         name: typeSchema.name as string,
