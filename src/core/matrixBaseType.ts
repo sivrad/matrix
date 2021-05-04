@@ -9,7 +9,7 @@ import { Field } from './field';
 import { Matrix } from './matrixInstance';
 import { Driver } from './driver';
 import {
-    Field as FieldType,
+    FieldType,
     MatrixBaseTypeData,
     FieldObject,
     SerializedMatrixBaseTypeData,
@@ -344,6 +344,7 @@ export class MatrixBaseType {
                 fieldProvided = isFieldProvided
                     ? dataValues[dataKeys.indexOf(fieldName)]
                     : null;
+            if (typeof field != 'object') continue;
 
             // If it is required & not provided, throw an error.
             if (!isFieldProvided && field.required)

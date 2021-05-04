@@ -10,6 +10,7 @@ import {
     generateMethodSignature,
     generateJSDoc,
     formatAsClassName,
+    valueToTypescript,
 } from './util';
 
 const templates = new Map<string, string>();
@@ -166,7 +167,7 @@ const generateTypeClass = (
         parentName,
         `${parentName}Data`,
     );
-    imports.add(coreImport, 'Field');
+    imports.add(coreImport, 'FieldType');
     if (packageName != coreImport) imports.add(coreImport, 'MatrixBaseType');
     // Import all the external field types.
     importExternalFieldTypes(schema, imports);
@@ -182,6 +183,7 @@ const generateTypeClass = (
         sanitizeType,
         generateMethodSignature,
         generateJSDoc,
+        valueToTypescript,
     });
     return content;
 };
@@ -206,6 +208,7 @@ const getSchema = (schemaPath: string): InternalType => {
             (typeSchema.description as string) || 'No description given.',
         isAbstract: (typeSchema.isAbstract as boolean) || false,
         parent: typeSchema.parent as string,
+        icon: (typeSchema.icon as string) || '',
         fields: Object.assign(
             {},
             ...Object.keys(typeSchema.fields || {}).map((k) => ({

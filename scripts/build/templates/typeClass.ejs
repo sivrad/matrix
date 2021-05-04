@@ -24,7 +24,7 @@ export interface <%= schema.name %>Data extends <%= parentName %>Data {
  * <%- schema.description %>
  */
 export class <%= schema.name %> extends <%= parentName %> {
-    static _classFields: Record<string, Field> = {
+    static _classFields: Record<string, FieldType> = {
         <% for (const [fieldName, field] of Object.entries(schema.fields || {})) { %>
         <% if (typeof field == 'object') { %>
         <%= fieldName %>: {
@@ -35,7 +35,7 @@ export class <%= schema.name %> extends <%= parentName %> {
             required: <%= field.required %>,
         },
         <% } else { %>
-        <%= fieldName %>: <%- field %>,
+        <%= fieldName %>: <%- valueToTypescript(field) %>,
         <% } %>
         <% } %>
     };

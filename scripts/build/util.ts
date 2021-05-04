@@ -36,3 +36,14 @@ export const generateJSDoc = (method: Method): string => {
     ]);
     return formatTable(argTable);
 };
+
+export const valueToTypescript = (value: unknown): string => {
+    if (typeof value == 'string') {
+        return `'${value}'`;
+    } else if (['number', 'boolean', 'undefined'].includes(typeof value)) {
+        return `${value}`;
+    } else {
+        console.log(value);
+        throw Error(`valueToTypescript: unknown type ${value}`);
+    }
+};

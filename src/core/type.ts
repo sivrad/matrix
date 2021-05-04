@@ -1,13 +1,15 @@
 import { Driver } from './driver';
 import { MatrixBaseType } from './matrixBaseType';
 
-export interface Field {
+export interface FieldInterface {
     type: string;
     label: string;
     description: string;
     defaultValue: unknown;
     required: boolean;
 }
+
+export type FieldType = FieldInterface | string;
 
 export type SourcesObject = { primary: Driver; [k: string]: Driver };
 
