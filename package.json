@@ -1,6 +1,6 @@
 {
     "name": "@sivrad/matrix",
-    "version": "1.0.38",
+    "version": "1.0.39",
     "description": "An opinionated schema-based database interface for the modern world.",
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
@@ -20,7 +20,8 @@
         "lint": "eslint src/**",
         "mk-docs": "typedoc --name \"Documentation\" && touch ./docs/.nojekyll",
         "build": "yarn build-types & yarn tsc",
-        "patch": "yarn version --new-version patch"
+        "patch": "yarn version --new-version patch",
+        "publish-pkg": "yarn build & yarn publish --access=public"
     },
     "devDependencies": {
         "@nix2/prettier-config": "^1.0.2",
