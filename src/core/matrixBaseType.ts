@@ -9,7 +9,7 @@ import { Field } from './field';
 import { Matrix } from './matrixInstance';
 import { Driver } from './driver';
 import {
-    FieldType,
+    FieldInterface,
     MatrixBaseTypeData,
     FieldObject,
     SerializedMatrixBaseTypeData,
@@ -45,7 +45,7 @@ export class MatrixBaseType {
     /**
      * The class specific fields.
      */
-    protected static classFields: Record<string, FieldType> = {};
+    protected static classFields: Record<string, FieldInterface> = {};
     /**
      * Information on the class.
      */
@@ -69,7 +69,7 @@ export class MatrixBaseType {
     /**
      * The entire classes fields.
      */
-    public _typeFields: Record<string, FieldType>;
+    public _typeFields: Record<string, FieldInterface>;
 
     /**
      * Contructor for a base type.
@@ -89,15 +89,28 @@ export class MatrixBaseType {
      * @static
      * @returns {Field[]} The type's field.
      */
-    static getFields(): Record<string, FieldType> {
+    static getFields(): Record<string, FieldInterface> {
         let parentPrototype = Object.getPrototypeOf(this);
-        let allFields: Record<string, FieldType> = this.classFields;
+        let allFields: Record<string, FieldInterface> = this.classFields;
         while (parentPrototype != null) {
             const fields = parentPrototype.classFields;
             allFields = { ...allFields, ...fields };
             parentPrototype = Object.getPrototypeOf(parentPrototype);
         }
         return allFields;
+    }
+
+    /**
+     * Set the type's Matrix instance.
+     * @function setMatrix
+     * @memberof Matrix
+     * @private
+     * @static
+     * @param {Matrix} matrix The matrix instance.
+     * @returns {void}
+     */
+    private static setMatrix(matrix: Matrix): void {
+        this.matrix = matrix;
     }
 
     /**

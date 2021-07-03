@@ -24,7 +24,7 @@ export interface <%= schema.name %>Data extends <%= parentName %>Data {
  * <%- schema.description %>
  */
 export class <%= schema.name %> extends <%= parentName %> {
-    static _classFields: Record<string, FieldType> = {
+    static _classFields: Record<string, FieldInterface> = {
         <% for (const [fieldName, field] of Object.entries(schema.fields || {})) { %>
         <% if (typeof field == 'object') { %>
         <%= fieldName %>: {

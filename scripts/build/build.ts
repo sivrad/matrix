@@ -167,7 +167,7 @@ const generateTypeClass = (
         parentName,
         `${parentName}Data`,
     );
-    imports.add(coreImport, 'FieldType');
+    imports.add(coreImport, 'FieldInterface');
     if (packageName != coreImport) imports.add(coreImport, 'MatrixBaseType');
     // Import all the external field types.
     importExternalFieldTypes(schema, imports);
@@ -215,6 +215,7 @@ const getSchema = (schemaPath: string): InternalType => {
                 [k]: getField(k, typeSchema.fields[k]),
             })),
         ),
+        fieldValues: typeSchema.fieldValues || {},
     };
 };
 
@@ -260,7 +261,7 @@ export const build = async (): Promise<void> => {
         getCollectionTypes(),
     )) {
         // Export all from the collection.
-        typeExports.set(`./${collectionName}`, '*');
+        typeExports.set(`./${collectionName}`, '*', collectionName);
         const collectionExports = new Exports();
         // Create './src/types/collection/'.
         createCollectionDirectory(collectionName);

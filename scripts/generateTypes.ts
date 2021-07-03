@@ -25,14 +25,7 @@ const removeOptional = (schema: any): JSONSchema4 => {
 const makeType = async () => {
     const orb = ora('Generating Types').start();
     const type = await compile(removeOptional(await getSchema('type')), 'Type');
-    const collection = await compile(
-        removeOptional(await getSchema('collection')),
-        'Collection',
-    );
-    writeFileSync(
-        './scripts/common/generated_types.ts',
-        `${type}\n${collection}`,
-    );
+    writeFileSync('./scripts/common/generated_types.ts', `${type}`);
     orb.succeed('Generated Types');
 };
 

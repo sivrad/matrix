@@ -1,9 +1,9 @@
-import { FaunaDBDriver, Matrix } from '../src';
+import { FaunaDBDriver, Matrix, types } from '../src';
 
 const driver = new FaunaDBDriver('');
-const mtx = new Matrix(driver);
+new Matrix(driver);
 
-console.log(mtx.getType('std.Thing'));
+console.log(new types.space.Rocket('234').syncData());
 
 // console.log(col);
 // console.log(mtx);

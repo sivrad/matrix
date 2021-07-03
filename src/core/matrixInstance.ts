@@ -13,7 +13,12 @@ export class Matrix {
      * Contructor for a Matrix instance.
      * @param {Driver} driver The driver instance.
      */
-    constructor(private driver: Driver) {}
+    constructor(private driver: Driver) {
+        for (const type of Matrix.types.values()) {
+            // @ts-expect-error This is the only time 'setMatrix' is called.
+            type.setMatrix(this);
+        }
+    }
 
     /**
      * Add a type.

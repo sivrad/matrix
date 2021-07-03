@@ -9,8 +9,6 @@ export interface FieldInterface {
     required: boolean;
 }
 
-export type FieldType = FieldInterface | string;
-
 export type SourcesObject = { primary: Driver; [k: string]: Driver };
 
 /**

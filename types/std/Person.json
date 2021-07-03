@@ -6,7 +6,6 @@
     "icon": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Person_icon_BLACK-01.svg/1200px-Person_icon_BLACK-01.svg.png",
     "parent": "Organism",
     "fields": {
-        "species": "human",
         "surname": {
             "label": "Surname",
             "type": "string",
@@ -22,5 +21,8 @@
             "type": "string",
             "description": "The given name of the person."
         }
+    },
+    "fieldValues": {
+        "species": "human"
     }
 }
