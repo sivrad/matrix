@@ -172,6 +172,7 @@ const getTypeMethods = (collection: string, schema: InternalType): Method[] => {
     for (const fieldName of Object.keys(schema.fieldValues)) {
         methods.push(
             generateProtectedField(
+                schema,
                 getTypeWithField(collection, schema, fieldName),
                 fieldName,
             ),
@@ -182,9 +183,13 @@ const getTypeMethods = (collection: string, schema: InternalType): Method[] => {
 
 const generateProtectedField = (
     type: InternalType,
+    fieldOwnerType: InternalType,
     fieldName: string,
 ): Method => {
-    const setter = generateSetterMethod(fieldName, type.fields[fieldName]);
+    const setter = generateSetterMethod(
+        fieldName,
+        fieldOwnerType.fields[fieldName],
+    );
     return {
         name: 'set' + formatAsClassName(fieldName),
         description: 'Private due to overwritten value.',
@@ -194,7 +199,7 @@ const generateProtectedField = (
             description: '',
         },
         code: 'throw new Error("You can not overwrite the overwritten.")',
-        depreciated: `The field '${fieldName}' is statically set by type '${type.name}'.`,
+        depreciated: `The field \`${fieldName}\` is statically set to \`${type.fieldValues[fieldName]}\` by type \`${fieldOwnerType.name}\`.`,
     };
 };
 
