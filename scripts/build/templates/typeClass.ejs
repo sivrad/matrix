@@ -43,7 +43,12 @@ export class <%= schema.name %> extends <%= parentName %> {
         <%= fieldName %>: <%- valueToTypescript(field) %>,
         <% } %>
         <% } %>
-    };
+    }
+    static _fieldValues: Record<string, unknown> = {
+        <% for (const [fieldName, fieldValue] of Object.entries(schema.fieldValues || {})) { %>
+        '<%= fieldName %>': <%- typeof fieldValue == 'string' ? `'${fieldValue}'` : fieldValue || 'null' %>,
+        <% } %>
+    }
     static _classInformation = {
         collection:  '<%= collectionName %>',
         name:        '<%= schema.name %>',
@@ -51,7 +56,7 @@ export class <%= schema.name %> extends <%= parentName %> {
         description: '<%= schema.description %>',
         icon:        '<%= schema.icon %>',
         flags:       <%- flagsToArray(schema.flags) %>,
-    };
+    }
 
     /**
      * Constructor for the <%= schema.label %>.

@@ -17,6 +17,7 @@ import {
     ClassInformation,
 } from './type';
 import { mapObject } from './util';
+import { FieldStatic } from './fieldStatic';
 
 // const instanceOnly = () => (
 //     target: MatrixBaseType,
@@ -49,7 +50,7 @@ export class MatrixBaseType {
     /**
      * Field values.
      */
-    public static _fieldValues: Record<string, unknown>;
+    public static _fieldValues: Record<string, unknown> = {};
     /**
      * Information on the class.
      */
@@ -274,6 +275,29 @@ export class MatrixBaseType {
     }
 
     /**
+     * Check if the type class has a field value.
+     * @param {string} fieldName The name of the field.
+     * @returns {boolean} True if the type class has the field.
+     * @private
+     */
+    private isFieldStatic(fieldName: string): boolean {
+        return Object.keys(this.getTypeClass()._fieldValues).includes(
+            fieldName,
+        );
+    }
+
+    /**
+     * Get the static field from its name.
+     * @param {string} fieldName The name of the field.
+     * @returns {StaticField} The field.
+     * @private
+     */
+    private getStaticField(fieldName: string): FieldStatic {
+        const fieldValue = this.getTypeClass()._fieldValues[fieldName];
+        return new FieldStatic(fieldName, fieldValue);
+    }
+
+    /**
      * Get a field object from the field name.
      *
      * TODO: remove ones with null values when serializing data to upload.
@@ -281,9 +305,13 @@ export class MatrixBaseType {
      * @returns {Field} The field object.
      */
     private getFieldObject(fieldName: string): Field {
+        // Verify the field exists.
         this.verifyFieldName(fieldName);
-        if (Object.keys(this._fields).indexOf(fieldName) == -1) {
-            // Create a new field.
+        // Check if the field is static.
+        if (this.isFieldStatic(fieldName))
+            return this.getStaticField(fieldName);
+        // Create a new field if not exists.
+        if (!Object.keys(this._fields).includes(fieldName)) {
             const timestamp = Math.floor(
                 new Date().getTime() / 1000,
             ).toString();

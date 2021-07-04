@@ -129,4 +129,12 @@ export class Field {
     getUpdatedAt(): Date {
         return new Date(parseInt(this.fieldObject.current) * 1000);
     }
+
+    /**
+     * Return if the field is static or not.
+     * @returns {boolean} `true` if static, `false` if not.
+     */
+    isStatic(): boolean {
+        return false;
+    }
 }
