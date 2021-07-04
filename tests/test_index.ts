@@ -7,7 +7,7 @@ const main = async () => {
     const me = new types.std.Person({
         surname: 'Koon',
     });
-    console.log(me.setSpecies('something'));
+    console.log(me.getSpecies());
 
     // time.setMinTimestamp(32423);
     // await time.syncData();
