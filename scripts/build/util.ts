@@ -55,14 +55,16 @@ export const generateJSDoc = (method: Method): string => {
 };
 
 export const valueToTypescript = (value: unknown): string => {
-    if (typeof value == 'string') {
-        return `'${value}'`;
-    } else if (['number', 'boolean', 'undefined'].includes(typeof value)) {
+    // Null value.
+    if (value == null) return 'null';
+    // String value.
+    if (typeof value == 'string') return `'${value}'`;
+    // Boolean, number, or undefined value.
+    if (['number', 'boolean', 'undefined'].includes(typeof value))
         return `${value}`;
-    } else {
-        console.log(value);
-        throw Error(`valueToTypescript: unknown type ${value}`);
-    }
+    // Unknown value.
+    console.log(value);
+    throw Error(`valueToTypescript: unknown type ${value}`);
 };
 
 export const flagsToArray = (array: string[]): string =>

@@ -35,7 +35,7 @@ export class <%= schema.name %> extends <%= parentName %> {
             type:         '<%= field.type %>',
             label:        '<%= field.label %>',
             description:  '<%= field.description %>',
-            defaultValue: <%= typeof field.defaultValue == 'string' ? `'${field.defaultValue}'` : field.defaultValue || 'null' %>,
+            defaultValue: <%- valueToTypescript(field.defaultValue) %>,
             flags:        <%- flagsToArray(field.flags) %>,
             required:     <%= field.required %>,
         },
@@ -46,7 +46,7 @@ export class <%= schema.name %> extends <%= parentName %> {
     }
     static _fieldValues: Record<string, unknown> = {
         <% for (const [fieldName, fieldValue] of Object.entries(schema.fieldValues || {})) { %>
-        '<%= fieldName %>': <%- typeof fieldValue == 'string' ? `'${fieldValue}'` : fieldValue || 'null' %>,
+        '<%= fieldName %>': <%- valueToTypescript(fieldValue) %>,
         <% } %>
     }
     static _classInformation = {
