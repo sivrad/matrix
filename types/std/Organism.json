@@ -9,7 +9,8 @@
         "species": {
             "label": "Species",
             "type": "string",
-            "description": "The species of the organism."
+            "description": "The species of the organism.",
+            "defaultValue": null
         }
     }
 }

@@ -8,18 +8,21 @@
     "fields": {
         "surname": {
             "label": "Surname",
-            "type": "string",
-            "description": "The surname of the person."
+            "type": "string | null",
+            "description": "The surname of the person.",
+            "defaultValue": null
         },
         "middleName": {
             "label": "Middle Name",
-            "type": "string",
-            "description": "The middle name of the person."
+            "type": "string | null",
+            "description": "The middle name of the person.",
+            "defaultValue": null
         },
         "givenName": {
             "label": "Given Name",
-            "type": "string",
-            "description": "The given name of the person."
+            "type": "string | null",
+            "description": "The given name of the person.",
+            "defaultValue": null
         }
     },
     "fieldValues": {

@@ -45,7 +45,11 @@ export class MatrixBaseType {
     /**
      * The class specific fields.
      */
-    protected static classFields: Record<string, FieldInterface> = {};
+    protected static _classFields: Record<string, FieldInterface> = {};
+    /**
+     * Field values.
+     */
+    public static _fieldValues: Record<string, unknown>;
     /**
      * Information on the class.
      */
@@ -91,9 +95,9 @@ export class MatrixBaseType {
      */
     static getFields(): Record<string, FieldInterface> {
         let parentPrototype = Object.getPrototypeOf(this);
-        let allFields: Record<string, FieldInterface> = this.classFields;
+        let allFields: Record<string, FieldInterface> = this._classFields;
         while (parentPrototype != null) {
-            const fields = parentPrototype.classFields;
+            const fields = parentPrototype._classFields;
             allFields = { ...allFields, ...fields };
             parentPrototype = Object.getPrototypeOf(parentPrototype);
         }
@@ -381,7 +385,7 @@ export class MatrixBaseType {
         if (remainingKeys.length != 0)
             throw new InvalidField(this.getTypeClass(), remainingKeys[0]);
         // Set the data to the populated fields.
-        // this.updateData(populatedFields);
+        this.updateData(populatedFields);
     }
 
     /**
@@ -673,11 +677,13 @@ export class MatrixBaseType {
      */
     async createInstance(): Promise<this> {
         if (this.isInstance()) throw new AlreadyInstantiated(this);
-        const id = await this.getSource().createInstance(
-            this.getTypeClass().getType(),
-            this.getSerializedData(),
-        );
-        this.setField('$id', id);
+        const response = (
+            await this.getSource().createInstance(
+                this.getTypeClass().getType(),
+                this.getSerializedData(),
+            )
+        ).response;
+        this._id = response.$id;
         return this;
     }
 }

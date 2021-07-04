@@ -7,18 +7,21 @@
     "fields": {
         "end": {
             "label": "End",
-            "type": "Time",
-            "description": "A time when the thing stopped existing."
+            "type": "Time | null",
+            "description": "A time when the thing stopped existing.",
+            "defaultValue": null
         },
         "height": {
             "label": "Height",
-            "type": "quantity.Length",
-            "description": "The height of the entity."
+            "type": "quantity.Length | null",
+            "description": "The height of the entity.",
+            "defaultValue": null
         },
         "mass": {
             "label": "Mass",
-            "type": "quantity.Mass",
-            "description": "The mass of the entity."
+            "type": "quantity.Mass | null",
+            "description": "The mass of the entity.",
+            "defaultValue": null
         }
     }
 }

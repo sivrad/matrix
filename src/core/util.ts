@@ -37,6 +37,14 @@ export const parseType = (typeName: string): [string, string] => {
     return typeParts as [string, string];
 };
 
+/**
+ * Generate a random ID.
+ * @param {number} length The length of the ID (defaults to 4).
+ * @returns {string} The random ID.
+ */
+export const generateId = (length = 4): string =>
+    Math.random().toString().substr(2, length);
+
 // /**
 //  * Remove metadata from MetaData object.
 //  * @function removeMetaData

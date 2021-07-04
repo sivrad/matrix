@@ -19,8 +19,7 @@ export class Field {
      * @returns {boolean} Returns `true` if it is defined.
      */
     isDefined(): boolean {
-        // @ts-ignore TODO: fix this.
-        return this.fieldObject.values[this.fieldObject.current] != {};
+        return this.fieldObject.values[this.fieldObject.current].value != null;
     }
 
     /**
