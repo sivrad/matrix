@@ -4,7 +4,7 @@ export interface InternalField extends Field {
     required: boolean;
 }
 export interface InternalType extends Omit<Type, 'fields'> {
-    fields: { [k: string]: InternalField | string | number | boolean };
+    fields: { [k: string]: InternalField };
 }
 
 export interface Method {
@@ -26,4 +26,5 @@ export interface Method {
     isAsync?: boolean;
     isStatic?: boolean;
     generic?: string;
+    depreciated?: string;
 }

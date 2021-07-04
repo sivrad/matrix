@@ -6,6 +6,7 @@ export interface FieldInterface {
     label: string;
     description: string;
     defaultValue: unknown;
+    flags: string[];
     required: boolean;
 }
 

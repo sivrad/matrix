@@ -28,11 +28,12 @@ export class <%= schema.name %> extends <%= parentName %> {
         <% for (const [fieldName, field] of Object.entries(schema.fields || {})) { %>
         <% if (typeof field == 'object') { %>
         <%= fieldName %>: {
-            type: '<%= field.type %>',
-            label: '<%= field.label %>',
-            description: '<%= field.description %>',
+            type:         '<%= field.type %>',
+            label:        '<%= field.label %>',
+            description:  '<%= field.description %>',
             defaultValue: <%= typeof field.defaultValue == 'string' ? `'${field.defaultValue}'` : field.defaultValue || 'null' %>,
-            required: <%= field.required %>,
+            flags:        <%- flagsToArray(field.flags) %>,
+            required:     <%= field.required %>,
         },
         <% } else { %>
         <%= fieldName %>: <%- valueToTypescript(field) %>,
@@ -45,6 +46,7 @@ export class <%= schema.name %> extends <%= parentName %> {
         label:       '<%= schema.label %>',
         description: '<%= schema.description %>',
         icon:        '<%= schema.icon %>',
+        flags:       <%- flagsToArray(schema.flags) %>,
     };
 
     /**
@@ -57,7 +59,7 @@ export class <%= schema.name %> extends <%= parentName %> {
     <% for (const method of methods) { %>
     /**
      * <%= method.description %>
-<%= generateJSDoc(method) %>
+<%- generateJSDoc(method) %>
      */
     <%= method.access && method.access != 'public' ? `${method.access} ` : '' %><%= method.isStatic ? 'static ' : '' %><%= method.isAsync ? 'async ' : '' %><%= method.name %><%- method.generic ? `<${method.generic}>` : '' %>(<%= generateMethodSignature(method) %>): <%- method.isAsync ? `Promise<${method.returns.type}>` : method.returns.type %> {
         <%- method.code %>

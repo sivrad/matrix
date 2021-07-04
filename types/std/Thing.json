@@ -4,7 +4,7 @@
     "label": "Thing",
     "description": "Any thing than can exist.",
     "icon": "https://static.thenounproject.com/png/6887-200.png",
-    "isAbstract": true,
+    "flags": ["abstract"],
     "fields": {
         "start": {
             "type": "Time | null",

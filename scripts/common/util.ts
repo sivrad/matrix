@@ -1,8 +1,9 @@
-import { readdirSync } from 'fs';
+import { readdirSync, readFileSync } from 'fs';
 import { TYPE_FILES_PATH } from './constants';
 import { Data } from './type';
 import { MatrixScriptError } from './error';
 import * as colors from 'colors';
+import { InternalField, InternalType } from '../build/type';
 
 export const getRootOptions = (options: Data): any => {
     while (
@@ -24,10 +25,56 @@ export const capitalize = (text: string): string =>
 export const formatAsLabel = (text: string): string =>
     text.split('-').map(capitalize).join(' ');
 
-export const getCollectionTypes = (): Record<string, string[]> => {
-    const result: Record<string, string[]> = {};
+const normalizeTypeObject = (type: InternalType): InternalType => {
+    const getField = (key: string, field: InternalField): InternalField => {
+        return typeof field == 'object'
+            ? {
+                  type: field.type,
+                  label: field.label || formatAsLabel(key),
+                  description: field.description || 'No description given.',
+                  defaultValue: field.defaultValue || null,
+                  flags: field.flags || [],
+                  required: !Object.keys(field).includes('defaultValue'),
+              }
+            : field;
+    };
+    return {
+        name: type.name as string,
+        label: (type.label as string) || formatAsLabel(type.name),
+        description: (type.description as string) || 'No description given.',
+        flags: type.flags || [],
+        parent: type.parent as string,
+        icon: (type.icon as string) || '',
+        fields: Object.assign(
+            {},
+            ...Object.keys(type.fields || {}).map((k) => ({
+                [k]: getField(k, type.fields[k]),
+            })),
+        ),
+        fieldValues: type.fieldValues || {},
+    };
+};
+
+export const indexTypes = (): Record<string, Record<string, InternalType>> => {
+    const result: Record<string, Record<string, InternalType>> = {};
+    // Loop through each collection.
     for (const collection of readdirSync(`./${TYPE_FILES_PATH}`)) {
-        result[collection] = readdirSync(`./${TYPE_FILES_PATH}${collection}`);
+        if (!Object.keys(result).includes(collection)) result[collection] = {};
+        // Loop through each type in the collection.
+        for (const typeFile of readdirSync(
+            `./${TYPE_FILES_PATH}${collection}`,
+        )) {
+            const type = typeFile.replace('.json', '');
+            // Read the file contents of the type.
+            result[collection][type] = normalizeTypeObject(
+                JSON.parse(
+                    readFileSync(
+                        `./${TYPE_FILES_PATH}${collection}/${type}.json`,
+                        'utf-8',
+                    ),
+                ),
+            );
+        }
     }
     return result;
 };

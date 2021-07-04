@@ -1,6 +1,4 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
-import { TYPE_FILES_PATH } from '../common/constants';
-import { formatAsLabel, getCollectionTypes } from '../common/util';
 import { BUILT_IN_TYPES, TEMPLATES_PATH, TYPES_DIRECTORY } from './constants';
 import { Exports, Imports } from './package';
 import { InternalType, InternalField, Method } from './type';
@@ -11,7 +9,12 @@ import {
     generateJSDoc,
     formatAsClassName,
     valueToTypescript,
+    flagsToArray,
+    canSetField,
+    getTypeWithField,
+    stripArgsNames,
 } from './util';
+import { indexedTypes } from './indexedTypes';
 
 const templates = new Map<string, string>();
 const coreImport = '../../core';
@@ -60,28 +63,13 @@ const getTemplate = (template: string): string => {
 const renderTemplate = (template: string, args: Record<string, unknown>) =>
     render(getTemplate(template), args);
 
-const generateFieldMethods = (
-    _: InternalType,
+const generateSetterMethod = (
     fieldName: string,
     field: InternalField,
-): Method[] => {
+): Method => {
     const classNameFormat = formatAsClassName(fieldName),
-        sanizizedType = sanitizeType(field.type),
-        methods = [
-            // Getter
-            {
-                name: `get${classNameFormat}`,
-                description: `Retrive the ${field.label} field.`,
-                args: {},
-                returns: {
-                    type: sanizizedType,
-                    description: field.description,
-                },
-                code: `return this.getField<${sanizizedType}>('${fieldName}');`,
-            },
-        ];
-    // Check if you can set the field.
-    methods.push({
+        sanizizedType = sanitizeType(field.type);
+    return {
         name: `set${classNameFormat}`,
         description: `Set the ${field.label} field.`,
         args: {
@@ -95,10 +83,39 @@ const generateFieldMethods = (
             description: '',
         },
         code: `this.setField('${fieldName}', value);`,
-    });
+    };
+};
+
+const generateFieldMethods = (
+    _: InternalType,
+    fieldName: string,
+    field: InternalField,
+): Method[] => {
+    const classNameFormat = formatAsClassName(fieldName),
+        sanizizedType = sanitizeType(field.type),
+        methods = [
+            // Getter method.
+            {
+                name: `get${classNameFormat}`,
+                description: `Retrive the ${field.label} field.`,
+                args: {},
+                returns: {
+                    type: sanizizedType,
+                    description: field.description,
+                },
+                code: `return this.getField<${sanizizedType}>('${fieldName}');`,
+            },
+        ];
+
+    // Return if you can set the field.
+    if (!canSetField(field)) return methods;
+
+    // Add Setter method.
+    methods.push(generateSetterMethod(fieldName, field));
+
     return methods;
 };
-const getTypeMethods = (schema: InternalType): Method[] => {
+const getTypeMethods = (collection: string, schema: InternalType): Method[] => {
     let methods: Method[] = [
         // `get` method.
         {
@@ -152,7 +169,33 @@ const getTypeMethods = (schema: InternalType): Method[] => {
         const fieldMethods = generateFieldMethods(schema, fieldName, field);
         methods = methods.concat(fieldMethods);
     }
+    for (const fieldName of Object.keys(schema.fieldValues)) {
+        methods.push(
+            generateProtectedField(
+                getTypeWithField(collection, schema, fieldName),
+                fieldName,
+            ),
+        );
+    }
     return methods;
+};
+
+const generateProtectedField = (
+    type: InternalType,
+    fieldName: string,
+): Method => {
+    const setter = generateSetterMethod(fieldName, type.fields[fieldName]);
+    return {
+        name: 'set' + formatAsClassName(fieldName),
+        description: 'Private due to overwritten value.',
+        args: stripArgsNames(setter.args),
+        returns: {
+            type: setter.returns.type,
+            description: '',
+        },
+        code: 'throw new Error("You can not overwrite the overwritten.")',
+        depreciated: `The field '${fieldName}' is statically set by type '${type.name}'.`,
+    };
 };
 
 const generateTypeClass = (
@@ -172,7 +215,7 @@ const generateTypeClass = (
     // Import all the external field types.
     importExternalFieldTypes(schema, imports);
     // Get all the methods
-    const methods = getTypeMethods(schema);
+    const methods = getTypeMethods(collectionName, schema);
 
     const content = renderTemplate('typeClass', {
         imports,
@@ -184,39 +227,9 @@ const generateTypeClass = (
         generateMethodSignature,
         generateJSDoc,
         valueToTypescript,
+        flagsToArray,
     });
     return content;
-};
-
-const getSchema = (schemaPath: string): InternalType => {
-    const typeSchema = JSON.parse(readFileSync(schemaPath, 'utf-8'));
-    const getField = (key: string, field: InternalField): InternalField => {
-        return typeof field == 'object'
-            ? {
-                  type: field.type,
-                  label: field.label || formatAsLabel(key),
-                  description: field.description || 'No description given.',
-                  defaultValue: field.defaultValue || null,
-                  required: !Object.keys(field).includes('defaultValue'),
-              }
-            : field;
-    };
-    return {
-        name: typeSchema.name as string,
-        label: (typeSchema.label as string) || formatAsLabel(typeSchema.name),
-        description:
-            (typeSchema.description as string) || 'No description given.',
-        isAbstract: (typeSchema.isAbstract as boolean) || false,
-        parent: typeSchema.parent as string,
-        icon: (typeSchema.icon as string) || '',
-        fields: Object.assign(
-            {},
-            ...Object.keys(typeSchema.fields || {}).map((k) => ({
-                [k]: getField(k, typeSchema.fields[k]),
-            })),
-        ),
-        fieldValues: typeSchema.fieldValues || {},
-    };
 };
 
 const createTypesIndexFile = (exports: Exports) => {
@@ -243,33 +256,27 @@ const createCollectionDirectory = (collectionName: string) => {
     if (!existsSync(collectionPath)) mkdirSync(collectionPath);
 };
 
-const buildType = (collectionName: string, path: string): string => {
-    const schema = getSchema(path);
-    const content = generateTypeClass(collectionName, schema);
+const buildType = (collectionName: string, type: InternalType): string => {
+    const content = generateTypeClass(collectionName, type);
     writeFileSync(
-        `${TYPES_DIRECTORY}${collectionName}/${schema.name}.ts`,
+        `${TYPES_DIRECTORY}${collectionName}/${type.name}.ts`,
         content,
     );
-    return schema.name;
+    return type.name;
 };
 
 export const build = async (): Promise<void> => {
     // Create './src/types/'.
     createTypesDirectory();
     const typeExports = new Exports();
-    for (const [collectionName, types] of Object.entries(
-        getCollectionTypes(),
-    )) {
+    for (const [collectionName, types] of Object.entries(indexedTypes)) {
         // Export all from the collection.
         typeExports.set(`./${collectionName}`, '*', collectionName);
         const collectionExports = new Exports();
         // Create './src/types/collection/'.
         createCollectionDirectory(collectionName);
-        for (const type of types) {
-            const typeName = buildType(
-                collectionName,
-                `${TYPE_FILES_PATH}${collectionName}/${type}`,
-            );
+        for (const type of Object.values(types)) {
+            const typeName = buildType(collectionName, type);
             collectionExports.add(`./${typeName}`, typeName, `${typeName}Data`);
         }
         // Create './src/types/collection/index.ts'.
