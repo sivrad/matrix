@@ -1,4 +1,4 @@
-export * from './generated_types';
+export * from './generatedTypes';
 
 export type ObjectOf<T> = Record<string, T>;
 

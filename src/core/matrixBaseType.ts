@@ -5,9 +5,9 @@ import {
     NoMatrixInstance,
     Uninstantiated,
 } from './errors';
-import { Field } from './field';
 import { Matrix } from './matrixInstance';
 import { Driver } from './driver';
+import { Field } from './field';
 import {
     FieldInterface,
     MatrixBaseTypeData,
@@ -16,8 +16,9 @@ import {
     SerializedData,
     ClassInformation,
 } from './type';
-import { mapObject } from './util';
+import { mapObject, removeRequiredProperties } from './util';
 import { FieldStatic } from './fieldStatic';
+import { Type } from './generatedTypes';
 
 // const instanceOnly = () => (
 //     target: MatrixBaseType,
@@ -88,6 +89,14 @@ export class MatrixBaseType {
     }
 
     /**
+     * Return the parent class.
+     * @returns {typeof MatrixBaseType | null} The MatrixBaseType class or null if no parent.
+     */
+    static getParent(): typeof MatrixBaseType | null {
+        return Object.getPrototypeOf(this);
+    }
+
+    /**
      * Get all the fields for the type.
      * @function getFields
      * @memberof BaseType
@@ -95,12 +104,12 @@ export class MatrixBaseType {
      * @returns {Field[]} The type's field.
      */
     static getFields(): Record<string, FieldInterface> {
-        let parentPrototype = Object.getPrototypeOf(this);
+        let parent = this.getParent();
         let allFields: Record<string, FieldInterface> = this._classFields;
-        while (parentPrototype != null) {
-            const fields = parentPrototype._classFields;
+        while (parent != null) {
+            const fields = parent._classFields;
             allFields = { ...allFields, ...fields };
-            parentPrototype = Object.getPrototypeOf(parentPrototype);
+            parent = Object.getPrototypeOf(parent);
         }
         return allFields;
     }
@@ -202,6 +211,59 @@ export class MatrixBaseType {
      */
     static getIcon(): string {
         return this._classInformation.icon;
+    }
+
+    /**
+     * Get the type schema.
+     *
+     * This can be serialized to JSON and be built.
+     * @function getSchema
+     * @memberof MatrixBaseType
+     * @static
+     * @returns {Schema} Schema of the type.
+     */
+    static getSchema(): Type {
+        // const fields: Record<string, FieldInterface> = {};
+        // for (const [fieldName, field] of Object.entries(this._classFields)) {
+        //     fields[fieldName] = field
+        return {
+            name: this._classInformation.name,
+            label: this._classInformation.label,
+            description: this._classInformation.description,
+            icon: this._classInformation.icon,
+            flags: this._classInformation.flags as Type['flags'],
+            parent: this.getParent()?.getType() || null,
+            fieldValues: this._fieldValues as Type['fieldValues'],
+            fields: removeRequiredProperties(this._classFields),
+        };
+    }
+
+    /**
+     * Return the structure of the type.
+     * @function getStructure
+     * @memberof MatrixBaseType
+     * @static
+     * @returns {Type} Structure of the type.
+     */
+    static getStructure(): Type {
+        // Create a map of all the fields for each parent.
+        const fieldOwners = new Map<string, string>();
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        let type: typeof MatrixBaseType | null = this;
+        while (type?._classFields != null) {
+            for (const fieldName of Object.keys(type._classFields)) {
+                fieldOwners.set(fieldName, type.getType());
+            }
+            type = type.getParent();
+        }
+        const schema = this.getSchema();
+        // Update the fields to include 'required' and 'owner'.
+        schema.fields = mapObject(this.getFields(), (fieldName, field) => {
+            field.required = !Object.keys(field).includes('defaultValue');
+            field.owner = fieldOwners.get(fieldName);
+            return field;
+        }) as Type['fields'];
+        return schema;
     }
 
     /**

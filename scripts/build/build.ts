@@ -208,7 +208,7 @@ const generateTypeClass = (
     schema: InternalType,
 ): string => {
     // Get the package parent info.
-    const [packageName, parentName] = getParentInfo(schema.parent);
+    const [packageName, parentName] = getParentInfo(schema.parent || undefined);
     // Set the imports.
     const imports = new Imports().add(
         packageName,

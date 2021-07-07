@@ -1,4 +1,6 @@
 import { InvalidTypeFormat } from './errors';
+import { Type } from './generatedTypes';
+import { FieldInterface } from './type';
 
 /**
  * Map over an object.
@@ -44,6 +46,19 @@ export const parseType = (typeName: string): [string, string] => {
  */
 export const generateId = (length = 4): string =>
     Math.random().toString().substr(2, length);
+
+/**
+ * Remove each 'required' property from a record of FieldInterface objects.
+ * @param {Record<string, FieldInterface>} fields The record of fields.
+ * @returns {Record<string, FieldInterface>} The record of fields without 'required' properties.
+ */
+export const removeRequiredProperties = (
+    fields: Record<string, FieldInterface>,
+): Type['fields'] =>
+    mapObject(fields, (_, field) => {
+        delete field['required'];
+        return field;
+    }) as Type['fields'];
 
 // /**
 //  * Remove metadata from MetaData object.

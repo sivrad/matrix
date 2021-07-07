@@ -7,7 +7,8 @@ export interface FieldInterface {
     description: string;
     defaultValue: unknown;
     flags: string[];
-    required: boolean;
+    required?: boolean;
+    owner?: string;
 }
 
 export type SourcesObject = { primary: Driver; [k: string]: Driver };
@@ -27,6 +28,7 @@ export interface ClassInformation {
     label: string;
     description: string;
     icon: string;
+    flags: string[];
 }
 
 /**

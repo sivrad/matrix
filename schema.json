@@ -1,0 +1,105 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "$id": "https://raw.githubusercontent.com/sivrad/matrix/main/schema.json",
+    "title": "Type",
+    "description": "Represent a Type.",
+    "definitions": {
+        "field": {
+            "title": "Field",
+            "description": "Field of a Type.",
+            "type": "object",
+            "properties": {
+                "type": {
+                    "title": "Type",
+                    "type": "string",
+                    "description": "Type of the field."
+                },
+                "label": {
+                    "title": "Label",
+                    "type": "string",
+                    "description": "Label of the field."
+                },
+                "description": {
+                    "title": "Description",
+                    "type": "string",
+                    "description": "Description of the field.",
+                    "pattern": "[A-Z].+\\.{1}$"
+                },
+                "flags": {
+                    "type": "array",
+                    "description": "Flags for the field.",
+                    "items": {
+                        "type": "string",
+                        "enum": ["readonly"]
+                    }
+                },
+                "defaultValue": {
+                    "type": [
+                        "number",
+                        "string",
+                        "boolean",
+                        "object",
+                        "array",
+                        "null"
+                    ],
+                    "description": "The default value if not given"
+                }
+            },
+            "additionalProperties": false,
+            "required": ["type"]
+        }
+    },
+    "type": "object",
+    "properties": {
+        "$schema": {
+            "type": "string",
+            "description": "Schema URL.",
+            "pattern": "^https:\\/\\/raw\\.githubusercontent\\.com\\/sivrad\\/matrix-schema\\/main\\/type\\.json$"
+        },
+        "name": {
+            "type": "string",
+            "description": "The name of the schema."
+        },
+        "label": {
+            "type": "string",
+            "description": "The label of the schema."
+        },
+        "description": {
+            "type": "string",
+            "description": "The description of the schema.",
+            "pattern": "[A-Z].+\\.{1}$"
+        },
+        "icon": {
+            "type": "string",
+            "description": "The type icon."
+        },
+        "parent": {
+            "type": ["string", "null"],
+            "description": "The parent ID of the schema."
+        },
+        "flags": {
+            "type": "array",
+            "description": "Flags for the type.",
+            "items": {
+                "type": "string",
+                "enum": ["abstract", "readonly", "no-instances"]
+            }
+        },
+        "fields": {
+            "type": "object",
+            "description": "The fields for the schema.",
+            "additionalProperties": {
+                "$ref": "#/definitions/field"
+            }
+        },
+        "fieldValues": {
+            "type": "object",
+            "description": "Values for parent fields.",
+            "additionalProperties": {
+                "type": ["string", "number", "array", "object"]
+            }
+        }
+    },
+    "additionalProperties": false,
+    "required": ["name", "label", "description", "icon"]
+}

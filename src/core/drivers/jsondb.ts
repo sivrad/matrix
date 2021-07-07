@@ -3,7 +3,9 @@ import { existsSync, writeFileSync, readFileSync } from 'fs';
 import {
     InternalData,
     MatrixBaseTypeData,
+    SerializedData,
     SourceInstanceResponse,
+    SourceInstancesResponse,
     util,
 } from '..';
 import { errors as matrixErrors } from '../../';
@@ -122,6 +124,28 @@ export class JSONDBDriver extends Driver {
                 $type: type,
                 data: this.data[type][id] as InternalData<T>,
             },
+        };
+    }
+
+    /**
+     * Get all the instances of a type.
+     * @param   {string} type The name of the type.
+     * @returns {T}           The data.
+     */
+    async getInstances<T extends MatrixBaseTypeData = MatrixBaseTypeData>(
+        type: string,
+    ): Promise<SourceInstancesResponse<T>> {
+        if (!this.hasType(type)) return { response: {} };
+        const instances: Record<string, SerializedData<T>> = {};
+        for (const [id, data] of Object.entries(this.data[type])) {
+            instances[id] = {
+                $id: id,
+                $type: type,
+                data: data as InternalData<T>,
+            };
+        }
+        return {
+            response: instances,
         };
     }
 

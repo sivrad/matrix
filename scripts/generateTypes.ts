@@ -1,14 +1,12 @@
 import { compile } from 'json-schema-to-typescript';
-import axios from 'axios';
 import { JSONSchema4 } from 'json-schema';
-import { writeFileSync } from 'fs';
+import { readFileSync, writeFileSync } from 'fs';
 import * as ora from 'ora';
 
-const SCHEMA_URL =
-    'https://raw.githubusercontent.com/sivrad/matrix-schema/main/';
+const SCHEMA_PATH = 'schema.json';
 
-const getSchema = async (type: 'type' | 'collection'): Promise<JSONSchema4> => {
-    return (await axios.get(`${SCHEMA_URL}${type}.json`)).data;
+const getSchema = async (): Promise<JSONSchema4> => {
+    return JSON.parse(readFileSync(SCHEMA_PATH, 'utf8'));
 };
 
 const removeOptional = (schema: any): JSONSchema4 => {
@@ -24,8 +22,9 @@ const removeOptional = (schema: any): JSONSchema4 => {
 
 const makeType = async () => {
     const orb = ora('Generating Types').start();
-    const type = await compile(removeOptional(await getSchema('type')), 'Type');
-    writeFileSync('./scripts/common/generated_types.ts', `${type}`);
+    const type = await compile(removeOptional(await getSchema()), 'Type');
+    writeFileSync('./scripts/common/generatedTypes.ts', `${type}`);
+    writeFileSync('./src/core/generatedTypes.ts', `${type}`);
     orb.succeed('Generated Types');
 };
 

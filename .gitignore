@@ -126,4 +126,4 @@ dist
 # Ignore the types/ in src/
 src/types/
 # Ignore the generated types for scripts/
-scripts/common/generated_types.ts
+generatedTypes.ts

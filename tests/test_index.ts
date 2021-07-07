@@ -4,16 +4,13 @@ const driver = new JSONDBDriver('tests/test_db.json', { formatFile: true });
 new Matrix(driver);
 
 const main = async () => {
-    const me = new types.std.Person({
-        surname: 'Koon',
-    });
-    console.log(me.getSpecies());
+    const res = await types.std.Person.getAll();
+    console.log(res);
 
-    // time.setMinTimestamp(32423);
-    // await time.syncData();
-
-    // console.log(col);
-    // console.log(mtx);
+    // const me = new types.std.Person({
+    //     surname: 'Koon',
+    // });
+    // console.log(me.getTypeClass().getStructure());
 };
 
 main();
