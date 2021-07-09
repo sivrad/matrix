@@ -97,6 +97,15 @@ export class MatrixBaseType {
     }
 
     /**
+     * Return the children classes.
+     * @function getChildren
+     * @memberof MatrixBaseType
+     * @returns {typeof MatrixBaseType[]} The children class.
+     * @static
+     */
+    static getChildren(): typeof MatrixBaseType[] {}
+
+    /**
      * Get all the fields for the type.
      * @function getFields
      * @memberof BaseType
@@ -223,9 +232,6 @@ export class MatrixBaseType {
      * @returns {Schema} Schema of the type.
      */
     static getSchema(): Type {
-        // const fields: Record<string, FieldInterface> = {};
-        // for (const [fieldName, field] of Object.entries(this._classFields)) {
-        //     fields[fieldName] = field
         return {
             name: this._classInformation.name,
             label: this._classInformation.label,
@@ -319,15 +325,19 @@ export class MatrixBaseType {
     /**
      * Get all the instances of a type.
      * // TODO: Add type caching.
+     * @param {boolean} includeChildren If instances of child types should be included.
      * @returns {T[]} All the new instances.
      */
-    static async getAll<T extends MatrixBaseType = MatrixBaseType>(): Promise<
-        T[]
-    > {
+    static async getAll<T extends MatrixBaseType = MatrixBaseType>(
+        includeChildren = true,
+    ): Promise<T[]> {
         const source = this.getDriver(),
             type = this.getType(),
             response = (await source.getInstances(type)).response,
             instances: T[] = [];
+        // Add all the child instances if requested.
+        if (includeChildren) {
+        }
         for (const [id, serializedData] of Object.entries(response)) {
             const instance = new this(serializedData.data);
             instance._id = id;
