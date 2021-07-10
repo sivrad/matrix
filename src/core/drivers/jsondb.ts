@@ -11,7 +11,7 @@ import {
 import { errors as matrixErrors } from '../../';
 
 interface JSONDBDriverOptions {
-    formatFile: boolean;
+    formatFile?: boolean;
 }
 
 /**
@@ -36,7 +36,7 @@ export class JSONDBDriver extends Driver {
      */
     constructor(
         private filePath: string,
-        private options: JSONDBDriverOptions,
+        private options: JSONDBDriverOptions = {},
     ) {
         super();
         this.read();

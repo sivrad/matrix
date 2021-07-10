@@ -127,3 +127,5 @@ dist
 **/src/types/
 # Ignore the generated types for scripts/
 generatedTypes.ts
+# Ignore the test DB.
+json_driver_test_db.json
