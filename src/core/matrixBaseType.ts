@@ -103,7 +103,9 @@ export class MatrixBaseType {
      * @returns {typeof MatrixBaseType[]} The children class.
      * @static
      */
-    static getChildren(): typeof MatrixBaseType[] {}
+    static getChildren(): typeof MatrixBaseType[] {
+        return [];
+    }
 
     /**
      * Get all the fields for the type.
