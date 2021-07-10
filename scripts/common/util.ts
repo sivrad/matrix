@@ -55,21 +55,23 @@ const normalizeTypeObject = (type: InternalType): InternalType => {
     };
 };
 
-export const indexTypes = (): Record<string, Record<string, InternalType>> => {
+export const indexTypes = (
+    inDirectory: string,
+): Record<string, Record<string, InternalType>> => {
     const result: Record<string, Record<string, InternalType>> = {};
     // Loop through each collection.
-    for (const collection of readdirSync(`./${TYPE_FILES_PATH}`)) {
+    for (const collection of readdirSync(`${inDirectory}${TYPE_FILES_PATH}`)) {
         if (!Object.keys(result).includes(collection)) result[collection] = {};
         // Loop through each type in the collection.
         for (const typeFile of readdirSync(
-            `./${TYPE_FILES_PATH}${collection}`,
+            `${inDirectory}${TYPE_FILES_PATH}${collection}`,
         )) {
             const type = typeFile.replace('.json', '');
             // Read the file contents of the type.
             result[collection][type] = normalizeTypeObject(
                 JSON.parse(
                     readFileSync(
-                        `./${TYPE_FILES_PATH}${collection}/${type}.json`,
+                        `${inDirectory}${TYPE_FILES_PATH}${collection}/${type}.json`,
                         'utf-8',
                     ),
                 ),

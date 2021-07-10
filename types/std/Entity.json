@@ -1,5 +1,5 @@
 {
-    "$schema": "https://raw.githubusercontent.com/sivrad/matrix-schema/main/type.json",
+    "$schema": "../../schema.json",
     "name": "Entity",
     "label": "Entity",
     "description": "An entity is a physical thing that can or has existed.",

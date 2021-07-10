@@ -124,6 +124,6 @@ dist
 # End of https://www.toptal.com/developers/gitignore/api/node,vscode
 
 # Ignore the types/ in src/
-src/types/
+**/src/types/
 # Ignore the generated types for scripts/
 generatedTypes.ts

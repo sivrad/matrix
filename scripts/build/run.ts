@@ -4,7 +4,7 @@ import { MatrixScriptError } from '../common/error';
 import { error } from '../common/util';
 import * as ora from 'ora';
 
-const run = async () => {
+export const run = async (): Promise<void> => {
     const loader = ora('Building Library').start();
     try {
         await build();

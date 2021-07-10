@@ -1,6 +1,5 @@
 import { capitalize, formatTable } from '../common/util';
-import { indexedTypes } from './indexedTypes';
-import { InternalField, InternalType, Method } from './type';
+import { IndexedTypes, InternalField, InternalType, Method } from './type';
 
 /**
  * Parse a type name.
@@ -80,19 +79,24 @@ export const canSetField = (field: InternalField): boolean => {
     return true;
 };
 
-export const getType = (typePath: string): InternalType => {
+export const getType = (
+    types: IndexedTypes,
+    typePath: string,
+): InternalType => {
     const [collectionName, typeName] = parseType(typePath);
-    return indexedTypes[collectionName][typeName];
+    return types[collectionName][typeName];
 };
 
 /**
  * This function returns the type schema if it contains a field.
- * @param {string} collection The collection name.
- * @param {string} type The type.
- * @param {string} fieldName The field name.
- * @returns {InternalType} The type with the field.
+ * @param   {IndexedTypes} types      All the types in the set.
+ * @param   {string}       collection The collection name.
+ * @param   {string}       type       The type.
+ * @param   {string}       fieldName  The field name.
+ * @returns {InternalType}            The type with the field.
  */
 export const getTypeWithField = (
+    types: IndexedTypes,
     collection: string,
     type: InternalType,
     fieldName: string,
@@ -103,7 +107,12 @@ export const getTypeWithField = (
     const typePath = type.parent.includes('.')
         ? type.parent
         : `${collection}.${type.parent}`;
-    return getTypeWithField(collection, getType(typePath), fieldName);
+    return getTypeWithField(
+        types,
+        collection,
+        getType(types, typePath),
+        fieldName,
+    );
 };
 
 /**

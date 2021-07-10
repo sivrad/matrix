@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { BUILT_IN_TYPES, TEMPLATES_PATH, TYPES_DIRECTORY } from './constants';
 import { Exports, Imports } from './package';
-import { InternalType, InternalField, Method } from './type';
+import { InternalType, InternalField, Method, IndexedTypes } from './type';
 import { render } from 'ejs';
 import {
     sanitizeType,
@@ -14,7 +14,7 @@ import {
     getTypeWithField,
     stripArgsNames,
 } from './util';
-import { indexedTypes } from './indexedTypes';
+import { indexTypes } from '../common/util';
 
 const templates = new Map<string, string>();
 const coreImport = '../../core';
@@ -115,7 +115,11 @@ const generateFieldMethods = (
 
     return methods;
 };
-const getTypeMethods = (collection: string, schema: InternalType): Method[] => {
+const getTypeMethods = (
+    types: IndexedTypes,
+    collection: string,
+    schema: InternalType,
+): Method[] => {
     let methods: Method[] = [
         // `get` method.
         {
@@ -173,7 +177,7 @@ const getTypeMethods = (collection: string, schema: InternalType): Method[] => {
         methods.push(
             generateProtectedField(
                 schema,
-                getTypeWithField(collection, schema, fieldName),
+                getTypeWithField(types, collection, schema, fieldName),
                 fieldName,
             ),
         );
@@ -204,6 +208,7 @@ const generateProtectedField = (
 };
 
 const generateTypeClass = (
+    types: IndexedTypes,
     collectionName: string,
     schema: InternalType,
 ): string => {
@@ -220,7 +225,7 @@ const generateTypeClass = (
     // Import all the external field types.
     importExternalFieldTypes(schema, imports);
     // Get all the methods
-    const methods = getTypeMethods(collectionName, schema);
+    const methods = getTypeMethods(types, collectionName, schema);
 
     const content = renderTemplate('typeClass', {
         imports,
@@ -237,56 +242,82 @@ const generateTypeClass = (
     return content;
 };
 
-const createTypesIndexFile = (exports: Exports) => {
-    const path = `${TYPES_DIRECTORY}index.ts`;
+const createTypesIndexFile = (outDirectory: string, exports: Exports) => {
+    const path = `${outDirectory}${TYPES_DIRECTORY}index.ts`;
     const content = exports.toString();
     writeFileSync(path, content);
 };
 
 const createCollectionIndexFile = (
+    outDirectory: string,
     collectionName: string,
     exports: Exports,
 ) => {
-    const path = `${TYPES_DIRECTORY}${collectionName}/index.ts`;
+    const path = `${outDirectory}${TYPES_DIRECTORY}${collectionName}/index.ts`;
     const content = exports.toString();
     writeFileSync(path, content);
 };
 
-const createTypesDirectory = () => {
-    if (!existsSync(TYPES_DIRECTORY)) mkdirSync(TYPES_DIRECTORY);
+const createTypesDirectory = (outDirectory: string) => {
+    const buildingTypeDirectory = outDirectory + TYPES_DIRECTORY;
+    if (!existsSync(buildingTypeDirectory)) mkdirSync(buildingTypeDirectory);
 };
 
-const createCollectionDirectory = (collectionName: string) => {
-    const collectionPath = `${TYPES_DIRECTORY}${collectionName}/`;
+const createCollectionDirectory = (
+    outDirectory: string,
+    collectionName: string,
+) => {
+    const collectionPath = `${outDirectory}${TYPES_DIRECTORY}${collectionName}/`;
     if (!existsSync(collectionPath)) mkdirSync(collectionPath);
 };
 
-const buildType = (collectionName: string, type: InternalType): string => {
-    const content = generateTypeClass(collectionName, type);
+const buildType = (
+    types: IndexedTypes,
+    outDirectory: string,
+    collectionName: string,
+    type: InternalType,
+): string => {
+    const content = generateTypeClass(types, collectionName, type);
     writeFileSync(
-        `${TYPES_DIRECTORY}${collectionName}/${type.name}.ts`,
+        `${outDirectory}${TYPES_DIRECTORY}${collectionName}/${type.name}.ts`,
         content,
     );
     return type.name;
 };
 
-export const build = async (): Promise<void> => {
+export const build = async (
+    inDirectory = '',
+    outDirectory = '',
+): Promise<void> => {
+    // Set the 'outDirectory' with value of 'inDirectory' if not set.
+    if (inDirectory && !outDirectory) outDirectory = inDirectory;
+    // Index the types.
+    const allTypes = indexTypes(inDirectory);
     // Create './src/types/'.
-    createTypesDirectory();
+    createTypesDirectory(outDirectory);
     const typeExports = new Exports();
-    for (const [collectionName, types] of Object.entries(indexedTypes)) {
+    for (const [collectionName, types] of Object.entries(allTypes)) {
         // Export all from the collection.
         typeExports.set(`./${collectionName}`, '*', collectionName);
         const collectionExports = new Exports();
         // Create './src/types/collection/'.
-        createCollectionDirectory(collectionName);
+        createCollectionDirectory(outDirectory, collectionName);
         for (const type of Object.values(types)) {
-            const typeName = buildType(collectionName, type);
+            const typeName = buildType(
+                allTypes,
+                outDirectory,
+                collectionName,
+                type,
+            );
             collectionExports.add(`./${typeName}`, typeName, `${typeName}Data`);
         }
         // Create './src/types/collection/index.ts'.
-        createCollectionIndexFile(collectionName, collectionExports);
+        createCollectionIndexFile(
+            outDirectory,
+            collectionName,
+            collectionExports,
+        );
     }
     // Create './src/types/index.ts'.
-    createTypesIndexFile(typeExports);
+    createTypesIndexFile(outDirectory, typeExports);
 };

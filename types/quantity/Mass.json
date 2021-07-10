@@ -1,5 +1,5 @@
 {
-    "$schema": "https://raw.githubusercontent.com/sivrad/matrix-schema/main/type.json",
+    "$schema": "../../schema.json",
     "name": "Mass",
     "label": "Mass",
     "description": "Mass is a measure of the amount of matter in an object.",

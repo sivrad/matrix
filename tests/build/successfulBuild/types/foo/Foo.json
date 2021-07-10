@@ -1,5 +1,5 @@
 {
-    "$schema": "../../schema.json",
+    "$schema": "../../../schema.json",
     "name": "Thing",
     "label": "Thing",
     "description": "Any thing than can exist.",

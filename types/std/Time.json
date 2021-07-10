@@ -1,5 +1,5 @@
 {
-    "$schema": "https://raw.githubusercontent.com/sivrad/matrix-schema/main/type.json",
+    "$schema": "../../schema.json",
     "name": "Time",
     "label": "Time",
     "description": "Representation of a point in time.",

@@ -1,5 +1,5 @@
 {
-    "$schema": "https://raw.githubusercontent.com/sivrad/matrix-schema/main/type.json",
+    "$schema": "../../schema.json",
     "name": "Organism",
     "label": "Organism",
     "description": "An individual animal, plant, or single-celled life form.",

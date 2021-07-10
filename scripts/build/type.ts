@@ -7,6 +7,7 @@ export interface InternalType extends Omit<Type, 'fields'> {
     fields: { [k: string]: InternalField };
 }
 
+export type IndexedTypes = Record<string, Record<string, InternalType>>;
 export interface Method {
     name: string;
     description: string;

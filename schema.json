@@ -53,8 +53,7 @@
     "properties": {
         "$schema": {
             "type": "string",
-            "description": "Schema URL.",
-            "pattern": "^https:\\/\\/raw\\.githubusercontent\\.com\\/sivrad\\/matrix-schema\\/main\\/type\\.json$"
+            "description": "Schema URL."
         },
         "name": {
             "type": "string",

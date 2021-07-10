@@ -1,5 +1,5 @@
 {
-    "$schema": "https://raw.githubusercontent.com/sivrad/matrix-schema/main/type.json",
+    "$schema": "../../schema.json",
     "name": "Rocket",
     "label": "Rocket",
     "description": "A rocket is a projectile that spacecraft, aircraft or other vehicle use to obtain thrust from a rocket engine.",
