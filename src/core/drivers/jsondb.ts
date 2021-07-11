@@ -190,7 +190,7 @@ export class JSONDBDriver extends Driver {
             response: {
                 $id: id,
                 $type: type,
-                data: {} as InternalData<T>,
+                data: this.data[type][id] as InternalData<T>,
             },
         };
     }

@@ -1,2 +1,2 @@
-export { FaunaDBDriver } from './faunadb';
+// export { FaunaDBDriver } from './faunadb';
 export { JSONDBDriver } from './jsondb';

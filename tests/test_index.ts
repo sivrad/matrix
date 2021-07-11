@@ -4,8 +4,9 @@
 // new Matrix(driver);
 
 // const main = async () => {
-//     const res = await types.std.Entity.getAll();
-//     console.log(res);
+//     const res = await new types.std.Person({
+//         surname: 'Koon',
+//     }).createInstance();
 // };
 
 // main();

@@ -455,7 +455,6 @@ export class MatrixBaseType {
         const dataKeys = Object.keys(data),
             dataValues = Object.values(data),
             populatedFields: Record<string, unknown> = {};
-
         for (const fieldName of this._typeFieldKeys) {
             // Get the field and if the field was provided.
             const field = this._typeFields[fieldName],
@@ -750,7 +749,8 @@ export class MatrixBaseType {
                     parseInt(field.current)
             ) {
                 // Update the local value.
-                this.setField(fieldName, field);
+                this._fields[fieldName] = new Field(fieldName, field);
+                // this.setField(fieldName, field);
             }
         }
 
