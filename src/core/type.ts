@@ -77,3 +77,8 @@ export interface SourceInstanceResponse<
 > {
     response: SerializedData<T>;
 }
+
+export interface TreeNode {
+    type: typeof MatrixBaseType;
+    children: TreeNode[];
+}

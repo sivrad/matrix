@@ -1,13 +1,15 @@
 import { MatrixBaseType } from './matrixBaseType';
 import { Driver } from './driver';
 import { TypeNotFound } from './errors';
-import { MatrixClassArray } from './type';
+import { MatrixClassArray, TreeNode } from './type';
+import { Thing } from '../types/std';
 
 /**
  * Matrix instance.
  */
 export class Matrix {
     private static types = new Map<string, typeof MatrixBaseType>();
+    private static typeRelations = new Map<string, string[]>();
 
     /**
      * Contructor for a Matrix instance.
@@ -26,6 +28,23 @@ export class Matrix {
      */
     private static addType(type: typeof MatrixBaseType): void {
         this.types.set(type.getType(), type);
+        const parent = type.getParent();
+        if (!parent) return;
+        const parentType = parent.getType();
+        if (!this.typeRelations.has(parentType))
+            this.typeRelations.set(parentType, []);
+        this.typeRelations.get(parentType)?.push(type.getType());
+    }
+
+    /**
+     * Get the child types of a type.
+     * @param {string} type The type to get the children of.
+     * @returns {typeof MatrixBaseType[]} The children types.
+     */
+    getChildTypes(type: string): typeof MatrixBaseType[] {
+        const children = Matrix.typeRelations.get(type);
+        if (!children) return [];
+        return children.map(this.getType);
     }
 
     /**
@@ -59,5 +78,26 @@ export class Matrix {
             allTypes[collection].push(typeClass);
         }
         return allTypes;
+    }
+
+    /**
+     * Generate the Matrix Library Type Hierarchy.
+     *
+     * This returns a Tree Type.
+     * @returns {TreeNode} The Root tree node.
+     */
+    generateTypeHierarchy(): TreeNode {
+        const base = Thing;
+        const rec = (type: typeof MatrixBaseType): TreeNode => {
+            const children: TreeNode[] = [];
+            for (const child of type.getDirectChildren()) {
+                children.push(rec(child));
+            }
+            return {
+                type,
+                children,
+            };
+        };
+        return rec(base);
     }
 }

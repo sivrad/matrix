@@ -55,7 +55,14 @@ export class MatrixBaseType {
     /**
      * Information on the class.
      */
-    public static _classInformation: ClassInformation;
+    public static _classInformation: ClassInformation = {
+        collection: 'void',
+        name: 'Base',
+        icon: '',
+        label: '',
+        flags: [],
+        description: '',
+    };
     /**
      * The type fields.
      */
@@ -104,7 +111,22 @@ export class MatrixBaseType {
      * @static
      */
     static getChildren(): typeof MatrixBaseType[] {
-        return [];
+        let children = this.getDirectChildren();
+        for (const child of children) {
+            children = children.concat(child.getChildren());
+        }
+        return children;
+    }
+
+    /**
+     * Return the direct children classes.
+     * @function getChildren
+     * @memberof MatrixBaseType
+     * @returns {typeof MatrixBaseType[]} The children class.
+     * @static
+     */
+    static getDirectChildren(): typeof MatrixBaseType[] {
+        return this.getMatrix().getChildTypes(this.getType());
     }
 
     /**

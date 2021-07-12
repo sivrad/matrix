@@ -4,6 +4,7 @@
     "label": "Entity",
     "description": "An entity is a physical thing that can or has existed.",
     "icon": "https://static.thenounproject.com/png/6887-200.png",
+    "parent": "Thing",
     "fields": {
         "end": {
             "label": "End",

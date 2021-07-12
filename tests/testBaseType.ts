@@ -40,10 +40,6 @@ describe('Matrix Base Type', () => {
         strictEqual(field.required, false);
     });
 
-    it('Return children types.', () => {
-        deepStrictEqual(MockType.getChildren(), []);
-    });
-
     it('Return the parent class.', () => {
         deepStrictEqual(MockType.getParent(), MatrixBaseType);
     });
@@ -87,6 +83,10 @@ describe('Matrix Base Type', () => {
         const mtx = new Matrix(new MockDriver());
         // @ts-expect-error getMatrix is a private method.
         deepStrictEqual(new MockType({}).getMatrix(), mtx);
+    });
+
+    it('Return children types.', () => {
+        deepStrictEqual(MockType.getChildren(), []);
     });
 
     it('Get the Type Driver', () => {

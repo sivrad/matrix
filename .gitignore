@@ -129,3 +129,5 @@ dist
 generatedTypes.ts
 # Ignore the test DB.
 jsonDriverTestDB.json
+# Ignore the Sandbox
+sandbox.*

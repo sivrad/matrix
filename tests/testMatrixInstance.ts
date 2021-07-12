@@ -60,4 +60,10 @@ describe('Matrix Core', async () => {
             "The incorrect driver was returned with 'getDriver'",
         );
     });
+
+    it('Generate a Type Hierarchy', () => {
+        const mtx = mkMtx();
+
+        const tree = mtx.generateTypeHierarchy();
+    });
 });
