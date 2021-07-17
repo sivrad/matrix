@@ -1,7 +1,7 @@
 import { MatrixBaseType } from './matrixBaseType';
 import { Driver } from './driver';
 import { TypeNotFound } from './errors';
-import { MatrixClassArray, TreeNode } from './type';
+import { TreeNode } from './type';
 import { Thing } from '../types/std';
 
 /**
@@ -70,8 +70,8 @@ export class Matrix {
      * Return all the types.
      * @returns {MatrixClassArray} All the type classes.
      */
-    getTypes(): Record<string, MatrixClassArray> {
-        const allTypes: Record<string, MatrixClassArray> = {};
+    getTypes(): Record<string, typeof MatrixBaseType[]> {
+        const allTypes: Record<string, typeof MatrixBaseType[]> = {};
         for (const typeClass of Matrix.types.values()) {
             const collection = typeClass.getCollection();
             if (!allTypes[collection]) allTypes[collection] = [];

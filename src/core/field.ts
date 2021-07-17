@@ -1,25 +1,67 @@
-import { FieldValueNotFound } from './errors';
-import { FieldObject, FieldObjectValue } from './type';
+import { FieldDataNotFound, FieldValueNotFound } from './error';
+import { FieldInformation, FieldData, FieldDataPoint, FieldType } from './type';
 
 /**
  * A field object.
  */
 export class Field {
-    /**
-     * Constructor for a field.
-     * @param {string}      name        The name of the field.
-     * @param {FieldObject} fieldObject The serialized field object.
-     */
-    constructor(private name: string, private fieldObject: FieldObject) {}
+    private defaultValue: unknown;
+    private description: string;
+    private flags: string[];
+    private label: string;
+    private name: string;
+    private type: FieldType;
+    private value: FieldData = {
+        values: {},
+    };
 
     /**
-     * If the value is defined.
-     * @function isDefined
-     * @memberof Field
-     * @returns {boolean} Returns `true` if it is defined.
+     * Constructor for a field.
+     * @param {FieldInformation} data        The name of the field.
      */
-    isDefined(): boolean {
-        return this.fieldObject.values[this.fieldObject.current].value != null;
+    constructor(data: FieldInformation) {
+        this.name = data.name;
+        this.type = data.type;
+    }
+
+    /**
+     * Get the default value of the field.
+     * @function getDefaultValue
+     * @memberof Field
+     * @returns {unknown} The default value of the field.
+     */
+    getDefaultValue(): unknown {
+        return this.defaultValue;
+    }
+
+    /**
+     * Get the description of the field.
+     * @function getDescription
+     * @memberof Field
+     * @returns {string} The description of the field.
+     */
+    getDescription(): string {
+        return this.description;
+    }
+
+    /**
+     * Get the flags of the field.
+     * @function getFlags
+     * @memberof Field
+     * @returns {string[]} The flags of the field.
+     */
+    getFlags(): string[] {
+        return this.flags;
+    }
+
+    /**
+     * Get the label of the field.
+     * @function getLabel
+     * @memberof Field
+     * @returns {string} The label of the field.
+     */
+    getLabel(): string {
+        return this.label;
     }
 
     /**
@@ -33,13 +75,44 @@ export class Field {
     }
 
     /**
+     * Get the type of the field.
+     * @function getType
+     * @memberof Field
+     * @returns {FieldType} The type of the field.
+     */
+    getType(): FieldType {
+        return this.type;
+    }
+
+    /**
+     * Verify the existance of a flag.
+     * @function hasFlag
+     * @memberof Field
+     * @param {string} flag The flag to check for.
+     * @returns {boolean} Returns `true` if the field has the flag.
+     */
+    hasFlag(flag: string): boolean {
+        return this.flags.includes(flag);
+    }
+
+    /**
+     * If the value is defined.
+     * @function isDefined
+     * @memberof Field
+     * @returns {boolean} Returns `true` if it is defined.
+     */
+    isDefined(): boolean {
+        return this.value != undefined;
+    }
+
+    /**
      * Serialize the field.
      * @function serialize
      * @memberof Field
-     * @returns {FieldObject} The field object.
+     * @returns {FieldData} The field object.
      */
-    serialize(): FieldObject {
-        return this.fieldObject;
+    serialize(): FieldData {
+        return this.value;
     }
 
     /**
@@ -50,17 +123,18 @@ export class Field {
      * @param {unknown} value     The value to set to.
      */
     setDataAt(timestamp: string, value: unknown): void {
-        this.fieldObject.values[timestamp] = {
+        this.value.values[timestamp] = {
             value: value,
         };
     }
+
     /**
      * Set the values for the field.
      * @param   {Record<string, FieldObjectValue>} values The Values to set.
      * @returns {this}                                    The field instance.
      */
-    setValues(values: Record<string, FieldObjectValue>): this {
-        this.fieldObject.values = values;
+    setValues(values: Record<string, FieldDataPoint>): this {
+        this.value.values = values;
         return this;
     }
 
@@ -70,7 +144,7 @@ export class Field {
      * @returns {this}           The field instance.
      */
     setCurrent(current: string): this {
-        this.fieldObject.current = current;
+        this.value.current = current;
         return this;
     }
 
@@ -82,7 +156,7 @@ export class Field {
      * @param {unknown} value     The value of the data.
      */
     setCurrentData(timestamp: string, value: unknown): void {
-        this.fieldObject.current = timestamp;
+        this.value.current = timestamp;
         this.setDataAt(timestamp, value);
     }
 
@@ -93,11 +167,11 @@ export class Field {
      * @param   {string | number} timestamp The timestamp as a string or number.
      * @returns {FieldObjectValue} The object data at the time.
      */
-    getDataAt(timestamp: string | number): FieldObjectValue {
+    getDataAt(timestamp: string | number): FieldDataPoint {
         timestamp = timestamp.toString();
-        if (Object.keys(this.fieldObject.values).indexOf(timestamp) == -1)
+        if (Object.keys(this.value.values).indexOf(timestamp) == -1)
             throw new FieldValueNotFound(this, timestamp);
-        return this.fieldObject.values[timestamp];
+        return this.value.values[timestamp];
     }
 
     /**
@@ -106,8 +180,9 @@ export class Field {
      * @memberof Field
      * @returns {FieldObjectValue} The current data of the field.
      */
-    getCurrentData(): FieldObjectValue {
-        return this.fieldObject.values[this.fieldObject.current];
+    getCurrentData(): FieldDataPoint {
+        if (this.value.current == undefined) throw new FieldDataNotFound(this);
+        return this.value.values[this.value.current];
     }
 
     /**
@@ -127,7 +202,8 @@ export class Field {
      * @returns {Date} The last updated time.
      */
     getUpdatedAt(): Date {
-        return new Date(parseInt(this.fieldObject.current) * 1000);
+        if (this.value.current == undefined) throw new FieldDataNotFound(this);
+        return new Date(parseInt(this.value.current) * 1000);
     }
 
     /**

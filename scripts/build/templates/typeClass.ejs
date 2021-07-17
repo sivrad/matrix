@@ -28,6 +28,19 @@ export interface <%= schema.name %>Data extends <%= parentName %>Data {
  * <%- schema.description %>
  */
 export class <%= schema.name %> extends <%= parentName %> {
+    protected static fields: Record<string, Field> = {
+        <% for (const [fieldName, field] of Object.entries(schema.fields || {})) { %>
+        <%= fieldName %>: new Field({
+            type:         '<%= field.type %>',
+            label:        '<%= field.label %>',
+            description:  '<%= field.description %>',
+            defaultValue: <%- valueToTypescript(field.defaultValue) %>,
+            flags:        <%- flagsToArray(field.flags) %>,
+            required:     <%= field.required %>,
+        }),
+        <% } %>
+    }
+    /**
     static _classFields: Record<string, FieldInterface> = {
         <% for (const [fieldName, field] of Object.entries(schema.fields || {})) { %>
         <% if (typeof field == 'object') { %>
@@ -49,6 +62,7 @@ export class <%= schema.name %> extends <%= parentName %> {
         '<%= fieldName %>': <%- valueToTypescript(fieldValue) %>,
         <% } %>
     }
+    */
     static _classInformation = {
         collection:  '<%= collectionName %>',
         name:        '<%= schema.name %>',
