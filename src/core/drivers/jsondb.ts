@@ -1,11 +1,11 @@
 import { Driver } from '../driver';
 import { existsSync, writeFileSync, readFileSync } from 'fs';
 import {
-    InternalData,
+    SerializeFields,
     MatrixBaseTypeData,
-    SerializedData,
-    SourceInstanceResponse,
-    SourceInstancesResponse,
+    SerializeData,
+    DriverInstanceResponse,
+    DriverInstancesResponse,
     util,
 } from '..';
 import { errors as matrixErrors } from '../../';
@@ -25,7 +25,7 @@ export class JSONDBDriver extends Driver {
             // ID
             string,
             // Instance data
-            InternalData
+            SerializeFields
         >
     > = {};
 
@@ -108,21 +108,21 @@ export class JSONDBDriver extends Driver {
      * @param   {string}             type The name of the type.
      * @param   {string}             id   Id of the type.
      * @throws  {InstanceNotFound}        If the Id does not match a type.
-     * @throws  {UnknownSourceError}      If there is an unknown error.
+     * @throws  {UnknownDriverError}      If there is an unknown error.
      * @returns {Promise<T>}              The data.
      */
     async getInstance<T extends MatrixBaseTypeData = MatrixBaseTypeData>(
         type: string,
         id: string,
-    ): Promise<SourceInstanceResponse<T>> {
+    ): Promise<DriverInstanceResponse<T>> {
         // Check if the instance is in the file.
         if (!this.hasInstance(type, id))
             throw new matrixErrors.InstanceNotFound(type, id);
         return {
             response: {
-                $id: id,
-                $type: type,
-                data: this.data[type][id] as InternalData<T>,
+                id: id,
+                type: type,
+                data: this.data[type][id] as SerializeFields<T>,
             },
         };
     }
@@ -134,14 +134,14 @@ export class JSONDBDriver extends Driver {
      */
     async getInstances<T extends MatrixBaseTypeData = MatrixBaseTypeData>(
         type: string,
-    ): Promise<SourceInstancesResponse<T>> {
+    ): Promise<DriverInstancesResponse<T>> {
         if (!this.hasType(type)) return { response: {} };
-        const instances: Record<string, SerializedData<T>> = {};
+        const instances: Record<string, SerializeData<T>> = {};
         for (const [id, data] of Object.entries(this.data[type])) {
             instances[id] = {
-                $id: id,
-                $type: type,
-                data: data as InternalData<T>,
+                id: id,
+                type: type,
+                data: data as SerializeFields<T>,
             };
         }
         return {
@@ -158,16 +158,16 @@ export class JSONDBDriver extends Driver {
     async createInstance<T extends MatrixBaseTypeData = MatrixBaseTypeData>(
         type: string,
         data: T,
-    ): Promise<SourceInstanceResponse<T>> {
+    ): Promise<DriverInstanceResponse<T>> {
         const id = util.generateId();
         if (!this.hasType(type)) this.data[type] = {};
-        this.data[type][id] = data as InternalData;
+        this.data[type][id] = data as SerializeFields;
         this.save();
         return {
             response: {
-                $id: id,
-                $type: type,
-                data: data as InternalData<T>,
+                id: id,
+                type: type,
+                data: data as SerializeFields<T>,
             },
         };
     }
@@ -183,14 +183,14 @@ export class JSONDBDriver extends Driver {
         type: string,
         id: string,
         data: T,
-    ): Promise<SourceInstanceResponse<T>> {
+    ): Promise<DriverInstanceResponse<T>> {
         this.data[type][id] = { ...this.data[type][id], ...data };
         this.save();
         return {
             response: {
-                $id: id,
-                $type: type,
-                data: this.data[type][id] as InternalData<T>,
+                id: id,
+                type: type,
+                data: this.data[type][id] as SerializeFields<T>,
             },
         };
     }

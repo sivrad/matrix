@@ -4,5 +4,5 @@ export { Driver } from './driver';
 export { Field } from './field';
 export * from './type';
 export * as util from './util';
-export * as errors from './errors';
+export * as errors from './error';
 export * from './drivers';

@@ -73,7 +73,7 @@ export class FieldManager {
      * @param {MatrixBaseTypeData} data The data to verify.
      * @private
      */
-    private verifyFieldData(data: MatrixBaseTypeData) {
+    private verifyFieldData(_: MatrixBaseTypeData) {
         return;
     }
 }

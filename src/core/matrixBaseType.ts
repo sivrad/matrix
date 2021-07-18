@@ -99,33 +99,6 @@ export class MatrixBaseType {
     }
 
     /**
-     * Initialize the instance with field data.
-     * @function initializeWithFieldData
-     * @memberof MatrixBaseType
-     * @param {MatrixBaseTypeData} data The data to initialize with.
-     * @private
-     */
-    private initializeWithFieldData(data: MatrixBaseTypeData) {
-        this.verifyFieldData(data);
-        this.createFieldObjects();
-        const timestamp = getCurrentTimestamp();
-        if (!this.isInstance()) this.createdAt = timestamp;
-    }
-
-    /**
-     * Create all the 'Field' objects for the instance.
-     * @function createFieldObjects
-     * @memberof MatrixBaseType
-     * @private
-     */
-    private createFieldObjects() {
-        for (const [fieldName, field] of Object.entries(
-            this.getTypeClass().getFields(),
-        )) {
-        }
-    }
-
-    /**
      * Return the type class.
      * @function getTypeClass
      * @memberof MatrixBaseType
@@ -159,6 +132,47 @@ export class MatrixBaseType {
      */
     static getParent(): typeof MatrixBaseType | null {
         return Object.getPrototypeOf(this);
+    }
+
+    /**
+     * Get the type name.
+     * @function getName
+     * @memberof MatrixBaseType
+     * @static
+     * @example
+     * MyType.getName() // "MyType"
+     * @returns {string} Name of the type.
+     */
+    static getName(): string {
+        return this.classInformation.name;
+    }
+
+    /**
+     * Get the type.
+     *
+     * This is in collection name notation, see example.
+     * @function getType
+     * @memberof MatrixBaseType
+     * @static
+     * @example
+     * MyType.getType() // "collectionName.MyType"
+     * @returns {string} Type of the type.
+     */
+    static getType(): string {
+        return `${this.getCollection()}.${this.getName()}`;
+    }
+
+    /**
+     * Get the collection name.
+     * @function getCollection
+     * @memberof MatrixBaseType
+     * @static
+     * @example
+     * MyType.getCollection() // "std"
+     * @returns {string} Name of the collection.
+     */
+    static getCollection(): string {
+        return this.classInformation.collection;
     }
 
     // START
@@ -220,47 +234,6 @@ export class MatrixBaseType {
     // static getMatrix(): Matrix {
     //     if (this.matrix == null) throw new NoMatrixInstance(this);
     //     return this.matrix;
-    // }
-
-    // /**
-    //  * Get the collection name.
-    //  * @function getCollection
-    //  * @memberof MatrixBaseType
-    //  * @static
-    //  * @example
-    //  * MyType.getCollection() // "std"
-    //  * @returns {string} Name of the collection.
-    //  */
-    // static getCollection(): string {
-    //     return this.classInformation.collection;
-    // }
-
-    // /**
-    //  * Get the type name.
-    //  * @function getName
-    //  * @memberof MatrixBaseType
-    //  * @static
-    //  * @example
-    //  * MyType.getName() // "MyType"
-    //  * @returns {string} Name of the type.
-    //  */
-    // static getName(): string {
-    //     return this.classInformation.name;
-    // }
-
-    // /**
-    //  * Get the type.
-    //  *
-    //  * This is in collection name notation, see example.
-    //  * @function getType
-    //  * @memberof MatrixBaseType
-    //  * @static
-    //  * @example
-    //  * MyType.getType() // "collectionName.MyType"
-    //  * @returns {string} Type of the type.
-    //  */
-    // static getType(): string {
-    //     return `${this.getCollection()}.${this.getName()}`;
     // }
 
     // /**

@@ -1,8 +1,8 @@
 import { MatrixBaseType } from './matrixBaseType';
 import { Driver } from './driver';
-import { TypeNotFound } from './errors';
+import { TypeNotFound } from './error';
 import { TreeNode } from './type';
-import { Thing } from '../types/std';
+// import { Thing } from '../types/std';
 
 /**
  * Matrix instance.
@@ -80,24 +80,24 @@ export class Matrix {
         return allTypes;
     }
 
-    /**
-     * Generate the Matrix Library Type Hierarchy.
-     *
-     * This returns a Tree Type.
-     * @returns {TreeNode} The Root tree node.
-     */
-    generateTypeHierarchy(): TreeNode {
-        const base = Thing;
-        const rec = (type: typeof MatrixBaseType): TreeNode => {
-            const children: TreeNode[] = [];
-            for (const child of type.getDirectChildren()) {
-                children.push(rec(child));
-            }
-            return {
-                type,
-                children,
-            };
-        };
-        return rec(base);
-    }
+    // /**
+    //  * Generate the Matrix Library Type Hierarchy.
+    //  *
+    //  * This returns a Tree Type.
+    //  * @returns {TreeNode} The Root tree node.
+    //  */
+    // generateTypeHierarchy(): TreeNode {
+    //     const base = Thing;
+    //     const rec = (type: typeof MatrixBaseType): TreeNode => {
+    //         const children: TreeNode[] = [];
+    //         for (const child of type.getDirectChildren()) {
+    //             children.push(rec(child));
+    //         }
+    //         return {
+    //             type,
+    //             children,
+    //         };
+    //     };
+    //     return rec(base);
+    // }
 }
