@@ -29,9 +29,8 @@ export class FieldManager {
      * @private
      */
     private initialize(): void {
-        for (const [fieldName, field] of Object.entries(
-            this.type.getTypeClass().getFields(),
-        )) {
+        const fields = this.type.getTypeClass().getFields();
+        for (const [fieldName, field] of Object.entries(fields)) {
             this.createNewField(fieldName, field);
         }
     }
@@ -73,7 +72,10 @@ export class FieldManager {
      * @param {MatrixBaseTypeData} data The data to verify.
      * @private
      */
-    private verifyFieldData(_: MatrixBaseTypeData) {
+    private verifyFieldData(data: MatrixBaseTypeData) {
+        console.log(this.fields);
+        console.log(data);
+
         return;
     }
 }

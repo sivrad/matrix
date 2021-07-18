@@ -1,5 +1,10 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
-import { BUILT_IN_TYPES, TEMPLATES_PATH, TYPES_DIRECTORY } from './constants';
+import {
+    BUILT_IN_TYPES,
+    ENABLED_METHODS,
+    TEMPLATES_PATH,
+    TYPES_DIRECTORY,
+} from './constants';
 import { Exports, Imports } from './package';
 import { InternalType, InternalField, Method, IndexedTypes } from './type';
 import { render } from 'ejs';
@@ -120,9 +125,10 @@ const getTypeMethods = (
     collection: string,
     schema: InternalType,
 ): Method[] => {
-    let methods: Method[] = [
+    let methods: Method[] = [];
+    if (ENABLED_METHODS.GET)
         // `get` method.
-        {
+        methods.push({
             name: 'get',
             description: 'Get an instance of the type from the ID.',
             args: {
@@ -139,48 +145,57 @@ const getTypeMethods = (
             isStatic: true,
             isAsync: true,
             generic: `T extends MatrixBaseType = ${schema.name}`,
-        },
-        // `getAll` method.
-        {
-            name: 'getAll',
-            description: 'Get all the instances of a type.',
-            args: {},
-            returns: {
-                type: 'T[]',
-                description: 'All the new instances.',
-            },
-            code: 'return await super.getAll<T>();',
-            isStatic: true,
-            isAsync: true,
-            generic: `T extends MatrixBaseType = ${schema.name}`,
-        },
-        // `getTypeClass` method.
-        {
-            name: 'getTypeClass',
-            description: 'Get the class of the type.',
-            args: {},
-            returns: {
-                type: 'T',
-                description: 'The type class.',
-            },
-            code: `return (${schema.name} as unknown) as T;`,
-            generic: `T = typeof ${schema.name}`,
-        },
-        // All the getters and setters associated with the fields.
-    ];
-    for (const [fieldName, field] of Object.entries(schema.fields)) {
-        if (typeof field != 'object') continue;
-        const fieldMethods = generateFieldMethods(schema, fieldName, field);
-        methods = methods.concat(fieldMethods);
-    }
-    for (const fieldName of Object.keys(schema.fieldValues)) {
+        });
+    if (ENABLED_METHODS.GET_ALL)
         methods.push(
-            generateProtectedField(
-                schema,
-                getTypeWithField(types, collection, schema, fieldName),
-                fieldName,
-            ),
+            // `getAll` method.
+            {
+                name: 'getAll',
+                description: 'Get all the instances of a type.',
+                args: {},
+                returns: {
+                    type: 'T[]',
+                    description: 'All the new instances.',
+                },
+                code: 'return await super.getAll<T>();',
+                isStatic: true,
+                isAsync: true,
+                generic: `T extends MatrixBaseType = ${schema.name}`,
+            },
         );
+    if (ENABLED_METHODS.GET_TYPE_CLASS)
+        methods.push(
+            // `getTypeClass` method.
+            {
+                name: 'getTypeClass',
+                description: 'Get the class of the type.',
+                args: {},
+                returns: {
+                    type: 'T',
+                    description: 'The type class.',
+                },
+                code: `return (${schema.name} as unknown) as T;`,
+                generic: `T = typeof ${schema.name}`,
+            },
+        );
+    // All the getters and setters associated with the fields.
+    if (ENABLED_METHODS.FIELDS) {
+        for (const [fieldName, field] of Object.entries(schema.fields)) {
+            if (typeof field != 'object') continue;
+            const fieldMethods = generateFieldMethods(schema, fieldName, field);
+            methods = methods.concat(fieldMethods);
+        }
+    }
+    if (ENABLED_METHODS.PROTECTED_FIELDS) {
+        for (const fieldName of Object.keys(schema.fieldValues)) {
+            methods.push(
+                generateProtectedField(
+                    schema,
+                    getTypeWithField(types, collection, schema, fieldName),
+                    fieldName,
+                ),
+            );
+        }
     }
     return methods;
 };
@@ -220,7 +235,7 @@ const generateTypeClass = (
         parentName,
         `${parentName}Data`,
     );
-    imports.add(coreImport, 'FieldInterface');
+    imports.add(coreImport, 'schema');
     if (packageName != coreImport) imports.add(coreImport, 'MatrixBaseType');
     // Import all the external field types.
     importExternalFieldTypes(schema, imports);

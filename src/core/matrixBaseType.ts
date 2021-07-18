@@ -16,6 +16,7 @@ import {
     schema,
     IncludeID,
 } from './type';
+import { Values } from './constants';
 import { getCurrentTimestamp, mapObject } from './util';
 import { FieldManager } from './fieldManager';
 
@@ -144,6 +145,7 @@ export class MatrixBaseType {
      * @returns {string} Name of the type.
      */
     static getName(): string {
+        if (!this.classInformation) return Values.BASE_TYPE_NAME;
         return this.classInformation.name;
     }
 

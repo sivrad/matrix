@@ -1,6 +1,7 @@
 import { MatrixBaseType } from './matrixBaseType';
 import { Driver } from './driver';
 import { TypeNotFound } from './error';
+import { Values } from './constants';
 import { TreeNode } from './type';
 // import { Thing } from '../types/std';
 
@@ -29,7 +30,8 @@ export class Matrix {
     private static addType(type: typeof MatrixBaseType): void {
         this.types.set(type.getType(), type);
         const parent = type.getParent();
-        if (!parent) return;
+        // Stop if the parent is the base type.
+        if (!parent || parent.getName() == Values.BASE_TYPE_NAME) return;
         const parentType = parent.getType();
         if (!this.typeRelations.has(parentType))
             this.typeRelations.set(parentType, []);
