@@ -1,4 +1,4 @@
-import { MatrixBaseTypeData, SerializeFields } from './data';
+import { MatrixBaseTypeData, SerializeData } from './data';
 
 /**
  * Driver Instances Response.
@@ -8,7 +8,7 @@ import { MatrixBaseTypeData, SerializeFields } from './data';
 export interface DriverInstancesResponse<
     T extends MatrixBaseTypeData = MatrixBaseTypeData
 > {
-    response: Record<string, SerializeFields<T>>;
+    response: Record<string, SerializeData<T>>;
 }
 
 /**
@@ -19,5 +19,5 @@ export interface DriverInstancesResponse<
 export interface DriverInstanceResponse<
     T extends MatrixBaseTypeData = MatrixBaseTypeData
 > {
-    response: SerializeFields<T>;
+    response: SerializeData<T>;
 }

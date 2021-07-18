@@ -31,39 +31,16 @@ export class <%= schema.name %> extends <%= parentName %> {
     protected static fields: Record<string, Field> = {
         <% for (const [fieldName, field] of Object.entries(schema.fields || {})) { %>
         <%= fieldName %>: new Field({
+            name:         '<%= fieldName %>',
             type:         '<%= field.type %>',
             label:        '<%= field.label %>',
             description:  '<%= field.description %>',
             defaultValue: <%- valueToTypescript(field.defaultValue) %>,
             flags:        <%- flagsToArray(field.flags) %>,
-            required:     <%= field.required %>,
         }),
         <% } %>
     }
-    /**
-    static _classFields: Record<string, FieldInterface> = {
-        <% for (const [fieldName, field] of Object.entries(schema.fields || {})) { %>
-        <% if (typeof field == 'object') { %>
-        <%= fieldName %>: {
-            type:         '<%= field.type %>',
-            label:        '<%= field.label %>',
-            description:  '<%= field.description %>',
-            defaultValue: <%- valueToTypescript(field.defaultValue) %>,
-            flags:        <%- flagsToArray(field.flags) %>,
-            required:     <%= field.required %>,
-        },
-        <% } else { %>
-        <%= fieldName %>: <%- valueToTypescript(field) %>,
-        <% } %>
-        <% } %>
-    }
-    static _fieldValues: Record<string, unknown> = {
-        <% for (const [fieldName, fieldValue] of Object.entries(schema.fieldValues || {})) { %>
-        '<%= fieldName %>': <%- valueToTypescript(fieldValue) %>,
-        <% } %>
-    }
-    */
-    static _classInformation = {
+    protected static classInformation = {
         collection:  '<%= collectionName %>',
         name:        '<%= schema.name %>',
         label:       '<%= schema.label %>',

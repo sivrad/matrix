@@ -2,6 +2,8 @@ import { FieldData } from './field';
 
 /**
  * The most basic data representation of a type.
+ *
+ * This is used for a type constructor.
  */
 export type MatrixBaseTypeData = Record<string, unknown>;
 
@@ -34,3 +36,7 @@ export interface SerializeData<
     type: string;
     data: SerializeFields<T>;
 }
+
+export type IncludeID<T extends MatrixBaseTypeData = MatrixBaseTypeData> = T & {
+    $id?: string;
+};

@@ -1,5 +1,5 @@
 import { FieldDataNotFound, FieldValueNotFound } from './error';
-import { FieldInformation, FieldData, FieldDataPoint, FieldType } from './type';
+import { FieldData, FieldDataPoint, FieldType, schema } from './type';
 
 /**
  * A field object.
@@ -17,10 +17,11 @@ export class Field {
 
     /**
      * Constructor for a field.
-     * @param {FieldInformation} data        The name of the field.
+     * @param {string} name The name of the field.
+     * @param {Field}  data The field schema.
      */
-    constructor(data: FieldInformation) {
-        this.name = data.name;
+    constructor(name: string, data: schema.Field) {
+        this.name = name;
         this.type = data.type;
     }
 
@@ -111,8 +112,14 @@ export class Field {
      * @memberof Field
      * @returns {FieldData} The field object.
      */
-    serialize(): FieldData {
-        return this.value;
+    serialize(): schema.Field {
+        return {
+            defaultValue: this.getDefaultValue() as schema.Field['defaultValue'],
+            description: this.getDescription(),
+            flags: this.getFlags() as schema.Field['flags'],
+            label: this.getLabel(),
+            type: this.getType(),
+        };
     }
 
     /**
