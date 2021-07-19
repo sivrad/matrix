@@ -17,19 +17,15 @@ export type FieldType = string;
  */
 export type FieldDataPointEvent = string;
 
-// /**
-//  * Field Information.
-//  *
-//  * This is used for creating a field in a schema.
-//  */
-// export interface FieldInformation {
-//     name: string;
-//     type: FieldType;
-//     label: string;
-//     description: string;
-//     defaultValue: unknown;
-//     flags: string[];
-// }
+/**
+ * Field Structure.
+ *
+ * This is used for creating a field in a schema.
+ */
+export interface FieldStructure extends schema.Field {
+    staticValue?: unknown;
+    owner?: string;
+}
 
 /**
  * Field Data.

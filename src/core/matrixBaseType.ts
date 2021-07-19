@@ -1,10 +1,4 @@
-import {
-    AlreadyInstantiated,
-    InvalidField,
-    MissingField,
-    NoMatrixInstance,
-    Uninstantiated,
-} from './error';
+import { AlreadyInstantiated, NoMatrixInstance, Uninstantiated } from './error';
 import { Matrix } from './matrixInstance';
 import { Driver } from './driver';
 import { Field } from './field';
@@ -15,6 +9,8 @@ import {
     ClassInformation,
     schema,
     IncludeID,
+    TypeStructure,
+    FieldStructure,
 } from './type';
 import { Values } from './constants';
 import { getCurrentTimestamp, mapObject } from './util';
@@ -35,7 +31,7 @@ export class MatrixBaseType {
     /**
      * Field values.
      */
-    public static _fieldValues: Record<string, unknown> = {};
+    protected static staticFields: Record<string, unknown> = {};
     /**
      * Information on the class.
      */
@@ -128,6 +124,17 @@ export class MatrixBaseType {
     }
 
     /**
+     * Get all the static field values.
+     * @function getStaticFieldValues
+     * @memberof MatrixBaseType
+     * @static
+     * @returns {Record<string, unknown>} The static fields.
+     */
+    static getStaticFieldValues(): Record<string, unknown> {
+        return this.staticFields;
+    }
+
+    /**
      * Return the parent class.
      * @returns {typeof MatrixBaseType | null} The MatrixBaseType class or null if no parent.
      */
@@ -177,160 +184,179 @@ export class MatrixBaseType {
         return this.classInformation.collection;
     }
 
-    // START
+    /**
+     * Get a value.
+     * @function getField
+     * @memberof MatrixBaseType
+     * @protected
+     * @param   {string}  fieldName The name of the field.
+     * @param   {number}  timestamp The timestamp to get.
+     * @returns {unknown}           The value of the field.
+     */
+    getFieldValue<T = unknown>(fieldName: string, timestamp?: number): T {
+        return this.fieldManager.getFieldValue(fieldName, timestamp) as T;
+    }
 
-    // /**
-    //  * Return the children classes.
-    //  * @function getChildren
-    //  * @memberof MatrixBaseType
-    //  * @returns {typeof MatrixBaseType[]} The children class.
-    //  * @static
-    //  */
-    // static getChildren(): typeof MatrixBaseType[] {
-    //     let children = this.getDirectChildren();
-    //     for (const child of children) {
-    //         children = children.concat(child.getChildren());
-    //     }
-    //     return children;
-    // }
+    /**
+     * Set a value.
+     * @function setField
+     * @memberof MatrixBaseType
+     * @protected
+     * @param {string}  fieldName The name of the field.
+     * @param {unknown} value     The value of the field.
+     */
+    setFieldValue(fieldName: string, value: unknown): void {
+        this.fieldManager.setFieldValue(fieldName, value, 'INTERNAL');
+    }
 
-    // /**
-    //  * Return the direct children classes.
-    //  * @function getChildren
-    //  * @memberof MatrixBaseType
-    //  * @returns {typeof MatrixBaseType[]} The children class.
-    //  * @static
-    //  */
-    // static getDirectChildren(): typeof MatrixBaseType[] {
-    //     return this.getMatrix().getChildTypes(this.getType());
-    // }
+    /**
+     * Return the children classes.
+     * @function getChildren
+     * @memberof MatrixBaseType
+     * @returns {typeof MatrixBaseType[]} The children class.
+     * @static
+     */
+    static getChildren(): typeof MatrixBaseType[] {
+        let children = this.getDirectChildren();
+        for (const child of children) {
+            children = children.concat(child.getChildren());
+        }
+        return children;
+    }
 
-    // // /**
-    // //  * Get the fields for the type.
-    // //  * @returns {Record<string, FieldInformation>} An object of all the fields.
-    // //  */
-    // // protected static getTypeFields(): Record<string, FieldInformation> {
-    // //     return {};
-    // // }
+    /**
+     * Return the direct children classes.
+     * @function getChildren
+     * @memberof MatrixBaseType
+     * @returns {typeof MatrixBaseType[]} The children class.
+     * @static
+     */
+    static getDirectChildren(): typeof MatrixBaseType[] {
+        return this.getMatrix().getChildTypes(this.getType());
+    }
 
-    // /**
-    //  * Set the type's Matrix instance.
-    //  * @function setMatrix
-    //  * @memberof Matrix
-    //  * @private
-    //  * @static
-    //  * @param {Matrix} matrix The matrix instance.
-    //  * @returns {void}
-    //  */
-    // private static setMatrix(matrix: Matrix): void {
-    //     this.matrix = matrix;
-    // }
+    /**
+     * Set the type's Matrix instance.
+     * @function setMatrix
+     * @memberof Matrix
+     * @private
+     * @static
+     * @param {Matrix} matrix The matrix instance.
+     * @returns {void}
+     */
+    private static setMatrix(matrix: Matrix): void {
+        this.matrix = matrix;
+    }
 
-    // /**
-    //  * Get the Matrix instance.
-    //  * @function getMatrix
-    //  * @memberof Matrix
-    //  * @static
-    //  * @returns {Matrix} Matrix instance.
-    //  */
-    // static getMatrix(): Matrix {
-    //     if (this.matrix == null) throw new NoMatrixInstance(this);
-    //     return this.matrix;
-    // }
+    /**
+     * Get the Matrix instance.
+     * @function getMatrix
+     * @memberof Matrix
+     * @static
+     * @returns {Matrix} Matrix instance.
+     */
+    static getMatrix(): Matrix {
+        if (this.matrix == null) throw new NoMatrixInstance(this);
+        return this.matrix;
+    }
 
-    // /**
-    //  * Get the type label.
-    //  * @function getLabel
-    //  * @memberof MatrixBaseType
-    //  * @static
-    //  * @returns {string} Label of the type.
-    //  */
-    // static getLabel(): string {
-    //     return this.classInformation.label;
-    // }
+    /**
+     * Get the type label.
+     * @function getLabel
+     * @memberof MatrixBaseType
+     * @static
+     * @returns {string} Label of the type.
+     */
+    static getLabel(): string {
+        return this.classInformation.label;
+    }
 
-    // /**
-    //  * Get the type description.
-    //  * @function getDescription
-    //  * @memberof MatrixBaseType
-    //  * @static
-    //  * @returns {string} Description of the type.
-    //  */
-    // static getDescription(): string {
-    //     return this.classInformation.description;
-    // }
+    /**
+     * Get the type description.
+     * @function getDescription
+     * @memberof MatrixBaseType
+     * @static
+     * @returns {string} Description of the type.
+     */
+    static getDescription(): string {
+        return this.classInformation.description;
+    }
 
-    // /**
-    //  * Get the type icon.
-    //  * @function getIcon
-    //  * @memberof MatrixBaseType
-    //  * @static
-    //  * @returns {string} Icon of the type.
-    //  */
-    // static getIcon(): string {
-    //     return this.classInformation.icon;
-    // }
+    /**
+     * Get the type icon.
+     * @function getIcon
+     * @memberof MatrixBaseType
+     * @static
+     * @returns {string} Icon of the type.
+     */
+    static getIcon(): string {
+        return this.classInformation.icon;
+    }
 
-    // /**
-    //  * Get the type flags.
-    //  * @function getFlags
-    //  * @memberof MatrixBaseType
-    //  * @static
-    //  * @returns {string[]} Flags of the type.
-    //  */
-    // static getFlags(): string[] {
-    //     return this.classInformation.flags;
-    // }
+    /**
+     * Get the type flags.
+     * @function getFlags
+     * @memberof MatrixBaseType
+     * @static
+     * @returns {string[]} Flags of the type.
+     */
+    static getFlags(): string[] {
+        return this.classInformation.flags;
+    }
 
-    // /**
-    //  * Get the type schema.
-    //  *
-    //  * This can be serialized to JSON and be built.
-    //  * @function getSchema
-    //  * @memberof MatrixBaseType
-    //  * @static
-    //  * @returns {Schema} Schema of the type.
-    //  */
-    // static getSchema(): schema.Type {
-    //     return {
-    //         name: this.getName(),
-    //         label: this.getLabel(),
-    //         description: this.getDescription(),
-    //         icon: this.getIcon(),
-    //         flags: this.getFlags() as schema.Type['flags'],
-    //         parent: this.getParent()?.getType() || null,
-    //         fieldValues: this._fieldValues as schema.Type['fieldValues'],
-    //         fields: this.getFields(),
-    //     };
-    // }
+    /**
+     * Get the type schema.
+     *
+     * This can be serialized to JSON and be built.
+     * @function getSchema
+     * @memberof MatrixBaseType
+     * @static
+     * @returns {Schema} Schema of the type.
+     */
+    static getSchema(): schema.Type {
+        return {
+            name: this.getName(),
+            label: this.getLabel(),
+            description: this.getDescription(),
+            icon: this.getIcon(),
+            flags: this.getFlags() as schema.Type['flags'],
+            parent: this.getParent()?.getType() || null,
+            fieldValues: this.staticFields as schema.Type['fieldValues'],
+            fields: this.fields,
+        };
+    }
 
-    // // /**
-    // //  * Return the structure of the type.
-    // //  * @function getStructure
-    // //  * @memberof MatrixBaseType
-    // //  * @static
-    // //  * @returns {Type} Structure of the type.
-    // //  */
-    // // static getStructure(): schema.Type {
-    // //     // Create a map of all the fields for each parent.
-    // //     const fieldOwners = new Map<string, string>();
-    // //     // eslint-disable-next-line @typescript-eslint/no-this-alias
-    // //     let type: typeof MatrixBaseType | null = this;
-    // //     while (type?._classFields != null) {
-    // //         for (const fieldName of Object.keys(type._classFields)) {
-    // //             fieldOwners.set(fieldName, type.getType());
-    // //         }
-    // //         type = type.getParent();
-    // //     }
-    // //     const schema = this.getSchema();
-    // //     // Update the fields to include 'required' and 'owner'.
-    // //     schema.fields = mapObject(this.getFields(), (fieldName, field) => {
-    // //         field.required = !Object.keys(field).includes('defaultValue');
-    // //         field.owner = fieldOwners.get(fieldName);
-    // //         return field;
-    // //     }) as Type['fields'];
-    // //     return schema;
-    // // }
+    /**
+     * Return the structure of the type.
+     * @function getStructure
+     * @memberof MatrixBaseType
+     * @static
+     * @returns {Type} Structure of the type.
+     */
+    static getStructure(): TypeStructure {
+        // Create a map of all the fields for each parent.
+        const fieldOwners = new Map<string, string>();
+
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        let type: typeof MatrixBaseType | null = this;
+        while (type?.fields != null) {
+            for (const fieldName of Object.keys(type.fields)) {
+                fieldOwners.set(fieldName, type.getType());
+            }
+            type = type.getParent();
+        }
+        const schema = this.getSchema();
+        // Update the fields to include 'required' and 'owner'.
+        schema.fields = mapObject(
+            this.getFields(),
+            (fieldName, field: FieldStructure) => {
+                // field.required = !Object.keys(field).includes('defaultValue');
+                field.owner = fieldOwners.get(fieldName);
+                return field;
+            },
+        );
+        return schema;
+    }
 
     // /**
     //  * Get the type's source.
@@ -613,36 +639,6 @@ export class MatrixBaseType {
     // private verifyFieldAndType(fieldName: string, _: unknown): void {
     //     this.verifyFieldName(fieldName);
     //     // this.verifyType(Object.values(this.fields)[index].type, value);
-    // }
-
-    // /**
-    //  * Get a value.
-    //  * @function getField
-    //  * @memberof MatrixBaseType
-    //  * @protected
-    //  * @param   {string}  fieldName The name of the field.
-    //  * @returns {unknown}           The value of the field.
-    //  */
-    // protected getField<T = unknown>(fieldName: string): T {
-    //     // Verify field name.
-    //     this.verifyFieldName(fieldName);
-    //     return this.getFieldObject(fieldName).getCurrentValue() as T;
-    // }
-
-    // /**
-    //  * Set a value.
-    //  * @function setField
-    //  * @memberof MatrixBaseType
-    //  * @protected
-    //  * @param {string}  fieldName The name of the field.
-    //  * @param {unknown} value     The value of the field.
-    //  */
-    // protected setField(fieldName: string, value: unknown): void {
-    //     // Verify field name & value.
-    //     const timestamp = Math.floor(new Date().getTime() / 1000).toString();
-    //     this.verifyFieldAndType(fieldName, value);
-    //     this.updateFieldObject(fieldName, value, timestamp);
-    //     this.resetLastUpdated();
     // }
 
     // /**

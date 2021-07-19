@@ -69,54 +69,70 @@ const renderTemplate = (template: string, args: Record<string, unknown>) =>
     render(getTemplate(template), args);
 
 const generateSetterMethod = (
+    type: InternalType,
     fieldName: string,
     field: InternalField,
 ): Method => {
-    const classNameFormat = formatAsClassName(fieldName),
-        sanizizedType = sanitizeType(field.type);
-    return {
-        name: `set${classNameFormat}`,
-        description: `Set the ${field.label} field.`,
-        args: {
-            value: {
-                type: sanizizedType,
-                description: 'The value to set.',
+    const pascalCaseTypeName = formatAsClassName(type.name),
+        pascalCaseFieldName = formatAsClassName(fieldName),
+        sanizizedType = sanitizeType(field.type),
+        setter: Method = {
+            name: `set${pascalCaseFieldName}`,
+            description: `Set the ${field.label} field.`,
+            args: {
+                value: {
+                    type: sanizizedType,
+                    description: 'The value to set.',
+                },
             },
-        },
-        returns: {
-            type: 'void',
-            description: '',
-        },
-        code: `this.setField('${fieldName}', value);`,
-    };
+            returns: {
+                type: 'void',
+                description: '',
+            },
+            code: `this.setFieldValue('${fieldName}', value);`,
+        };
+    // Give a code snippet example.
+    if (field.example)
+        setter.example = `// Set the ${
+            field.label
+        }\nmy${pascalCaseTypeName}.set${pascalCaseFieldName}(${valueToTypescript(
+            field.example,
+        )});`;
+    return setter;
 };
 
 const generateFieldMethods = (
-    _: InternalType,
+    type: InternalType,
     fieldName: string,
     field: InternalField,
 ): Method[] => {
-    const classNameFormat = formatAsClassName(fieldName),
+    const pascalCaseFieldName = formatAsClassName(fieldName),
+        pascalCaseTypeName = formatAsClassName(type.name),
         sanizizedType = sanitizeType(field.type),
-        methods = [
-            // Getter method.
-            {
-                name: `get${classNameFormat}`,
-                description: `Retrive the ${field.label} field.`,
-                args: {},
-                returns: {
-                    type: sanizizedType,
-                    description: field.description,
-                },
-                code: `return this.getField<${sanizizedType}>('${fieldName}');`,
+        getter: Method = {
+            name: `get${pascalCaseFieldName}`,
+            description: `Retrive the ${field.label} field.`,
+            args: {},
+            returns: {
+                type: sanizizedType,
+                description: field.description,
             },
-        ];
+            code: `return this.getFieldValue<${sanizizedType}>('${fieldName}');`,
+        };
+    // Give a code snippet example.
+    if (field.example)
+        getter.example = `// Get the ${
+            field.label
+        }\nmy${pascalCaseTypeName}.get${pascalCaseFieldName}(); // ${valueToTypescript(
+            field.example,
+        )}`;
+    const methods: Method[] = [getter];
 
     // Return if you can set the field.
     if (!canSetField(field)) return methods;
 
     // Add Setter method.
-    methods.push(generateSetterMethod(fieldName, field));
+    methods.push(generateSetterMethod(type, fieldName, field));
 
     return methods;
 };
@@ -206,6 +222,7 @@ const generateProtectedField = (
     fieldName: string,
 ): Method => {
     const setter = generateSetterMethod(
+        type,
         fieldName,
         fieldOwnerType.fields[fieldName],
     );

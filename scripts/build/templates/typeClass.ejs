@@ -15,7 +15,7 @@ export interface <%= schema.name %>Data extends <%= parentName %>Data {
     <% } %>
     <% for (const fieldName of Object.keys(schema.fieldValues)) { %>
     /**
-     * This field is static and can not be set.
+     * **This field is static and can not be set.**
      */
     <%= fieldName %>?: never;
     <% } %>
@@ -36,7 +36,14 @@ export class <%= schema.name %> extends <%= parentName %> {
             description:  '<%= field.description %>',
             defaultValue: <%- valueToTypescript(field.defaultValue) %>,
             flags:        <%- flagsToArray(field.flags) %>,
+            example:      <%- valueToTypescript(field.example) %>,
         },
+        <% } %>
+    }
+    // TODO: check if it makes sense to have this merge with the super
+    protected static staticFields: Record<string, unknown> = {
+        <% for (const [fieldName, fieldValue] of Object.entries(schema.fieldValues || {})) { %>
+        '<%= fieldName %>': <%- valueToTypescript(fieldValue) %>,
         <% } %>
     }
     protected static classInformation = {

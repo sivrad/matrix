@@ -10,7 +10,8 @@
             "label": "Species",
             "type": "string",
             "description": "The species of the organism.",
-            "defaultValue": null
+            "defaultValue": null,
+            "example": "Homo sapien"
         }
     }
 }

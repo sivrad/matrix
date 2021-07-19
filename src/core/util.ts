@@ -52,6 +52,14 @@ export const generateId = (length = 4): string =>
 export const getCurrentTimestamp = (): number =>
     Math.floor(new Date().getTime() / 1000);
 
+export const verifyValueType = (expectedType: string, value: unknown): void => {
+    const unionTypes = expectedType.split('|').map((type) => type.trim());
+    for (const type of unionTypes) {
+        if (typeof value == type) return;
+    }
+    console.error(`INVALID TYPE: '${value}' is not type '${expectedType}'`);
+};
+
 // /**
 //  * Remove each 'required' property from a record of FieldInterface objects.
 //  * @param {Record<string, FieldInterface>} fields The record of fields.

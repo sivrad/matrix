@@ -42,7 +42,18 @@
                         "array",
                         "null"
                     ],
-                    "description": "The default value if not given"
+                    "description": "The default value if not given."
+                },
+                "example": {
+                    "type": [
+                        "number",
+                        "string",
+                        "boolean",
+                        "object",
+                        "array",
+                        "null"
+                    ],
+                    "description": "An example value."
                 }
             },
             "additionalProperties": false,

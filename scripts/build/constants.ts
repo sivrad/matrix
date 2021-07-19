@@ -9,6 +9,6 @@ export const ENABLED_METHODS = {
     GET: false,
     GET_ALL: false,
     GET_TYPE_CLASS: true,
-    FIELDS: false,
-    PROTECTED_FIELDS: false,
+    FIELDS: true,
+    PROTECTED_FIELDS: true,
 };

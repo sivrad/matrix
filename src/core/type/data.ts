@@ -1,4 +1,5 @@
-import { FieldData } from './field';
+import { schema } from '.';
+import { FieldData, FieldStructure } from './field';
 
 /**
  * The most basic data representation of a type.
@@ -40,3 +41,12 @@ export interface SerializeData<
 export type IncludeID<T extends MatrixBaseTypeData = MatrixBaseTypeData> = T & {
     $id?: string;
 };
+
+/**
+ * Type Structure.
+ *
+ * This is used for exporting a Type's structure to another media.
+ */
+export interface TypeStructure extends schema.Type {
+    fields: Record<string, FieldStructure>;
+}

@@ -88,18 +88,23 @@ export class NoAssignedCollection extends MatrixTypeError {
 }
 
 /**
- * A field was no provided.
+ * If there are missing fields for creating an instance.
  */
-export class MissingField extends MatrixTypeError {
+export class MissingFields extends MatrixTypeError {
     /**
      * Constructor for a missing field error.
-     * @param {typeof MatrixBaseType} type             The type that the field was missing from.
-     * @param {string}                missingFieldName The field that was missing.
+     * @param {typeof MatrixBaseType} type              The type that the field was missing from.
+     * @param {string[]}              missingFieldNames The field that was missing.
      */
-    constructor(type: typeof MatrixBaseType, public missingFieldName: string) {
+    constructor(
+        type: typeof MatrixBaseType,
+        public missingFieldNames: string[],
+    ) {
         super(
             'MissingField',
-            `The field '${missingFieldName}' was not provided for type '${type.getName()}'`,
+            `The fields '${missingFieldNames.join(
+                ', ',
+            )}' were not provided for type '${type.getName()}'`,
             type,
         );
     }
@@ -108,16 +113,19 @@ export class MissingField extends MatrixTypeError {
 /**
  * An invalid field for a type.
  */
-export class InvalidField extends MatrixTypeError {
+export class InvalidFields extends MatrixTypeError {
     /**
      * Contructor for an invalid field error.
-     * @param {typeof MatrixBaseType} type             The type that does not have the field.
-     * @param {string}                invalidFieldName The field that is invalid.
+     * @param {typeof MatrixBaseType} type              The type that does not have the field.
+     * @param {string[]}              invalidFieldNames The field that is invalid.
      */
-    constructor(type: typeof MatrixBaseType, public invalidFieldName: string) {
+    constructor(
+        type: typeof MatrixBaseType,
+        public invalidFieldNames: string[],
+    ) {
         super(
             'InvalidField',
-            `The field '${invalidFieldName}' is not valid for type '${type.getName()}'`,
+            `The fields '${invalidFieldNames}' are not valid for type '${type.getName()}'`,
             type,
         );
     }

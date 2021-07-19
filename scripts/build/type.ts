@@ -28,4 +28,5 @@ export interface Method {
     isStatic?: boolean;
     generic?: string;
     depreciated?: string;
+    example?: string;
 }
