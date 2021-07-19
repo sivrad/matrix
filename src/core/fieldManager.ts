@@ -1,7 +1,13 @@
 import { InvalidFields, MissingFields } from './error';
 import { Field } from './field';
 import { MatrixBaseType } from './matrixBaseType';
-import { FieldDataPointEvent, MatrixBaseTypeData, schema } from './type';
+import {
+    FieldData,
+    FieldDataPointEvent,
+    MatrixBaseTypeData,
+    schema,
+    SerializeFields,
+} from './type';
 import { verifyValueType } from './util';
 
 /**
@@ -244,5 +250,46 @@ export class FieldManager {
     ): void {
         const field = this.getField(fieldName);
         field.setValue(value, event);
+    }
+
+    /**
+     * Set a field value at a time.
+     * @function setFieldValueAt
+     * @memberof FieldManager
+     * @private
+     * @param {string}  fieldName The field's name.
+     * @param {unknown} fieldData The value to set the field to.
+     */
+    private setFieldData(fieldName: string, fieldData: FieldData): void {
+        const field = this.getField(fieldName);
+        field.setData(fieldData);
+    }
+
+    /**
+     * Set the data for all fields.
+     * @function setData
+     * @memberof FieldManager
+     * @param {SerializeFields<MatrixBaseTypeData>} data The data to set.
+     */
+    public setData(data: SerializeFields<MatrixBaseTypeData>): void {
+        for (const [fieldName, dataPoint] of Object.entries(data)) {
+            this.setFieldData(fieldName, dataPoint);
+        }
+    }
+
+    /**
+     * Serialize all the fields.
+     * @function serialize
+     * @memberof FieldManager
+     * @returns {SerializeFields<MatrixBaseTypeData>} The serialized fields.
+     */
+    public serialize(): SerializeFields<MatrixBaseTypeData> {
+        const serializedData: SerializeFields<MatrixBaseTypeData> = {};
+        for (const [fieldName, field] of [...this.fields]) {
+            const serializedField = field.serialize();
+            if (!serializedField) continue;
+            serializedData[fieldName] = serializedField;
+        }
+        return serializedData;
     }
 }

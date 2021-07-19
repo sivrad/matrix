@@ -38,8 +38,11 @@ export interface SerializeData<
     data: SerializeFields<T>;
 }
 
-export type IncludeID<T extends MatrixBaseTypeData = MatrixBaseTypeData> = T & {
+export type ConstructorArguments<
+    T extends MatrixBaseTypeData = MatrixBaseTypeData
+> = T & {
     $id?: string;
+    $skipDataValidation?: boolean;
 };
 
 /**

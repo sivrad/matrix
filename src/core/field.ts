@@ -177,16 +177,16 @@ export class Field {
      * @returns {boolean} Returns `true` if it is defined.
      */
     isDefined(): boolean {
-        return this.value != undefined;
+        return this.value.current != undefined;
     }
 
     /**
-     * Serialize the field.
-     * @function serialize
+     * Get the structure of the field.
+     * @function getStructure
      * @memberof Field
      * @returns {FieldData} The field object.
      */
-    serialize(): schema.Field {
+    getStructure(): schema.Field {
         return {
             defaultValue: this.getDefaultValue() as schema.Field['defaultValue'],
             description: this.getDescription(),
@@ -195,6 +195,16 @@ export class Field {
             type: this.getType(),
             example: this.getExample() as schema.Field['example'],
         };
+    }
+
+    /**
+     * Serialize the field.
+     * @returns {FieldData} The field's value.
+     */
+    public serialize(): FieldData | undefined {
+        if (this.isStatic()) return;
+        if (!this.isDefined()) return;
+        return this.value;
     }
 
     /**
@@ -258,5 +268,15 @@ export class Field {
         if (!this.isDefined()) throw Error('FIELD NOT DEFINED');
         if (!timestamp) timestamp = parseInt(this.value.current as string);
         return this.value.values[timestamp.toString()];
+    }
+
+    /**
+     * Set the field data.
+     * @function setData
+     * @memberof Field
+     * @param {FieldData} fieldData The field data.
+     */
+    public setData(fieldData: FieldData): void {
+        this.value = fieldData;
     }
 }
