@@ -8,7 +8,7 @@ import {
     schema,
     SerializeFields,
 } from './type';
-import { verifyValueType } from './util';
+import { getOldestDataPointTimestamp, verifyValueType } from './util';
 
 /**
  * The Field Manager.
@@ -18,6 +18,8 @@ import { verifyValueType } from './util';
 export class FieldManager {
     private fields = new Map<string, Field>();
     private cachedStaticFields: Record<string, unknown>;
+    private createdAtTimestamp: number;
+    private updatedAtTimestamp: number;
 
     /**
      * Constructor for a Field Manager.
@@ -82,7 +84,7 @@ export class FieldManager {
     public populate(data: MatrixBaseTypeData): void {
         this.verifyFieldData(data);
         for (const [fieldName, value] of Object.entries(data)) {
-            this.populateField(fieldName, value);
+            this.setFieldValue(fieldName, value, 'INTERNAL');
         }
     }
 
@@ -208,34 +210,6 @@ export class FieldManager {
     }
 
     /**
-     * Populate a field.
-     *
-     * The `value`'s type is not checked in this method.
-     * @function populateField
-     * @memberof FieldManager
-     * @private
-     * @param {string}  fieldName The field's name.
-     * @param {unknown} value     The value to set.
-     */
-    private populateField(fieldName: string, value: unknown) {
-        const field = this.getField(fieldName);
-        field.setValue(value, 'INTERNAL');
-    }
-
-    /**
-     * Get a field value.
-     * @function getFieldValue
-     * @memberof FieldManager
-     * @param   {string} fieldName The field's name.
-     * @param   {number} timestamp The timestamp to get the value from.
-     * @returns {unknown}          The field's value.
-     */
-    public getFieldValue(fieldName: string, timestamp?: number): unknown {
-        const field = this.getField(fieldName);
-        return field.getDataPoint(timestamp).value;
-    }
-
-    /**
      * Set the current field value.
      * @function setFieldValue
      * @memberof FieldManager
@@ -249,7 +223,20 @@ export class FieldManager {
         event?: FieldDataPointEvent,
     ): void {
         const field = this.getField(fieldName);
-        field.setValue(value, event);
+        this.updatedAtTimestamp = field.setValue(value, event);
+    }
+
+    /**
+     * Get a field value.
+     * @function getFieldValue
+     * @memberof FieldManager
+     * @param   {string} fieldName The field's name.
+     * @param   {number} timestamp The timestamp to get the value from.
+     * @returns {unknown}          The field's value.
+     */
+    public getFieldValue(fieldName: string, timestamp?: number): unknown {
+        const field = this.getField(fieldName);
+        return field.getDataPoint(timestamp).value;
     }
 
     /**
@@ -274,6 +261,11 @@ export class FieldManager {
     public setData(data: SerializeFields<MatrixBaseTypeData>): void {
         for (const [fieldName, dataPoint] of Object.entries(data)) {
             this.setFieldData(fieldName, dataPoint);
+            const oldestDataPoint = getOldestDataPointTimestamp(dataPoint);
+            if (oldestDataPoint < this.createdAtTimestamp)
+                this.createdAtTimestamp = oldestDataPoint;
+            if (parseInt(dataPoint.current as string) > this.updatedAtTimestamp)
+                this.updatedAtTimestamp = parseInt(dataPoint.current as string);
         }
     }
 
@@ -291,5 +283,25 @@ export class FieldManager {
             serializedData[fieldName] = serializedField;
         }
         return serializedData;
+    }
+
+    /**
+     * Get the last updated timestamp in seconds.
+     * @function getUpdatedAtTimestamp
+     * @memberof FieldManager
+     * @returns {number} The last updated timestamp.
+     */
+    public getUpdatedAtTimestamp(): number | null {
+        return this.updatedAtTimestamp || null;
+    }
+
+    /**
+     * Get the created at timestamp in seconds.
+     * @function getUpdatedAtTimestamp
+     * @memberof FieldManager
+     * @returns {number} The created at timestamp.
+     */
+    public getCreatedAtTimestamp(): number | null {
+        return this.createdAtTimestamp || null;
     }
 }

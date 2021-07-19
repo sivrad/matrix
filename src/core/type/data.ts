@@ -42,7 +42,7 @@ export type ConstructorArguments<
     T extends MatrixBaseTypeData = MatrixBaseTypeData
 > = T & {
     $id?: string;
-    $skipDataValidation?: boolean;
+    $skipDataPopulation?: boolean;
 };
 
 /**
@@ -52,4 +52,15 @@ export type ConstructorArguments<
  */
 export interface TypeStructure extends schema.Type {
     fields: Record<string, FieldStructure>;
+}
+
+/**
+ * Instance Data.
+ *
+ * Data for external applications.
+ */
+export interface InstanceData<T extends MatrixBaseTypeData = MatrixBaseTypeData>
+    extends SerializeData<T> {
+    createdAt: number | null;
+    updatedAt: number | null;
 }

@@ -24,6 +24,7 @@
             "label": "Given Name",
             "type": "string | null",
             "description": "The given name of the person.",
+            "defaultValue": null,
             "example": "Austin"
         }
     },

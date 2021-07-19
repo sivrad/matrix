@@ -212,11 +212,12 @@ export class Field {
      * @function setValue
      * @memberof Field
      * @private
-     * @param {unknown}             value The value to set to.
-     * @param {FieldDataPointEvent} event (Optional) The event for the field.
+     * @param   {unknown}             value The value to set to.
+     * @param   {FieldDataPointEvent} event (Optional) The event for the field.
+     * @returns {number}                  The timestamp the value was set to.
      */
-    public setValue(value: unknown, event?: FieldDataPointEvent): void {
-        this.setValueAt(getCurrentTimestamp(), value, event);
+    public setValue(value: unknown, event?: FieldDataPointEvent): number {
+        return this.setValueAt(getCurrentTimestamp(), value, event);
     }
 
     /**
@@ -224,15 +225,16 @@ export class Field {
      * @function setValueAt
      * @memberof Field
      * @private
-     * @param {number}              timestamp A UNIX timestamp in seconds.
-     * @param {unknown}             value     The value to set to.
-     * @param {FieldDataPointEvent} event     (Optional) The event for the field.
+     * @param   {number}              timestamp A UNIX timestamp in seconds.
+     * @param   {unknown}             value     The value to set to.
+     * @param   {FieldDataPointEvent} event     (Optional) The event for the field.
+     * @returns {number}                        The timestamp the value was set to.
      */
     setValueAt(
         timestamp: number,
         value: unknown,
         event?: FieldDataPointEvent,
-    ): void {
+    ): number {
         // Check if the value can be set.
         if (event != Values.SKIP_WRITE_ACCESS_CHECK)
             this.verifyFieldModifiability();
@@ -244,6 +246,7 @@ export class Field {
             value,
             event,
         };
+        return timestamp;
     }
 
     /**
@@ -277,6 +280,7 @@ export class Field {
      * @param {FieldData} fieldData The field data.
      */
     public setData(fieldData: FieldData): void {
-        this.value = fieldData;
+        this.value.current = fieldData.current;
+        this.value.values = { ...fieldData.values, ...this.value.values };
     }
 }

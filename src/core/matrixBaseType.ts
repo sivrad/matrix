@@ -1,10 +1,8 @@
 import { AlreadyInstantiated, NoMatrixInstance, Uninstantiated } from './error';
 import { Matrix } from './matrixInstance';
 import { Driver } from './driver';
-import { Field } from './field';
 import {
     MatrixBaseTypeData,
-    FieldData,
     SerializedMatrixBaseTypeData,
     ClassInformation,
     schema,
@@ -12,9 +10,12 @@ import {
     TypeStructure,
     FieldStructure,
     SerializeData,
+    InstanceData,
+    FieldData,
+    SerializeFields,
 } from './type';
 import { Values } from './constants';
-import { getCurrentTimestamp, mapObject } from './util';
+import { mapObject, removeDuplicateData } from './util';
 import { FieldManager } from './fieldManager';
 
 /**
@@ -66,7 +67,7 @@ export class MatrixBaseType {
         // Create the field manager.
         this.fieldManager = new FieldManager(this);
         // Skip the data validation if flag is set.
-        if (data.$skipDataValidation) return;
+        if (data.$skipDataPopulation) return;
         // Popualte the fields with the FM.
         this.fieldManager.populate(data);
     }
@@ -393,13 +394,15 @@ export class MatrixBaseType {
         $id: string,
         serializedData: SerializedMatrixBaseTypeData,
     ): T {
-        const instance = new this({ $id, $skipDataValidation: true });
+        const instance = new this({ $id, $skipDataPopulation: true });
         instance.fieldManager.setData(serializedData);
         return instance as T;
     }
 
     /**
      * Serialize the type.
+     *
+     * Used by Drivers.
      * @param {boolean} asRefrence If it should be serializeed as a reference.
      * @returns {IncludeMetaData | string} The serialized type, unless used as a ref.
      */
@@ -415,6 +418,22 @@ export class MatrixBaseType {
     }
 
     /**
+     * Get data for external applications.
+     * @function getData
+     * @memberof MatrixBaseType
+     * @returns {InstanceData} The instance data.
+     */
+    public getData(): InstanceData {
+        return {
+            ...{
+                createdAt: this.fieldManager.getCreatedAtTimestamp(),
+                updatedAt: this.fieldManager.getUpdatedAtTimestamp(),
+            },
+            ...(this.serialize() as SerializeData),
+        };
+    }
+
+    /**
      * Get the reference of an instance.
      * @function getReference
      * @memberof MatrixBaseType
@@ -427,46 +446,135 @@ export class MatrixBaseType {
         return `${this.getTypeClass().getType()}@${this.getId()}`;
     }
 
-    // // Type Methods
+    /**
+     * Get an instance of the type from the ID.
+     * @param {string} id The ID of the instance.
+     * @returns {T} The new instance of the type.
+     */
+    static async get<T extends MatrixBaseType = MatrixBaseType>(
+        id: string,
+    ): Promise<T> {
+        const source = this.getDriver(),
+            type = this.getType(),
+            response = (await source.getInstance(type, id)).response,
+            data = response.data;
+        return this.deserialize<T>(id, data);
+    }
 
-    // /**
-    //  * Get an instance of the type from the ID.
-    //  * @param {string} id The ID of the instance.
-    //  * @returns {T} The new instance of the type.
-    //  */
-    // static async get<T extends MatrixBaseType = MatrixBaseType>(
-    //     id: string,
-    // ): Promise<T> {
-    //     const source = this.getDriver(),
-    //         type = this.getType(),
-    //         response = (await source.getInstance(type, id)).response,
-    //         data = response.data;
-    //     return this.deserialize<T>(id, data);
-    // }
+    /**
+     * Get all the instances of a type.
+     * // TODO: Add type caching.
+     * @param {boolean} includeChildren If instances of child types should be included.
+     * @returns {T[]} All the new instances.
+     */
+    static async getAll<T extends MatrixBaseType = MatrixBaseType>(
+        includeChildren = true,
+    ): Promise<T[]> {
+        const source = this.getDriver(),
+            type = this.getType(),
+            response = (await source.getInstances(type)).response;
+        let instances: T[] = [];
+        // Add all the child instances if requested.
+        if (includeChildren) {
+            for (const child of this.getDirectChildren()) {
+                instances = instances.concat(await child.getAll());
+            }
+        }
+        for (const [id, serializedData] of Object.entries(response)) {
+            const instance = this.deserialize(id, serializedData.data);
+            instances.push(instance as T);
+        }
+        return instances;
+    }
 
-    // /**
-    //  * Get all the instances of a type.
-    //  * // TODO: Add type caching.
-    //  * @param {boolean} includeChildren If instances of child types should be included.
-    //  * @returns {T[]} All the new instances.
-    //  */
-    // static async getAll<T extends MatrixBaseType = MatrixBaseType>(
-    //     includeChildren = true,
-    // ): Promise<T[]> {
-    //     const source = this.getDriver(),
-    //         type = this.getType(),
-    //         response = (await source.getInstances(type)).response,
-    //         instances: T[] = [];
-    //     // Add all the child instances if requested.
-    //     if (includeChildren) {
-    //     }
-    //     for (const [id, serializedData] of Object.entries(response)) {
-    //         const instance = new this(serializedData.data);
-    //         instance.id = id;
-    //         instances.push(instance as T);
-    //     }
-    //     return instances;
-    // }
+    /**
+     * Turn the type into an instance.
+     * @function createInstance
+     * @memberof MatrixBaseType
+     * @async
+     * @returns {Promise<MatrixBaseType>} The instance with the Id.
+     */
+    async createInstance(): Promise<this> {
+        if (this.isInstance()) throw new AlreadyInstantiated(this);
+        const response = (
+            await this.getTypeClass()
+                .getDriver()
+                .createInstance(
+                    this.getTypeClass().getType(),
+                    this.fieldManager.serialize(),
+                )
+        ).response;
+        this.setId(response.id);
+        return this;
+    }
+
+    /**
+     * Sync the local and remote data with each other.
+     * @function sync
+     * @memberof MatrixBaseType
+     * @async
+     */
+    public async sync(): Promise<void> {
+        if (!this.isInstance()) new Uninstantiated(this.getTypeClass());
+
+        // Get the local data.
+        const localData = this.getLocalData();
+
+        // Get the remote data.
+        const remoteData = await this.getRemoteData();
+
+        // Get differences between the data.
+        const remainingLocalData = removeDuplicateData(localData, remoteData);
+        const remainingRemoteData = removeDuplicateData(remoteData, localData);
+
+        // Update the local data with remaining remote data.
+        if (remainingRemoteData) this.fieldManager.setData(remainingRemoteData);
+
+        // Use the remaining local to update the remote data.
+        if (remainingLocalData) await this.updateRemoteData(remainingLocalData);
+    }
+
+    /**
+     * Get the local data.
+     * @function getLocalData
+     * @memberof MatrixBaseType
+     * @private
+     * @returns {SerializeFields} The serialized fields.
+     */
+    private getLocalData() {
+        return this.fieldManager.serialize();
+    }
+
+    /**
+     * Get the remote data.
+     * @function getRemoteData
+     * @memberof MatrixBaseType
+     * @private
+     * @async
+     * @returns {SerializeFields} The remote fields.
+     */
+    private async getRemoteData() {
+        const type = this.getTypeClass();
+        const response = await type
+            .getDriver()
+            .getInstance(type.getType(), this.getId() as string);
+        return response.response.data;
+    }
+
+    /**
+     * Update the remote data.
+     * @function updateRemoteData
+     * @memberof MatrixBaseType
+     * @private
+     * @async
+     * @param {Record<string, FieldData>} data The data to update.
+     */
+    private async updateRemoteData(data: Record<string, FieldData>) {
+        const type = this.getTypeClass();
+        await type
+            .getDriver()
+            .updateInstance(type.getType(), this.getId() as string, data);
+    }
 
     // /**
     //  * Update the lastUpdated value to the current time.
@@ -481,92 +589,6 @@ export class MatrixBaseType {
     //  */
     // getUpdatedAt(): Date {
     //     return new Date(this.updatedAt * 1000);
-    // }
-
-    // // /**
-    // //  * Sync local and remote data.
-    // //  * @function getData
-    // //  * @memberof MatrixBaseType
-    // //  * @async
-    // //  * @returns {Promise<void>}
-    // //  */
-    // // // @instanceOnly()
-    // // async syncData(): Promise<this> {
-    // //     if (!this.isInstance()) throw new Uninstantiated(this.getTypeClass());
-    // //     const source = this.getSource(),
-    // //         type = this.getTypeClass().getType(),
-    // //         id = this.getId()!,
-    // //         response = (await source.getInstance(type, id)).response,
-    // //         remoteData = response.data,
-    // //         localData = this.getSerializedData(),
-    // //         remoteFieldNames = Object.keys(remoteData),
-    // //         localFieldNames = Object.keys(localData);
-    // //     console.log('remote');
-    // //     console.log(remoteData);
-    // //     console.log('local');
-    // //     console.log(localData);
-
-    // //     // Update remote with local values.
-    // //     // TODO: look for each timestamp AS WELL as the current
-    // //     // If key not in remote, add it and update it
-    // //     const newData: Record<string, FieldData> = {};
-    // //     for (const [fieldName, field] of Object.entries(localData)) {
-    // //         if (
-    // //             !remoteFieldNames.includes(fieldName) ||
-    // //             parseInt(remoteData[fieldName].current) <
-    // //                 parseInt(field.current)
-    // //         ) {
-    // //             // Update the remote value.
-    // //             newData[fieldName] = field;
-    // //         }
-    // //     }
-    // //     if (newData != {}) await source.updateInstance(type, id, newData);
-    // //     // Update local with remote values.
-    // //     for (const [fieldName, field] of Object.entries(remoteData)) {
-    // //         if (
-    // //             !localFieldNames.includes(fieldName) ||
-    // //             parseInt(remoteData[fieldName].current) >
-    // //                 parseInt(field.current)
-    // //         ) {
-    // //             // Update the local value.
-    // //             this._fields[fieldName] = new Field(fieldName, field);
-    // //             // this.setField(fieldName, field);
-    // //         }
-    // //     }
-
-    // //     // Determine if incomming data is old.
-    // //     // if (response.data.$updatedAt > this.getUpdatedAt().getTime() / 1000) {
-    // //     //     // The data is new and replace local data.
-    // //     //     const remoteData = removeMetadata(response.data);
-    // //     //     for (const [key, value] of Object.entries(remoteData)) {
-    // //     //         this.setField(key, value);
-    // //     //     }
-    // //     //     // TODO: getUpdatedAt can be set after synced data is updated and each setField can change that time.
-    // //     // } else {
-    // //     //     // The data is old and instance needs to be updated.
-    // //     //     const data = this.getSerializedData();
-    // //     //     await source.updateInstance(type, id, data);
-    // //     // }
-    // //     return this;
-    // // }
-
-    // /**
-    //  * Turn the type into an instance.
-    //  * @function createInstance
-    //  * @memberof MatrixBaseType
-    //  * @async
-    //  * @returns {Promise<MatrixBaseType>} The instance with the Id.
-    //  */
-    // async createInstance(): Promise<this> {
-    //     if (this.isInstance()) throw new AlreadyInstantiated(this);
-    //     const response = (
-    //         await this.getSource().createInstance(
-    //             this.getTypeClass().getType(),
-    //             this.getSerializedData(),
-    //         )
-    //     ).response;
-    //     this.id = response.id;
-    //     return this;
     // }
 
     // END

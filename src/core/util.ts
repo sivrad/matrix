@@ -1,4 +1,5 @@
 import { InvalidTypeFormat } from './error';
+import { FieldData } from './type';
 
 /**
  * Map over an object.
@@ -58,6 +59,37 @@ export const verifyValueType = (expectedType: string, value: unknown): void => {
         if (typeof value == type) return;
     }
     console.error(`INVALID TYPE: '${value}' is not type '${expectedType}'`);
+};
+
+export const getOldestDataPointTimestamp = (dataPoint: FieldData): number => {
+    return Math.min(...Object.keys(dataPoint.values).map(parseInt));
+};
+
+export const removeDuplicateData = (
+    targetReference: Record<string, FieldData>,
+    sourceData: Record<string, FieldData>,
+): Record<string, FieldData> => {
+    const targetData: Record<string, FieldData> = Object.assign(
+        {},
+        targetReference,
+    );
+    // console.log('target: ');
+    // console.log(targetData);
+    // console.log('source: ');
+    // console.log(sourceData);
+
+    for (const [fieldName, fieldData] of Object.entries(sourceData)) {
+        if (!Object.keys(targetData).includes(fieldName)) {
+            delete targetData[fieldName];
+        } else {
+            for (const [timestamp] of Object.entries(fieldData.values)) {
+                if (!Object.keys(targetData).includes(timestamp)) {
+                    delete targetData[fieldName].values[timestamp];
+                }
+            }
+        }
+    }
+    return targetData;
 };
 
 // /**
