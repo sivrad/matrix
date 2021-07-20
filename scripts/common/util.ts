@@ -27,16 +27,15 @@ export const formatAsLabel = (text: string): string =>
 
 const normalizeTypeObject = (type: InternalType): InternalType => {
     const getField = (key: string, field: InternalField): InternalField => {
-        return typeof field == 'object'
-            ? {
-                  type: field.type,
-                  label: field.label || formatAsLabel(key),
-                  description: field.description || 'No description given.',
-                  defaultValue: field.defaultValue || null,
-                  flags: field.flags || [],
-                  required: !Object.keys(field).includes('defaultValue'),
-              }
-            : field;
+        return {
+            type: field.type,
+            label: field.label || formatAsLabel(key),
+            description: field.description || 'No description given.',
+            defaultValue: field.defaultValue || null,
+            flags: field.flags || [],
+            required: !Object.keys(field).includes('defaultValue'),
+            example: field.example,
+        };
     };
     return {
         name: type.name as string,

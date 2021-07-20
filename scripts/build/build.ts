@@ -1,5 +1,10 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
-import { BUILT_IN_TYPES, TEMPLATES_PATH, TYPES_DIRECTORY } from './constants';
+import {
+    BUILT_IN_TYPES,
+    ENABLED_METHODS,
+    TEMPLATES_PATH,
+    TYPES_DIRECTORY,
+} from './constants';
 import { Exports, Imports } from './package';
 import { InternalType, InternalField, Method, IndexedTypes } from './type';
 import { render } from 'ejs';
@@ -64,54 +69,70 @@ const renderTemplate = (template: string, args: Record<string, unknown>) =>
     render(getTemplate(template), args);
 
 const generateSetterMethod = (
+    type: InternalType,
     fieldName: string,
     field: InternalField,
 ): Method => {
-    const classNameFormat = formatAsClassName(fieldName),
-        sanizizedType = sanitizeType(field.type);
-    return {
-        name: `set${classNameFormat}`,
-        description: `Set the ${field.label} field.`,
-        args: {
-            value: {
-                type: sanizizedType,
-                description: 'The value to set.',
+    const pascalCaseTypeName = formatAsClassName(type.name),
+        pascalCaseFieldName = formatAsClassName(fieldName),
+        sanizizedType = sanitizeType(field.type),
+        setter: Method = {
+            name: `set${pascalCaseFieldName}`,
+            description: `Set the ${field.label} field.`,
+            args: {
+                value: {
+                    type: sanizizedType,
+                    description: 'The value to set.',
+                },
             },
-        },
-        returns: {
-            type: 'void',
-            description: '',
-        },
-        code: `this.setField('${fieldName}', value);`,
-    };
+            returns: {
+                type: 'void',
+                description: '',
+            },
+            code: `this.setFieldValue('${fieldName}', value);`,
+        };
+    // Give a code snippet example.
+    if (field.example)
+        setter.example = `// Set the ${
+            field.label
+        }\nmy${pascalCaseTypeName}.set${pascalCaseFieldName}(${valueToTypescript(
+            field.example,
+        )});`;
+    return setter;
 };
 
 const generateFieldMethods = (
-    _: InternalType,
+    type: InternalType,
     fieldName: string,
     field: InternalField,
 ): Method[] => {
-    const classNameFormat = formatAsClassName(fieldName),
+    const pascalCaseFieldName = formatAsClassName(fieldName),
+        pascalCaseTypeName = formatAsClassName(type.name),
         sanizizedType = sanitizeType(field.type),
-        methods = [
-            // Getter method.
-            {
-                name: `get${classNameFormat}`,
-                description: `Retrive the ${field.label} field.`,
-                args: {},
-                returns: {
-                    type: sanizizedType,
-                    description: field.description,
-                },
-                code: `return this.getField<${sanizizedType}>('${fieldName}');`,
+        getter: Method = {
+            name: `get${pascalCaseFieldName}`,
+            description: `Retrive the ${field.label} field.`,
+            args: {},
+            returns: {
+                type: sanizizedType,
+                description: field.description,
             },
-        ];
+            code: `return this.getFieldValue<${sanizizedType}>('${fieldName}');`,
+        };
+    // Give a code snippet example.
+    if (field.example)
+        getter.example = `// Get the ${
+            field.label
+        }\nmy${pascalCaseTypeName}.get${pascalCaseFieldName}(); // ${valueToTypescript(
+            field.example,
+        )}`;
+    const methods: Method[] = [getter];
 
     // Return if you can set the field.
     if (!canSetField(field)) return methods;
 
     // Add Setter method.
-    methods.push(generateSetterMethod(fieldName, field));
+    methods.push(generateSetterMethod(type, fieldName, field));
 
     return methods;
 };
@@ -120,9 +141,10 @@ const getTypeMethods = (
     collection: string,
     schema: InternalType,
 ): Method[] => {
-    let methods: Method[] = [
+    let methods: Method[] = [];
+    if (ENABLED_METHODS.GET)
         // `get` method.
-        {
+        methods.push({
             name: 'get',
             description: 'Get an instance of the type from the ID.',
             args: {
@@ -139,48 +161,57 @@ const getTypeMethods = (
             isStatic: true,
             isAsync: true,
             generic: `T extends MatrixBaseType = ${schema.name}`,
-        },
-        // `getAll` method.
-        {
-            name: 'getAll',
-            description: 'Get all the instances of a type.',
-            args: {},
-            returns: {
-                type: 'T[]',
-                description: 'All the new instances.',
-            },
-            code: 'return await super.getAll<T>();',
-            isStatic: true,
-            isAsync: true,
-            generic: `T extends MatrixBaseType = ${schema.name}`,
-        },
-        // `getTypeClass` method.
-        {
-            name: 'getTypeClass',
-            description: 'Get the class of the type.',
-            args: {},
-            returns: {
-                type: 'T',
-                description: 'The type class.',
-            },
-            code: `return (${schema.name} as unknown) as T;`,
-            generic: `T = typeof ${schema.name}`,
-        },
-        // All the getters and setters associated with the fields.
-    ];
-    for (const [fieldName, field] of Object.entries(schema.fields)) {
-        if (typeof field != 'object') continue;
-        const fieldMethods = generateFieldMethods(schema, fieldName, field);
-        methods = methods.concat(fieldMethods);
-    }
-    for (const fieldName of Object.keys(schema.fieldValues)) {
+        });
+    if (ENABLED_METHODS.GET_ALL)
         methods.push(
-            generateProtectedField(
-                schema,
-                getTypeWithField(types, collection, schema, fieldName),
-                fieldName,
-            ),
+            // `getAll` method.
+            {
+                name: 'getAll',
+                description: 'Get all the instances of a type.',
+                args: {},
+                returns: {
+                    type: 'T[]',
+                    description: 'All the new instances.',
+                },
+                code: 'return await super.getAll<T>();',
+                isStatic: true,
+                isAsync: true,
+                generic: `T extends MatrixBaseType = ${schema.name}`,
+            },
         );
+    if (ENABLED_METHODS.GET_TYPE_CLASS)
+        methods.push(
+            // `getTypeClass` method.
+            {
+                name: 'getTypeClass',
+                description: 'Get the class of the type.',
+                args: {},
+                returns: {
+                    type: 'T',
+                    description: 'The type class.',
+                },
+                code: `return (${schema.name} as unknown) as T;`,
+                generic: `T = typeof ${schema.name}`,
+            },
+        );
+    // All the getters and setters associated with the fields.
+    if (ENABLED_METHODS.FIELDS) {
+        for (const [fieldName, field] of Object.entries(schema.fields)) {
+            if (typeof field != 'object') continue;
+            const fieldMethods = generateFieldMethods(schema, fieldName, field);
+            methods = methods.concat(fieldMethods);
+        }
+    }
+    if (ENABLED_METHODS.PROTECTED_FIELDS) {
+        for (const fieldName of Object.keys(schema.fieldValues)) {
+            methods.push(
+                generateProtectedField(
+                    schema,
+                    getTypeWithField(types, collection, schema, fieldName),
+                    fieldName,
+                ),
+            );
+        }
     }
     return methods;
 };
@@ -191,6 +222,7 @@ const generateProtectedField = (
     fieldName: string,
 ): Method => {
     const setter = generateSetterMethod(
+        type,
         fieldName,
         fieldOwnerType.fields[fieldName],
     );
@@ -220,7 +252,7 @@ const generateTypeClass = (
         parentName,
         `${parentName}Data`,
     );
-    imports.add(coreImport, 'FieldInterface');
+    imports.add(coreImport, 'schema');
     if (packageName != coreImport) imports.add(coreImport, 'MatrixBaseType');
     // Import all the external field types.
     importExternalFieldTypes(schema, imports);

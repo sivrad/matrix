@@ -1,6 +1,5 @@
-import { InvalidTypeFormat } from './errors';
-import { Type } from './generatedTypes';
-import { FieldInterface } from './type';
+import { InvalidTypeFormat } from './error';
+import { FieldData } from './type';
 
 /**
  * Map over an object.
@@ -48,17 +47,63 @@ export const generateId = (length = 4): string =>
     Math.random().toString().substr(2, length);
 
 /**
- * Remove each 'required' property from a record of FieldInterface objects.
- * @param {Record<string, FieldInterface>} fields The record of fields.
- * @returns {Record<string, FieldInterface>} The record of fields without 'required' properties.
+ * Return the current timestamp in seconds.
+ * @returns {number} The current timestamp in seconds.
  */
-export const removeRequiredProperties = (
-    fields: Record<string, FieldInterface>,
-): Type['fields'] =>
-    mapObject(fields, (_, field) => {
-        delete field['required'];
-        return field;
-    }) as Type['fields'];
+export const getCurrentTimestamp = (): number =>
+    Math.floor(new Date().getTime() / 1000);
+
+export const verifyValueType = (expectedType: string, value: unknown): void => {
+    const unionTypes = expectedType.split('|').map((type) => type.trim());
+    for (const type of unionTypes) {
+        if (typeof value == type) return;
+    }
+    console.error(`INVALID TYPE: '${value}' is not type '${expectedType}'`);
+};
+
+export const getOldestDataPointTimestamp = (dataPoint: FieldData): number => {
+    return Math.min(...Object.keys(dataPoint.values).map(parseInt));
+};
+
+export const removeDuplicateData = (
+    targetReference: Record<string, FieldData>,
+    sourceData: Record<string, FieldData>,
+): Record<string, FieldData> => {
+    const targetData: Record<string, FieldData> = Object.assign(
+        {},
+        targetReference,
+    );
+    // console.log('target: ');
+    // console.log(targetData);
+    // console.log('source: ');
+    // console.log(sourceData);
+
+    for (const [fieldName, fieldData] of Object.entries(sourceData)) {
+        if (!Object.keys(targetData).includes(fieldName)) {
+            delete targetData[fieldName];
+        } else {
+            for (const [timestamp] of Object.entries(fieldData.values)) {
+                if (!Object.keys(targetData).includes(timestamp)) {
+                    delete targetData[fieldName].values[timestamp];
+                }
+            }
+        }
+    }
+    return targetData;
+};
+
+// /**
+//  * Remove each 'required' property from a record of FieldInterface objects.
+//  * @param {Record<string, FieldInterface>} fields The record of fields.
+//  * @returns {Record<string, FieldInterface>} The record of fields without 'required' properties.
+//  */
+// export const removeRequiredProperties = (
+//     fields: Record<string, FieldInterface>,
+// ): Type['fields'] =>
+//     mapObject(fields, (_, field) => {
+//         delete field['required'];
+//         return field;
+//     }) as Type['fields'];
 
 // /**
 //  * Remove metadata from MetaData object.

@@ -15,7 +15,7 @@ export interface <%= schema.name %>Data extends <%= parentName %>Data {
     <% } %>
     <% for (const fieldName of Object.keys(schema.fieldValues)) { %>
     /**
-     * This field is static and can not be set.
+     * **This field is static and can not be set.**
      */
     <%= fieldName %>?: never;
     <% } %>
@@ -28,28 +28,25 @@ export interface <%= schema.name %>Data extends <%= parentName %>Data {
  * <%- schema.description %>
  */
 export class <%= schema.name %> extends <%= parentName %> {
-    static _classFields: Record<string, FieldInterface> = {
+    protected static fields: Record<string, schema.Field> = {
         <% for (const [fieldName, field] of Object.entries(schema.fields || {})) { %>
-        <% if (typeof field == 'object') { %>
         <%= fieldName %>: {
             type:         '<%= field.type %>',
             label:        '<%= field.label %>',
             description:  '<%= field.description %>',
             defaultValue: <%- valueToTypescript(field.defaultValue) %>,
             flags:        <%- flagsToArray(field.flags) %>,
-            required:     <%= field.required %>,
+            example:      <%- valueToTypescript(field.example) %>,
         },
-        <% } else { %>
-        <%= fieldName %>: <%- valueToTypescript(field) %>,
-        <% } %>
         <% } %>
     }
-    static _fieldValues: Record<string, unknown> = {
+    // TODO: check if it makes sense to have this merge with the super
+    protected static staticFields: Record<string, unknown> = {
         <% for (const [fieldName, fieldValue] of Object.entries(schema.fieldValues || {})) { %>
         '<%= fieldName %>': <%- valueToTypescript(fieldValue) %>,
         <% } %>
     }
-    static _classInformation = {
+    protected static classInformation = {
         collection:  '<%= collectionName %>',
         name:        '<%= schema.name %>',
         label:       '<%= schema.label %>',
@@ -60,9 +57,9 @@ export class <%= schema.name %> extends <%= parentName %> {
 
     /**
      * Constructor for the <%= schema.label %>.
-     * @param {<%= schema.name %>Data | string} data Serialized data or instance ID.
+     * @param {<%= schema.name %>Data} data Serialized data.
      */
-    constructor(data: <%= schema.name %>Data | string) {
+    constructor(data: <%= schema.name %>Data) {
         super(data);
     }
     <% for (const method of methods) { %>

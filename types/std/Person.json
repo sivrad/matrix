@@ -10,19 +10,22 @@
             "label": "Surname",
             "type": "string | null",
             "description": "The surname of the person.",
-            "defaultValue": null
+            "defaultValue": null,
+            "example": "Powers"
         },
         "middleName": {
             "label": "Middle Name",
             "type": "string | null",
             "description": "The middle name of the person.",
-            "defaultValue": null
+            "defaultValue": null,
+            "example": "Danger"
         },
         "givenName": {
             "label": "Given Name",
             "type": "string | null",
             "description": "The given name of the person.",
-            "defaultValue": null
+            "defaultValue": null,
+            "example": "Austin"
         }
     },
     "fieldValues": {

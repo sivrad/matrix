@@ -9,7 +9,8 @@
             "type": "number | null",
             "label": "Timestamp",
             "description": "The UNIX timestamp.",
-            "defaultValue": null
+            "defaultValue": null,
+            "example": 1064823600
         },
         "precision": {
             "type": "number | null",

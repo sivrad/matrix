@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { UnsupportedSourceMethod } from './errors';
+import { UnsupportedDriverMethod } from './error';
 import {
     MatrixBaseTypeData,
-    SourceInstanceResponse,
-    SourceInstancesResponse,
+    DriverInstanceResponse,
+    DriverInstancesResponse,
 } from './type';
 
 /**
@@ -16,7 +16,7 @@ export abstract class Driver {
      * @returns {Promise<void>}
      */
     async initializeType(typeName: string): Promise<unknown> {
-        throw new UnsupportedSourceMethod('initializeType', typeName);
+        throw new UnsupportedDriverMethod('initializeType', typeName);
     }
 
     /**
@@ -26,8 +26,8 @@ export abstract class Driver {
      */
     async getInstances<T extends MatrixBaseTypeData = MatrixBaseTypeData>(
         typeName: string,
-    ): Promise<SourceInstancesResponse<T>> {
-        throw new UnsupportedSourceMethod('getInstances', typeName);
+    ): Promise<DriverInstancesResponse<T>> {
+        throw new UnsupportedDriverMethod('getInstances', typeName);
     }
 
     /**
@@ -39,8 +39,8 @@ export abstract class Driver {
     async getInstance<T extends MatrixBaseTypeData = MatrixBaseTypeData>(
         typeName: string,
         id: string,
-    ): Promise<SourceInstanceResponse<T>> {
-        throw new UnsupportedSourceMethod('getInstance', typeName, id);
+    ): Promise<DriverInstanceResponse<T>> {
+        throw new UnsupportedDriverMethod('getInstance', typeName, id);
     }
 
     /**
@@ -54,8 +54,8 @@ export abstract class Driver {
         typeName: string,
         id: string,
         data: T,
-    ): Promise<SourceInstanceResponse<T>> {
-        throw new UnsupportedSourceMethod('updateInstance', typeName, id, data);
+    ): Promise<DriverInstanceResponse<T>> {
+        throw new UnsupportedDriverMethod('updateInstance', typeName, id, data);
     }
 
     /**
@@ -67,7 +67,7 @@ export abstract class Driver {
     async createInstance<T extends MatrixBaseTypeData = MatrixBaseTypeData>(
         typeName: string,
         data: T,
-    ): Promise<SourceInstanceResponse<T>> {
-        throw new UnsupportedSourceMethod('createInstance', typeName, data);
+    ): Promise<DriverInstanceResponse<T>> {
+        throw new UnsupportedDriverMethod('createInstance', typeName, data);
     }
 }

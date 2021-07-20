@@ -24,7 +24,7 @@ const makeType = async () => {
     const orb = ora('Generating Types').start();
     const type = await compile(removeOptional(await getSchema()), 'Type');
     writeFileSync('./scripts/common/generatedTypes.ts', `${type}`);
-    writeFileSync('./src/core/generatedTypes.ts', `${type}`);
+    writeFileSync('./src/core/type/generatedTypes.ts', `${type}`);
     orb.succeed('Generated Types');
 };
 

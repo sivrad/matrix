@@ -50,7 +50,13 @@ export const generateJSDoc = (method: Method): string => {
     if (method.depreciated) {
         argTable.push(['     * @deprecated', '', '', method.depreciated]);
     }
-    return formatTable(argTable);
+    const example = method.example
+        ? `     * @example\n${method.example
+              .split('\n')
+              .map((line) => '     * ' + line)
+              .join('\n')}\n`
+        : '';
+    return example + formatTable(argTable);
 };
 
 export const valueToTypescript = (value: unknown): string => {
