@@ -1,4 +1,4 @@
-import { AlreadyInstantiated, NoMatrixInstance } from './error';
+import { AlreadyInstantiated, NoMatrixInstance, Uninstantiated } from './error';
 import { Matrix } from './matrixInstance';
 import { Driver } from './driver';
 import {
@@ -16,7 +16,6 @@ import {
 import { Values } from './constants';
 import { mapObject, removeDuplicateData } from './util';
 import { FieldManager } from './fieldManager';
-import { instanceMethod, typeMethod } from './decorators';
 
 /**
  * Base class for the Matrix.
@@ -76,7 +75,7 @@ export class MatrixBaseType {
      * Set the ID, can only be done once.
      * @param {string} id The id of the type.
      */
-    @typeMethod()
+    // @typeMethod()
     setId(id: string): void {
         if (this.isInstance()) throw new AlreadyInstantiated(this);
         this.id = id;
@@ -442,9 +441,19 @@ export class MatrixBaseType {
      * MyType.getReference() // "myCollection.MyType@00000420"
      * @returns {string} The instance reference string.
      */
-    @instanceMethod()
-    getReference(): string {
+    public getReference(): string {
+        this.enforceInstance();
         return `${this.getTypeClass().getType()}@${this.getId()}`;
+    }
+
+    /**
+     * Enforce it must be an instance.
+     * @function enforceInstance
+     * @memberof MatrixBaseType
+     * @private
+     */
+    private enforceInstance() {
+        if (!this.isInstance()) throw new Uninstantiated(this.getTypeClass());
     }
 
     /**
@@ -495,8 +504,8 @@ export class MatrixBaseType {
      * @async
      * @returns {Promise<MatrixBaseType>} The instance with the Id.
      */
-    @typeMethod()
     async createInstance(): Promise<this> {
+        this.enforceType();
         const response = (
             await this.getTypeClass()
                 .getDriver()
@@ -510,13 +519,23 @@ export class MatrixBaseType {
     }
 
     /**
+     * Enforce it must be an type.
+     * @function enforceType
+     * @memberof MatrixBaseType
+     * @private
+     */
+    private enforceType() {
+        if (this.isInstance()) throw new AlreadyInstantiated(this);
+    }
+
+    /**
      * Sync the local and remote data with each other.
      * @function sync
      * @memberof MatrixBaseType
      * @async
      */
-    @instanceMethod()
     public async sync(): Promise<void> {
+        this.enforceInstance();
         // Get the local data.
         const localData = this.getLocalData();
 
