@@ -1,4 +1,4 @@
-import { AlreadyInstantiated, NoMatrixInstance, Uninstantiated } from './error';
+import { AlreadyInstantiated, NoMatrixInstance } from './error';
 import { Matrix } from './matrixInstance';
 import { Driver } from './driver';
 import {
@@ -12,11 +12,11 @@ import {
     SerializeData,
     InstanceData,
     FieldData,
-    SerializeFields,
 } from './type';
 import { Values } from './constants';
 import { mapObject, removeDuplicateData } from './util';
 import { FieldManager } from './fieldManager';
+import { instanceMethod, typeMethod } from './decorators';
 
 /**
  * Base class for the Matrix.
@@ -76,6 +76,7 @@ export class MatrixBaseType {
      * Set the ID, can only be done once.
      * @param {string} id The id of the type.
      */
+    @typeMethod()
     setId(id: string): void {
         if (this.isInstance()) throw new AlreadyInstantiated(this);
         this.id = id;
@@ -441,8 +442,8 @@ export class MatrixBaseType {
      * MyType.getReference() // "myCollection.MyType@00000420"
      * @returns {string} The instance reference string.
      */
+    @instanceMethod()
     getReference(): string {
-        if (!this.isInstance()) throw new Uninstantiated(this.getTypeClass());
         return `${this.getTypeClass().getType()}@${this.getId()}`;
     }
 
@@ -494,8 +495,8 @@ export class MatrixBaseType {
      * @async
      * @returns {Promise<MatrixBaseType>} The instance with the Id.
      */
+    @typeMethod()
     async createInstance(): Promise<this> {
-        if (this.isInstance()) throw new AlreadyInstantiated(this);
         const response = (
             await this.getTypeClass()
                 .getDriver()
@@ -514,9 +515,8 @@ export class MatrixBaseType {
      * @memberof MatrixBaseType
      * @async
      */
+    @instanceMethod()
     public async sync(): Promise<void> {
-        if (!this.isInstance()) new Uninstantiated(this.getTypeClass());
-
         // Get the local data.
         const localData = this.getLocalData();
 
