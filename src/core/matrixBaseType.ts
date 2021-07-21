@@ -497,6 +497,8 @@ export class MatrixBaseType {
      */
     @nonInstanceMethod()
     async createInstance(): Promise<this> {
+        console.log('is instance: ' + this.isInstance());
+
         const response = (
             await this.getTypeClass()
                 .getDriver()

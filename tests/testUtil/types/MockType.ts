@@ -1,8 +1,4 @@
-import {
-    MatrixBaseType,
-    MatrixBaseTypeData,
-    FieldInterface,
-} from '../../../src/core';
+import { MatrixBaseType, MatrixBaseTypeData, schema } from '../../../src/core';
 
 /**
  * Serialized Mock Type.
@@ -21,18 +17,18 @@ export interface MockData extends MatrixBaseTypeData {
  * A mock type.
  */
 export class MockType extends MatrixBaseType {
-    static _classFields: Record<string, FieldInterface> = {
+    protected static fields: Record<string, schema.Field> = {
         foo: {
             type: 'string | null',
             label: 'Foo',
             description: 'My foo.',
             defaultValue: null,
             flags: [],
-            required: false,
+            example: null,
         },
     };
     static _fieldValues: Record<string, unknown> = {};
-    static _classInformation = {
+    protected static classInformation = {
         collection: 'tst',
         name: 'MockType',
         label: 'Mock Type',
@@ -45,7 +41,7 @@ export class MockType extends MatrixBaseType {
      * Constructor for the Mock Type.
      * @param {MockData | string} data Serialized data or instance ID.
      */
-    constructor(data: MockData | string) {
+    constructor(data: MockData) {
         super(data);
     }
 
@@ -81,7 +77,7 @@ export class MockType extends MatrixBaseType {
      * @returns {string | null}  Result.
      */
     getFoo(): string | null {
-        return this.getField<string | null>('foo');
+        return this.getFieldValue<string | null>('foo');
     }
 
     /**
@@ -90,6 +86,6 @@ export class MockType extends MatrixBaseType {
      * @returns {void}
      */
     setFoo(value: string | null): void {
-        this.setField('foo', value);
+        this.setFieldValue('foo', value);
     }
 }

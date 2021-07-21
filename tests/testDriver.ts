@@ -1,7 +1,7 @@
 import { Driver } from '../src';
 import { step } from 'mocha-steps';
 import { ok, strictEqual } from 'assert';
-import { UnsupportedSourceMethod } from '../src/core/errors';
+import { UnsupportedDriverMethod } from '../src/core/error';
 
 /**
  * Child Driver is used for testing the 'Driver' class.
@@ -28,13 +28,13 @@ describe('Base Driver', async () => {
                 }
                 ok(error, `'${name}' did not throw an error.`);
                 ok(
-                    error instanceof UnsupportedSourceMethod,
-                    `An 'UnsupportedSourceMethod' was not thrown with '${name}'`,
+                    error instanceof UnsupportedDriverMethod,
+                    `An 'UnsupportedDriverMethod' was not thrown with '${name}'`,
                 );
-                strictEqual(error.name, 'UnsupportedSourceMethod', msg('name'));
+                strictEqual(error.name, 'UnsupportedDriverMethod', msg('name'));
                 strictEqual(
                     error.message,
-                    `The method '${name}' is not supported for the Source.`,
+                    `The method '${name}' is not supported for the Driver.`,
                 );
             };
 

@@ -1,8 +1,8 @@
 import {
     Driver,
-    InternalData,
+    SerializeFields,
     MatrixBaseTypeData,
-    SourceInstanceResponse,
+    DriverInstanceResponse,
     util,
 } from '../../src';
 
@@ -17,7 +17,7 @@ export class MockDriver extends Driver {
             // ID
             string,
             // Instance data
-            InternalData
+            SerializeFields
         >
     > = {};
 
@@ -39,13 +39,13 @@ export class MockDriver extends Driver {
     async createInstance<T extends MatrixBaseTypeData = MatrixBaseTypeData>(
         type: string,
         data: T,
-    ): Promise<SourceInstanceResponse<T>> {
+    ): Promise<DriverInstanceResponse<T>> {
         const id = util.generateId();
         return {
             response: {
-                $id: id,
-                $type: type,
-                data: data as InternalData<T>,
+                id: id,
+                type: type,
+                data: data as SerializeFields<T>,
             },
         };
     }
@@ -61,14 +61,14 @@ export class MockDriver extends Driver {
     async getInstance<T extends MatrixBaseTypeData = MatrixBaseTypeData>(
         type: string,
         id: string,
-    ): Promise<SourceInstanceResponse<T>> {
+    ): Promise<DriverInstanceResponse<T>> {
         this.failNoTest(type);
         switch (id) {
             case '1':
                 return {
                     response: {
-                        $id: '1',
-                        $type: 'MockType',
+                        id: '1',
+                        type: 'MockType',
                         data: ({
                             foo: {
                                 current: '1',
@@ -78,15 +78,15 @@ export class MockDriver extends Driver {
                                     },
                                 },
                             },
-                        } as unknown) as InternalData<T>,
+                        } as unknown) as SerializeFields<T>,
                     },
                 };
             case '2':
                 return {
                     response: {
-                        $id: '2',
-                        $type: 'MockType',
-                        data: {} as InternalData<T>,
+                        id: '2',
+                        type: 'MockType',
+                        data: {} as SerializeFields<T>,
                     },
                 };
 
@@ -106,15 +106,15 @@ export class MockDriver extends Driver {
         type: string,
         id: string,
         data: T,
-    ): Promise<SourceInstanceResponse<T>> {
+    ): Promise<DriverInstanceResponse<T>> {
         this.failNoTest(type);
         if (!Object.keys(this.data).includes(type)) this.data[type] = {};
         this.data[type][id] = { ...this.data[type][id], ...data };
         return {
             response: {
-                $id: id,
-                $type: type,
-                data: data as InternalData<T>,
+                id: id,
+                type: type,
+                data: data as SerializeFields<T>,
             },
         };
     }

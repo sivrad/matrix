@@ -1,8 +1,4 @@
-import {
-    MatrixBaseType,
-    MatrixBaseTypeData,
-    FieldInterface,
-} from '../../../src/core';
+import { MatrixBaseType, MatrixBaseTypeData, schema } from '../../../src/core';
 
 /**
  * Serialized Req Field Mock.
@@ -21,18 +17,18 @@ export interface ReqFieldMockData extends MatrixBaseTypeData {
  * A mock type.
  */
 export class ReqFieldMockType extends MatrixBaseType {
-    static _classFields: Record<string, FieldInterface> = {
+    protected static fields: Record<string, schema.Field> = {
         foo: {
             type: 'string',
             label: 'Foo',
             description: 'My foo.',
             defaultValue: null,
             flags: [],
-            required: true,
+            example: null,
         },
     };
     static _fieldValues: Record<string, unknown> = {};
-    static _classInformation = {
+    static classInformation = {
         collection: 'tst',
         name: 'ReqFieldMockType',
         label: 'Required Field Mock Type',
@@ -43,9 +39,9 @@ export class ReqFieldMockType extends MatrixBaseType {
 
     /**
      * Constructor for the Mock Type.
-     * @param {MockData | string} data Serialized data or instance ID.
+     * @param {MockData} data Serialized data or instance ID.
      */
-    constructor(data: ReqFieldMockData | string) {
+    constructor(data: MatrixBaseTypeData) {
         super(data);
     }
 
@@ -83,7 +79,7 @@ export class ReqFieldMockType extends MatrixBaseType {
      * @returns {string | null}  Result.
      */
     getFoo(): string | null {
-        return this.getField<string | null>('foo');
+        return this.getFieldValue<string | null>('foo');
     }
 
     /**
@@ -92,6 +88,6 @@ export class ReqFieldMockType extends MatrixBaseType {
      * @returns {void}
      */
     setFoo(value: string | null): void {
-        this.setField('foo', value);
+        this.setFieldValue('foo', value);
     }
 }
