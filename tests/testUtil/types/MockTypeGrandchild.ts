@@ -1,14 +1,15 @@
-import { MatrixBaseType, MatrixBaseTypeData, schema } from '../../../src/core';
+import { MatrixBaseType, schema } from '../../../src/core';
+import { MockTypeChild, MockTypeChildData } from './MockTypeChild';
 
 /**
  * Serialized Req Field Mock.
  */
 
-export interface ReqFieldMockData extends MatrixBaseTypeData {
+export interface MockTypeGrandchildData extends MockTypeChildData {
     /**
      * My Foo.
      */
-    foo: string;
+    foo3?: string;
 }
 
 /**
@@ -16,7 +17,7 @@ export interface ReqFieldMockData extends MatrixBaseTypeData {
  *
  * A mock type.
  */
-export class ReqFieldMockType extends MatrixBaseType {
+export class MockTypeGrandchild extends MockTypeChild {
     protected static fields: Record<string, schema.Field> = {
         foo: {
             type: 'string',
@@ -27,12 +28,11 @@ export class ReqFieldMockType extends MatrixBaseType {
             example: null,
         },
     };
-    static _fieldValues: Record<string, unknown> = {};
     static classInformation = {
         collection: 'tst',
-        name: 'ReqFieldMockType',
-        label: 'Required Field Mock Type',
-        description: 'A mock type.',
+        name: 'MockTypeGrandchild',
+        label: 'The Grandchild mock type',
+        description: 'A Grandchild mock type.',
         icon: 'URL',
         flags: [],
     };
@@ -41,7 +41,7 @@ export class ReqFieldMockType extends MatrixBaseType {
      * Constructor for the Mock Type.
      * @param {MockData} data Serialized data or instance ID.
      */
-    constructor(data: MatrixBaseTypeData) {
+    constructor(data: MockTypeGrandchildData) {
         super(data);
     }
 
@@ -50,7 +50,7 @@ export class ReqFieldMockType extends MatrixBaseType {
      * @param   {string} id The ID of the instance.
      * @returns {T}         The new instance of the type.
      */
-    static async get<T extends MatrixBaseType = ReqFieldMockType>(
+    static async get<T extends MatrixBaseType = MockTypeGrandchild>(
         id: string,
     ): Promise<T> {
         return await super.get<T>(id);
@@ -60,9 +60,9 @@ export class ReqFieldMockType extends MatrixBaseType {
      * Get all the instances of a type.
      * @returns {T[]}  All the new instances.
      */
-    static async getAll<T extends MatrixBaseType = ReqFieldMockType>(): Promise<
-        T[]
-    > {
+    static async getAll<
+        T extends MatrixBaseType = MockTypeGrandchild
+    >(): Promise<T[]> {
         return await super.getAll<T>();
     }
 
@@ -70,24 +70,7 @@ export class ReqFieldMockType extends MatrixBaseType {
      * Get the class of the type.
      * @returns {T}  The type class.
      */
-    getTypeClass<T = typeof ReqFieldMockType>(): T {
-        return (ReqFieldMockType as unknown) as T;
-    }
-
-    /**
-     * Retrive the Foo field.
-     * @returns {string | null}  Result.
-     */
-    getFoo(): string | null {
-        return this.getFieldValue<string | null>('foo');
-    }
-
-    /**
-     * Set the Foo field.
-     * @param   {number | null} value The value to set.
-     * @returns {void}
-     */
-    setFoo(value: string | null): void {
-        this.setFieldValue('foo', value);
+    getTypeClass<T = typeof MockTypeGrandchild>(): T {
+        return (MockTypeGrandchild as unknown) as T;
     }
 }

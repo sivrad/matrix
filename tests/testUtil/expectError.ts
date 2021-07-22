@@ -1,16 +1,16 @@
 import { ok, strictEqual } from 'assert';
 import { MatrixError } from '../../src/core/error';
 
-export const expectError = (
+export const expectError = async (
     // eslint-disable-next-line @typescript-eslint/ban-types
     errorClass: Function,
     name: string,
     message: string,
-    func: () => void,
-): void => {
+    func: () => Promise<void>,
+): Promise<void> => {
     let error: MatrixError | null = null;
     try {
-        func();
+        await func();
     } catch (e) {
         error = e;
     }

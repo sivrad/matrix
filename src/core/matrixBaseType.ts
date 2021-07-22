@@ -76,7 +76,7 @@ export class MatrixBaseType {
      * Set the ID, can only be done once.
      * @param {string} id The id of the type.
      */
-    // @typeMethod()
+    @nonInstanceMethod()
     setId(id: string): void {
         if (this.isInstance()) throw new AlreadyInstantiated(this);
         this.id = id;
@@ -186,6 +186,7 @@ export class MatrixBaseType {
      * @returns {string} Name of the collection.
      */
     static getCollection(): string {
+        if (!this.classInformation) return Values.BASE_COLLECTION_NAME;
         return this.classInformation.collection;
     }
 

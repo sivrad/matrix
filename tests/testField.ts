@@ -91,7 +91,7 @@ describe('Field', () => {
             FieldDataNotFound,
             'FieldDataNotFound',
             "No data was found for field 'foo'.",
-            () => {
+            async () => {
                 field.getUpdatedAt();
             },
         );

@@ -1,12 +1,20 @@
 import { deepStrictEqual, ok, strictEqual } from 'assert';
-import { Matrix, MatrixBaseType, SerializeData } from '../src';
+import { InstanceData, Matrix, MatrixBaseType, SerializeData } from '../src';
 import {
     AlreadyInstantiated,
     InvalidFields,
     MissingFields,
     NoMatrixInstance,
+    Uninstantiated,
 } from '../src/core/error';
-import { MockDriver, MockType, ReqFieldMockType } from './testUtil/';
+import {
+    expectError,
+    MockDriver,
+    MockType,
+    MockTypeChild,
+    MockTypeGrandchild,
+    MockTypeFieldRequired,
+} from './testUtil/';
 
 describe('Matrix Base Type', () => {
     // Class tests.
@@ -17,6 +25,7 @@ describe('Matrix Base Type', () => {
         strictEqual(MockType.getDescription(), 'A mock type.');
         strictEqual(MockType.getIcon(), 'URL');
         strictEqual(MockType.getCollection(), 'tst');
+        deepStrictEqual(MockType.getFlags(), []);
     });
 
     it('Has correct fields.', () => {
@@ -43,22 +52,14 @@ describe('Matrix Base Type', () => {
         deepStrictEqual(MockType.getParent(), MatrixBaseType);
     });
 
-    it('Return the Matrix Instance with no instance', () => {
-        let error;
-        try {
-            MockType.getMatrix();
-        } catch (e) {
-            error = e;
-        }
-        ok(error, "'getMatrix' did not throw an error.");
-        ok(
-            error instanceof NoMatrixInstance,
-            "An 'NoMatrixInstance' was not thrown with 'getMatrix'",
-        );
-        strictEqual(error.name, 'NoMatrixInstance');
-        strictEqual(
-            error.message,
-            'The type tst.MockType does not have an assigned Matrix instance.',
+    it('Return the Matrix Instance with no instance', async () => {
+        await expectError(
+            NoMatrixInstance,
+            'NoMatrixInstance',
+            "The type 'tst.MockType' does not have an assigned Matrix instance.",
+            async () => {
+                MockType.getMatrix();
+            },
         );
     });
 
@@ -69,17 +70,65 @@ describe('Matrix Base Type', () => {
         deepStrictEqual(MockType.getMatrix(), mtx);
     });
 
-    // it('Return the schema', () => {
-    //     deepStrictEqual(MockType.getSchema(), {});
-    // });
+    it('Return the schema', () => {
+        deepStrictEqual(MockType.getSchema(), {
+            name: 'MockType',
+            label: 'Mock Type',
+            description: 'A mock type.',
+            icon: 'URL',
+            flags: [],
+            parent: 'mtx.Base',
+            fieldValues: {},
+            fields: {
+                foo: {
+                    defaultValue: null,
+                    description: 'My foo.',
+                    example: null,
+                    flags: [],
+                    label: 'Foo',
+                    type: 'string | null',
+                },
+            },
+        });
+    });
 
-    // it('Return the structure', () => {
-    //     const struct = MockType.getStructure();
-    //     console.log(struct);
-    // });
+    it('Return the structure', () => {
+        const struct = MockType.getStructure();
+        deepStrictEqual(struct, {
+            name: 'MockType',
+            label: 'Mock Type',
+            description: 'A mock type.',
+            icon: 'URL',
+            flags: [],
+            parent: 'mtx.Base',
+            fieldValues: {},
+            fields: {
+                foo: {
+                    defaultValue: null,
+                    description: 'My foo.',
+                    example: null,
+                    flags: [],
+                    label: 'Foo',
+                    type: 'string | null',
+                    owner: 'tst.MockType',
+                },
+            },
+        });
+    });
 
     it('Return children types.', () => {
-        deepStrictEqual(MockType.getChildren(), []);
+        // @ts-expect-error This is private.
+        Matrix.addType(MockTypeChild), Matrix.addType(MockTypeGrandchild);
+        const children = MockType.getChildren();
+        strictEqual(children.length, 2);
+        strictEqual(children[0].getType(), 'tst.MockTypeChild');
+        strictEqual(children[1].getType(), 'tst.MockTypeGrandchild');
+    });
+
+    it('Return direct children types.', () => {
+        const directChildren = MockType.getDirectChildren();
+        strictEqual(directChildren.length, 1);
+        strictEqual(directChildren[0].getType(), 'tst.MockTypeChild');
     });
 
     it('Get the Type Driver', () => {
@@ -117,57 +166,29 @@ describe('Matrix Base Type', () => {
         const instance = new MockType({});
 
         strictEqual(instance.getId(), undefined);
-        // strictEqual(instance._lastUpdated, -1);
-        // deepStrictEqual(instance._typeFieldKeys, ['foo']);
-        // deepStrictEqual(instance._typeFields, {
-        //     foo: {
-        //         defaultValue: null,
-        //         description: 'My foo.',
-        //         flags: [],
-        //         label: 'Foo',
-        //         required: false,
-        //         type: 'string | null',
-        //     },
-        // });
     });
 
-    it('Handle invalid field', () => {
-        let error;
-        try {
-            new MockType({
-                baz: '',
-            });
-        } catch (e) {
-            error = e;
-        }
-        ok(error, "'constructor' did not throw an error.");
-        ok(
-            error instanceof InvalidFields,
-            "An 'InvalidField' was not thrown with 'constructor'",
-        );
-        strictEqual(error.name, 'InvalidField');
-        strictEqual(
-            error.message,
+    it('Handle invalid field', async () => {
+        await expectError(
+            InvalidFields,
+            'InvalidFields',
             "The fields 'baz' are not valid for type 'MockType'",
+            async () => {
+                new MockType({
+                    baz: '',
+                });
+            },
         );
     });
 
-    it('Handle Missing Field', () => {
-        let error;
-        try {
-            new ReqFieldMockType({});
-        } catch (e) {
-            error = e;
-        }
-        ok(error, "'constructor' did not throw an error.");
-        ok(
-            error instanceof MissingFields,
-            "An 'MissingField' was not thrown with 'constructor'",
-        );
-        strictEqual(error.name, 'MissingField');
-        strictEqual(
-            error.message,
-            "The fields 'foo' were not provided for type 'ReqFieldMockType'",
+    it('Handle Missing Field', async () => {
+        await expectError(
+            MissingFields,
+            'MissingFields',
+            "The fields 'foo' were not provided for type 'MockTypeFieldRequired'",
+            async () => {
+                new MockTypeFieldRequired({});
+            },
         );
     });
 
@@ -292,5 +313,41 @@ describe('Matrix Base Type', () => {
         const driver = instance.getTypeClass().getDriver() as MockDriver;
         const field = driver.data['tst.MockType']['2'].foo;
         strictEqual(field.values[field.current as string].value, 'baz');
+    });
+
+    it('Sync on type throws error', async () => {
+        const instance = new MockType({});
+        await expectError(
+            Uninstantiated,
+            'Uninstantiated',
+            "An uninstantiated type 'MockType' was used as an instance",
+            async () => {
+                await instance.sync();
+            },
+        );
+    });
+
+    it('Return the data of an instance with constructor', () => {
+        const instance = new MockType({
+            foo: 'bar',
+        });
+        const data = instance.getData() as InstanceData;
+        deepStrictEqual(data, {
+            id: undefined,
+            type: 'tst.MockType',
+            data: {
+                foo: {
+                    current: data.data.foo.current,
+                    values: {
+                        [data.data.foo.current as string]: {
+                            value: 'bar',
+                            event: 'INTERNAL',
+                        },
+                    },
+                },
+            },
+            updatedAt: parseInt(data.data.foo.current as string),
+            createdAt: parseInt(data.data.foo.current as string),
+        });
     });
 });
