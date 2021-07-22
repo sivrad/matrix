@@ -20,6 +20,10 @@ jobs:
               run: yarn run lint
             - name: prettier check
               run: yarn run test-format
+
+            - name: Build the library.
+              run: yarn build-types
+
             - name: mocha tests
               run: yarn run test
             - uses: codecov/codecov-action@v2
