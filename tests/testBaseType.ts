@@ -1,5 +1,5 @@
 import { deepStrictEqual, ok, strictEqual } from 'assert';
-import { InstanceData, Matrix, MatrixBaseType, SerializeData } from '../src';
+import { Matrix, MatrixBaseType, SerializeData } from '../src';
 import {
     AlreadyInstantiated,
     InvalidFields,
@@ -327,27 +327,27 @@ describe('Matrix Base Type', () => {
         );
     });
 
-    it('Return the data of an instance with constructor', () => {
-        const instance = new MockType({
-            foo: 'bar',
-        });
-        const data = instance.getData() as InstanceData;
-        deepStrictEqual(data, {
-            id: undefined,
-            type: 'tst.MockType',
-            data: {
-                foo: {
-                    current: data.data.foo.current,
-                    values: {
-                        [data.data.foo.current as string]: {
-                            value: 'bar',
-                            event: 'INTERNAL',
-                        },
-                    },
-                },
-            },
-            updatedAt: parseInt(data.data.foo.current as string),
-            createdAt: parseInt(data.data.foo.current as string),
-        });
-    });
+    // it('Return the data of an instance with constructor', () => {
+    //     const instance = new MockType({
+    //         foo: 'bar',
+    //     });
+    //     const data = instance.getData() as InstanceData;
+    //     deepStrictEqual(data, {
+    //         id: undefined,
+    //         type: 'tst.MockType',
+    //         data: {
+    //             foo: {
+    //                 current: data.data.foo.current,
+    //                 values: {
+    //                     [data.data.foo.current as string]: {
+    //                         value: 'bar',
+    //                         event: 'INTERNAL',
+    //                     },
+    //                 },
+    //             },
+    //         },
+    //         updatedAt: parseInt(data.data.foo.current as string),
+    //         createdAt: parseInt(data.data.foo.current as string),
+    //     });
+    // });
 });
