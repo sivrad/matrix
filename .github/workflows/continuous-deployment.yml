@@ -1,0 +1,39 @@
+name: Continuous Deployment
+on:
+    push:
+        branches:
+            - main
+jobs:
+    cd:
+        name: Continuous Deployment
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v2
+
+            - name: Setup Node
+              uses: actions/setup-node@v1
+              with:
+                  node-version: 12
+                  registry-url: https://registry.npmjs.org/
+
+            - name: Yarn Install
+              run: yarn install
+
+            - name: Lint
+              run: yarn lint
+
+            - name: Check Formatting
+              run: yarn test-format
+
+            - name: Generate Types
+              run: yarn generate-types
+
+            - name: Build Library
+              run: yarn build-types
+
+            - name: Run Tests
+              run: yarn test
+
+            - name: Upload Code Coverage
+              uses: codecov/codecov-action@v2
