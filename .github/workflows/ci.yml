@@ -3,30 +3,45 @@ on:
     pull_request:
         branches:
             - main
-    workflow_dispatch:
+    push:
+        branches:
+            - main
 jobs:
     ci:
-        name: CI tests
+        name: Continuous Integration
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v2
-            - uses: actions/setup-node@v1
+            - name: Checkout
+              uses: actions/checkout@v2
+
+            - name: Setup Node
+              uses: actions/setup-node@v1
               with:
                   node-version: 12
                   registry-url: https://registry.npmjs.org/
-            - name: yarn install
-              run: yarn install
-            - name: lint
-              run: yarn run lint
-            - name: prettier check
-              run: yarn run test-format
 
-            - name: Build the types.
+            - name: Yarn Install
+              run: yarn install
+
+            - name: Lint
+              run: yarn lint
+
+            - name: Check Formatting
+              run: yarn test-format
+
+            - name: Generate Types
               run: yarn generate-types
 
-            - name: Build the library.
+            - name: Build Library
               run: yarn build-types
 
-            - name: mocha tests
-              run: yarn run test
-            - uses: codecov/codecov-action@v2
+            - name: Run Tests
+              run: yarn test
+    cd:
+        name: Continuous Deployment
+        runs-on: ubuntu-latest
+        needs: ci
+        if: ${{ github.event == 'push' }}
+        steps:
+            - name: Upload Code Coverage
+              uses: codecov/codecov-action@v2
