@@ -1,12 +1,20 @@
 import { deepStrictEqual, ok, strictEqual } from 'assert';
-import { Matrix, MatrixBaseType, SerializedData } from '../src';
+import { InstanceData, Matrix, MatrixBaseType, SerializeData } from '../src';
 import {
     AlreadyInstantiated,
-    InvalidField,
-    MissingField,
+    InvalidFields,
+    MissingFields,
     NoMatrixInstance,
-} from '../src/core/errors';
-import { MockDriver, MockType } from './testUtil/';
+    Uninstantiated,
+} from '../src/core/error';
+import {
+    expectError,
+    MockDriver,
+    MockType,
+    MockTypeChild,
+    MockTypeGrandchild,
+    MockTypeFieldRequired,
+} from './testUtil/';
 
 describe('Matrix Base Type', () => {
     // Class tests.
@@ -17,6 +25,7 @@ describe('Matrix Base Type', () => {
         strictEqual(MockType.getDescription(), 'A mock type.');
         strictEqual(MockType.getIcon(), 'URL');
         strictEqual(MockType.getCollection(), 'tst');
+        deepStrictEqual(MockType.getFlags(), []);
     });
 
     it('Has correct fields.', () => {
@@ -37,29 +46,20 @@ describe('Matrix Base Type', () => {
         strictEqual(field.type, 'string | null');
         strictEqual(field.defaultValue, null);
         deepStrictEqual(field.flags, []);
-        strictEqual(field.required, false);
     });
 
     it('Return the parent class.', () => {
         deepStrictEqual(MockType.getParent(), MatrixBaseType);
     });
 
-    it('Return the Matrix Instance with no instance', () => {
-        let error;
-        try {
-            MockType.getMatrix();
-        } catch (e) {
-            error = e;
-        }
-        ok(error, "'getMatrix' did not throw an error.");
-        ok(
-            error instanceof NoMatrixInstance,
-            "An 'NoMatrixInstance' was not thrown with 'getMatrix'",
-        );
-        strictEqual(error.name, 'NoMatrixInstance');
-        strictEqual(
-            error.message,
-            'The type tst.MockType does not have an assigned Matrix instance.',
+    it('Return the Matrix Instance with no instance', async () => {
+        await expectError(
+            NoMatrixInstance,
+            'NoMatrixInstance',
+            "The type 'tst.MockType' does not have an assigned Matrix instance.",
+            async () => {
+                MockType.getMatrix();
+            },
         );
     });
 
@@ -70,23 +70,65 @@ describe('Matrix Base Type', () => {
         deepStrictEqual(MockType.getMatrix(), mtx);
     });
 
-    // it('Return the schema', () => {
-    //     deepStrictEqual(MockType.getSchema(), {});
-    // });
+    it('Return the schema', () => {
+        deepStrictEqual(MockType.getSchema(), {
+            name: 'MockType',
+            label: 'Mock Type',
+            description: 'A mock type.',
+            icon: 'URL',
+            flags: [],
+            parent: 'mtx.Base',
+            fieldValues: {},
+            fields: {
+                foo: {
+                    defaultValue: null,
+                    description: 'My foo.',
+                    example: null,
+                    flags: [],
+                    label: 'Foo',
+                    type: 'string | null',
+                },
+            },
+        });
+    });
 
-    // it('Return the structure', () => {
-    //     const struct = MockType.getStructure();
-    //     console.log(struct);
-    // });
-
-    it('Get the Matrix Instance from the Instance', () => {
-        const mtx = new Matrix(new MockDriver());
-        // @ts-expect-error getMatrix is a private method.
-        deepStrictEqual(new MockType({}).getMatrix(), mtx);
+    it('Return the structure', () => {
+        const struct = MockType.getStructure();
+        deepStrictEqual(struct, {
+            name: 'MockType',
+            label: 'Mock Type',
+            description: 'A mock type.',
+            icon: 'URL',
+            flags: [],
+            parent: 'mtx.Base',
+            fieldValues: {},
+            fields: {
+                foo: {
+                    defaultValue: null,
+                    description: 'My foo.',
+                    example: null,
+                    flags: [],
+                    label: 'Foo',
+                    type: 'string | null',
+                    owner: 'tst.MockType',
+                },
+            },
+        });
     });
 
     it('Return children types.', () => {
-        deepStrictEqual(MockType.getChildren(), []);
+        // @ts-expect-error This is private.
+        Matrix.addType(MockTypeChild), Matrix.addType(MockTypeGrandchild);
+        const children = MockType.getChildren();
+        strictEqual(children.length, 2);
+        strictEqual(children[0].getType(), 'tst.MockTypeChild');
+        strictEqual(children[1].getType(), 'tst.MockTypeGrandchild');
+    });
+
+    it('Return direct children types.', () => {
+        const directChildren = MockType.getDirectChildren();
+        strictEqual(directChildren.length, 1);
+        strictEqual(directChildren[0].getType(), 'tst.MockTypeChild');
     });
 
     it('Get the Type Driver', () => {
@@ -109,97 +151,68 @@ describe('Matrix Base Type', () => {
             },
         };
         const instance = MockType.deserialize<MockType>('MY_ID', data);
-        strictEqual(instance._id, 'MY_ID');
+        strictEqual(instance.getId(), 'MY_ID');
         strictEqual(instance.getFoo(), 'bar');
     });
 
     // Instance tests.
 
     it('Create instance with ID', () => {
-        const instance = new MockType('MY_ID');
-        strictEqual(instance._id, 'MY_ID');
+        const instance = new MockType({ $id: 'MY_ID' });
+        strictEqual(instance.getId(), 'MY_ID');
     });
 
     it('Has correct instance variables', () => {
         const instance = new MockType({});
 
-        strictEqual(instance._id, undefined);
-        strictEqual(instance._lastUpdated, -1);
-        deepStrictEqual(instance._typeFieldKeys, ['foo']);
-        deepStrictEqual(instance._typeFields, {
-            foo: {
-                defaultValue: null,
-                description: 'My foo.',
-                flags: [],
-                label: 'Foo',
-                required: false,
-                type: 'string | null',
+        strictEqual(instance.getId(), undefined);
+    });
+
+    it('Handle invalid field', async () => {
+        await expectError(
+            InvalidFields,
+            'InvalidFields',
+            "The fields 'baz' are not valid for type 'MockType'",
+            async () => {
+                new MockType({
+                    baz: '',
+                });
             },
-        });
-    });
-
-    it('Handle invalid field', () => {
-        let error;
-        try {
-            new MockType({
-                baz: '',
-            });
-        } catch (e) {
-            error = e;
-        }
-        ok(error, "'constructor' did not throw an error.");
-        ok(
-            error instanceof InvalidField,
-            "An 'InvalidField' was not thrown with 'constructor'",
-        );
-        strictEqual(error.name, 'InvalidField');
-        strictEqual(
-            error.message,
-            "The field 'baz' is not valid for type 'MockType'",
         );
     });
 
-    it('Handle Missing Field', () => {
-        let error;
-        try {
-            // @ts-expect-error The 'foo' field was not given.
-            new ReqFieldMockType({});
-        } catch (e) {
-            error = e;
-        }
-        ok(error, "'constructor' did not throw an error.");
-        ok(
-            error instanceof MissingField,
-            "An 'MissingField' was not thrown with 'constructor'",
-        );
-        strictEqual(error.name, 'MissingField');
-        strictEqual(
-            error.message,
-            "The field 'foo' was not provided for type 'ReqFieldMockType'",
+    it('Handle Missing Field', async () => {
+        await expectError(
+            MissingFields,
+            'MissingFields',
+            "The fields 'foo' were not provided for type 'MockTypeFieldRequired'",
+            async () => {
+                new MockTypeFieldRequired({});
+            },
         );
     });
 
     it('Getter methods work', () => {
-        const instance = new MockType('MY_ID');
+        const instance = new MockType({ $id: 'MY_ID' });
         strictEqual(instance.getId(), 'MY_ID');
-        deepStrictEqual(instance.getUpdatedAt(), new Date(-1 * 1000));
+        // deepStrictEqual(instance.getUpdatedAt(), new Date(-1 * 1000));
         strictEqual(instance.getReference(), 'tst.MockType@MY_ID');
     });
 
     it('Get the type class from instance', () => {
-        const instance = new MockType('');
+        const instance = new MockType({ $id: '' });
         deepStrictEqual(instance.getTypeClass(), MockType);
     });
 
     it('Set the ID', () => {
         const instance = new MockType({});
-        strictEqual(instance._id, undefined);
+        strictEqual(instance.getId(), undefined);
         instance.setId('MY_ID');
-        strictEqual(instance._id, 'MY_ID');
+        strictEqual(instance.getId(), 'MY_ID');
     });
 
     it('Set the ID of an instance', () => {
-        const instance = new MockType('MY_ID');
+        const instance = new MockType({ $id: 'MY_ID' });
         let error;
         try {
             instance.setId('MY_ID');
@@ -233,42 +246,43 @@ describe('Matrix Base Type', () => {
 
     it('Is instance works', () => {
         strictEqual(new MockType({}).isInstance(), false);
-        strictEqual(new MockType('MY_ID').isInstance(), true);
+        strictEqual(new MockType({ $id: 'MY_ID' }).isInstance(), true);
         const type = new MockType({});
         strictEqual(type.isInstance(), false);
         type.setId('MY_ID');
         strictEqual(type.isInstance(), true);
     });
 
-    it('Get the serialized data', () => {
-        const instance = new MockType({ foo: 'bar' });
-        const data = instance.getSerializedData();
-        deepStrictEqual(data, {
-            foo: {
-                current: data.foo.current,
-                values: {
-                    [data.foo.current]: {
-                        value: 'bar',
-                    },
-                },
-            },
-        });
-    });
+    // it('Get the serialized data', () => {
+    //     const instance = new MockType({ foo: 'bar' });
+    //     const data = instance.serialize();
+    //     deepStrictEqual(data, {
+    //         foo: {
+    //             current: data.foo.current,
+    //             values: {
+    //                 [data.foo.current]: {
+    //                     value: 'bar',
+    //                 },
+    //             },
+    //         },
+    //     });
+    // });
 
     it('Serialize', () => {
         const instance = new MockType({
             foo: 'bar',
         });
-        const data = instance.serialize() as SerializedData;
+        const data = instance.serialize() as SerializeData;
         deepStrictEqual(data, {
-            $id: undefined,
-            $type: 'tst.MockType',
+            id: undefined,
+            type: 'tst.MockType',
             data: {
                 foo: {
                     current: data.data.foo.current,
                     values: {
-                        [data.data.foo.current]: {
+                        [data.data.foo.current as string]: {
                             value: 'bar',
+                            event: 'INTERNAL',
                         },
                     },
                 },
@@ -282,22 +296,58 @@ describe('Matrix Base Type', () => {
         });
         const instance = await type.createInstance();
 
-        ok(instance._id, 'No ID was given for the instance.');
+        ok(instance.getId(), 'No ID was given for the instance.');
         strictEqual(instance.getFoo(), 'bar');
     });
 
     it('Sync Local with Remote Data', async () => {
-        const instance = new MockType('1');
-        await instance.syncData();
+        const instance = new MockType({ $id: '1' });
+        await instance.sync();
         strictEqual(instance.getFoo(), 'bar');
     });
 
     it('Sync Remote with Local Data', async () => {
-        const instance = new MockType('2');
+        const instance = new MockType({ $id: '2' });
         instance.setFoo('baz');
-        await instance.syncData();
+        await instance.sync();
         const driver = instance.getTypeClass().getDriver() as MockDriver;
         const field = driver.data['tst.MockType']['2'].foo;
-        strictEqual(field.values[field.current].value, 'baz');
+        strictEqual(field.values[field.current as string].value, 'baz');
+    });
+
+    it('Sync on type throws error', async () => {
+        const instance = new MockType({});
+        await expectError(
+            Uninstantiated,
+            'Uninstantiated',
+            "An uninstantiated type 'MockType' was used as an instance",
+            async () => {
+                await instance.sync();
+            },
+        );
+    });
+
+    it('Return the data of an instance with constructor', () => {
+        const instance = new MockType({
+            foo: 'bar',
+        });
+        const data = instance.getData() as InstanceData;
+        deepStrictEqual(data, {
+            id: undefined,
+            type: 'tst.MockType',
+            data: {
+                foo: {
+                    current: data.data.foo.current,
+                    values: {
+                        [data.data.foo.current as string]: {
+                            value: 'bar',
+                            event: 'INTERNAL',
+                        },
+                    },
+                },
+            },
+            updatedAt: parseInt(data.data.foo.current as string),
+            createdAt: parseInt(data.data.foo.current as string),
+        });
     });
 });

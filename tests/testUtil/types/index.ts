@@ -1,3 +1,5 @@
 export { MockType } from './MockType';
-export { ReqFieldMockType } from './ReqFieldMockType';
-export { StaticFieldMockType } from './StaticFieldMockType';
+export { MockTypeFieldRequired } from './MockTypeFieldRequired';
+export { StaticFieldMockType } from './MockTypeFieldStatic';
+export { MockTypeChild } from './MockTypeChild';
+export { MockTypeGrandchild } from './MockTypeGrandchild';
