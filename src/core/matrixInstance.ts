@@ -2,7 +2,6 @@ import { MatrixBaseType } from './matrixBaseType';
 import { Driver } from './driver';
 import { TypeNotFound } from './error';
 import { Values } from './constants';
-import { TreeNode } from './type';
 // import { Thing } from '../types/std';
 
 /**
