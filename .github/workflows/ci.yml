@@ -21,6 +21,9 @@ jobs:
             - name: prettier check
               run: yarn run test-format
 
+            - name: Build the types.
+              run: yarn generate-types
+
             - name: Build the library.
               run: yarn build-types
 
