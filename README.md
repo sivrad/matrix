@@ -9,6 +9,8 @@
   [ <a href="#installation">Installation 💾</a> | <a href="#usage">Usage 🤓</a> | <a href="https://www.npmjs.com/package/@sivrad/PACKAGE_NAME">NPM 📦</a> | <a href="https://github.com/sivrad/readme-template">Github 🕸</a> ]
 </p>
 
+[![codecov](https://codecov.io/gh/sivrad/matrix/branch/main/graph/badge.svg?token=UiJ4feXPzs)](https://codecov.io/gh/sivrad/matrix)
+
 # Installation
 
 ```sh
