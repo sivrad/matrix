@@ -35,7 +35,7 @@ export function nonInstanceMethod(): MethodDecorator {
     ) => {
         const method = descriptor.value;
         descriptor.value = function (this: MatrixBaseType, ...args: unknown[]) {
-            if (!this.isInstance()) {
+            if (this.isInstance()) {
                 throw new AlreadyInstantiated(this);
             }
             // Call the original method

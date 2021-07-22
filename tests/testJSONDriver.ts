@@ -1,17 +1,17 @@
 import { JSONDBDriver } from '../src';
 import { step } from 'mocha-steps';
-import { existsSync, readFileSync, rmSync } from 'fs';
+import { existsSync, readFileSync, unlinkSync } from 'fs';
 import { deepEqual, deepStrictEqual, ok, strictEqual } from 'assert';
-import { InstanceNotFound, UnsupportedSourceMethod } from '../src/core/errors';
+import { InstanceNotFound, UnsupportedDriverMethod } from '../src/core/error';
 
 const DB_FILE_PATH = 'tests/jsonDriverTestDB.json';
 
 describe('JSON DB Driver', () => {
     let driver: JSONDBDriver;
 
-    step('Creates JSON file on initialization.', () => {
+    step('Creates JSON file on initialization', () => {
         // Make sure the JSON file doesn't exist.
-        if (existsSync(DB_FILE_PATH)) rmSync(DB_FILE_PATH);
+        if (existsSync(DB_FILE_PATH)) unlinkSync(DB_FILE_PATH);
 
         // Create the driver
         driver = new JSONDBDriver(DB_FILE_PATH);
@@ -57,14 +57,14 @@ describe('JSON DB Driver', () => {
                 },
             },
         });
-        instanceId = result.response.$id;
+        instanceId = result.response.id;
         // Validate request result.
         deepStrictEqual(
             result,
             {
                 response: {
-                    $id: instanceId,
-                    $type: 'person',
+                    id: instanceId,
+                    type: 'person',
                     data: {
                         surname: {
                             current: '1625949426',
@@ -105,8 +105,8 @@ describe('JSON DB Driver', () => {
             `Data returned from 'getInstance' has invalid '${attr}'`;
         const response = (await driver.getInstance('person', instanceId))
             .response;
-        strictEqual(response.$id, instanceId, msg('$id'));
-        strictEqual(response.$type, 'person', msg('$type'));
+        strictEqual(response.id, instanceId, msg('$id'));
+        strictEqual(response.type, 'person', msg('$type'));
         deepEqual(
             response.data,
             {
@@ -142,8 +142,8 @@ describe('JSON DB Driver', () => {
         deepStrictEqual(
             response[instanceId],
             {
-                $id: instanceId,
-                $type: 'person',
+                id: instanceId,
+                type: 'person',
                 data: {
                     surname: {
                         current: '1625949426',
@@ -177,8 +177,8 @@ describe('JSON DB Driver', () => {
                 },
             })
         ).response;
-        strictEqual(response.$id, instanceId);
-        strictEqual(response.$type, 'person');
+        strictEqual(response.id, instanceId);
+        strictEqual(response.type, 'person');
         deepStrictEqual(response.data, {
             surname: {
                 current: '1625949426',
@@ -193,7 +193,7 @@ describe('JSON DB Driver', () => {
 
     step('Initialize Type is unimplemented', async () => {
         const msg = (attr: string) =>
-            `The 'UnsupportedSourceMethod' error has an invalid '${attr}' attribute.`;
+            `The 'UnsupportedDriverMethod' error has an invalid '${attr}' attribute.`;
         let error;
         try {
             await driver.initializeType('person');
@@ -202,13 +202,13 @@ describe('JSON DB Driver', () => {
         }
         ok(error, "'initializeType' did not throw an error.");
         ok(
-            error instanceof UnsupportedSourceMethod,
-            "An 'UnsupportedSourceMethod' was not thrown with 'initializeType'",
+            error instanceof UnsupportedDriverMethod,
+            "An 'UnsupportedDriverMethod' was not thrown with 'initializeType'",
         );
-        strictEqual(error.name, 'UnsupportedSourceMethod', msg('name'));
+        strictEqual(error.name, 'UnsupportedDriverMethod', msg('name'));
         strictEqual(
             error.message,
-            "The method 'initializeType' is not supported for the Source.",
+            "The method 'initializeType' is not supported for the Driver.",
         );
     });
 });

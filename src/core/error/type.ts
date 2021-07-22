@@ -31,7 +31,7 @@ export class NoMatrixInstance extends MatrixTypeError {
     constructor(type: typeof MatrixBaseType) {
         super(
             'NoMatrixInstance',
-            `The type ${type.getType()} does not have an assigned Matrix instance.`,
+            `The type '${type.getType()}' does not have an assigned Matrix instance.`,
             type,
         );
     }
@@ -101,7 +101,7 @@ export class MissingFields extends MatrixTypeError {
         public missingFieldNames: string[],
     ) {
         super(
-            'MissingField',
+            'MissingFields',
             `The fields '${missingFieldNames.join(
                 ', ',
             )}' were not provided for type '${type.getName()}'`,
@@ -124,7 +124,7 @@ export class InvalidFields extends MatrixTypeError {
         public invalidFieldNames: string[],
     ) {
         super(
-            'InvalidField',
+            'InvalidFields',
             `The fields '${invalidFieldNames}' are not valid for type '${type.getName()}'`,
             type,
         );
