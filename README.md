@@ -9,7 +9,11 @@
   [ <a href="#installation">Installation 💾</a> | <a href="#usage">Usage 🤓</a> | <a href="https://www.npmjs.com/package/@sivrad/PACKAGE_NAME">NPM 📦</a> | <a href="https://github.com/sivrad/readme-template">Github 🕸</a> ]
 </p>
 
+![npm](https://img.shields.io/npm/v/@sivrad/matrix)
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/sivrad/matrix/CI)
 [![codecov](https://codecov.io/gh/sivrad/matrix/branch/main/graph/badge.svg?token=UiJ4feXPzs)](https://codecov.io/gh/sivrad/matrix)
+![GitHub](https://img.shields.io/github/license/sivrad/matrix)
+[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 
 # Installation
 
