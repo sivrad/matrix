@@ -36,6 +36,7 @@
         "axios": "^0.21.1",
         "codecov": "^3.8.3",
         "colors": "^1.4.0",
+        "cz-conventional-changelog": "3.3.0",
         "ejs": "^3.1.6",
         "eslint": "7.31.0",
         "eslint-plugin-jsdoc": "35.5.0",
@@ -54,5 +55,10 @@
     ],
     "dependencies": {
         "faunadb": "^4.2.0"
+    },
+    "config": {
+        "commitizen": {
+            "path": "./node_modules/cz-conventional-changelog"
+        }
     }
 }
