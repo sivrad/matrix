@@ -23,7 +23,8 @@
         "build": "yarn build-types & yarn tsc",
         "patch": "yarn version --new-version patch",
         "publish-pkg": "yarn build & yarn publish --access=public",
-        "sand": "ts-node sandbox.ts"
+        "sand": "ts-node sandbox.ts",
+        "cm": "cz"
     },
     "devDependencies": {
         "@nix2/prettier-config": "^1.0.2",
