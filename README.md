@@ -2,7 +2,7 @@
 
 <p align="center">
   <strong>Matrix</strong><br />
-  <sub>An opinionated schema-based database interface for the modern world.</sub>
+  <sub>An opinionated schema-based database interface.</sub>
 </p>
 
 <p align="center">
