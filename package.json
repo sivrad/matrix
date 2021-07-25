@@ -28,7 +28,7 @@
         "cm": "cz"
     },
     "devDependencies": {
-        "@nix2/prettier-config": "^1.0.2",
+        "@nix2/prettier-config": "^1.0.4",
         "@types/ejs": "^3.0.6",
         "@types/mocha": "8.2.3",
         "@types/node": "16.3.3",
