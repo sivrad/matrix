@@ -13,7 +13,7 @@ The core functionallity of the `matrix-service`.
 
 <hr>
 
-**NOTE**: This documentation assumes you are familiar with the `matrix-service`, if you would like to know more about it, read the [wiki](https://github.com/sivrad/matrix/wiki).
+**NOTE**: This documentation assumes you are familiar with the `matrix-service`, if you would like to know more about it, read the [documentation](https://nix2io.github.io/docs/services/matrix).
 
 ## Installation
 
