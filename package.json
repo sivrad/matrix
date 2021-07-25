@@ -18,7 +18,7 @@
         "test-format": "prettier --check ./src/**",
         "test": "nyc mocha -r ts-node/register tests/**",
         "posttest": "nyc report --reporter=json",
-        "lint": "eslint src/**",
+        "lint": "eslint src/core/**",
         "mk-docs": "typedoc --name \"Documentation\" && touch ./docs/.nojekyll",
         "build": "yarn build-types & yarn tsc",
         "patch": "yarn version --new-version patch",
